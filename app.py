@@ -1,7 +1,22 @@
+import os
+import warnings
+import logging
 import streamlit as st
 import duckdb
 import pandas as pd
 from src.agent_graph import agent_workflow,DB_PATH
+
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
+
+
+warnings.filterwarnings('ignore', category=UserWarning)
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+warnings.filterwarnings('ignore', module='tensorflow')
+
+os.environ["CHROMA_TELEMETRY_IMPL"] = "chromadb.telemetry.posthog.Posthog" 
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
 
 def get_schema_for_ui():
     """
@@ -71,6 +86,30 @@ with st.sidebar:
 st.title("🤖 AI SQL Agent")
 st.markdown("Ask questions about your **Tpc-H Supply Chain Data** in plain English.")
 
+def auto_visualize(df):
+    """
+    Analyzes the DataFrame and renders the best Streamlit chart.
+    """
+    df.columns = df.columns.str.strip()
+
+    numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
+    text_cols = df.select_dtypes(include=['object', 'string']).columns.tolist()
+
+    if any("year" in col.lower() or "date" in col.lower() for col in text_cols + numeric_cols):
+        if numeric_cols:
+            st.caption("📈 Detecting Trend Data... Switching to Line Chart")
+            date_col = next(c for c in text_cols + numeric_cols if "year" in c.lower() or "date" in c.lower())
+            st.line_chart(df.set_index(date_col)[numeric_cols])
+            return
+
+    if len(text_cols) == 1 and len(numeric_cols) > 0:
+        st.caption("📊 Detecting Categorical Data... Switching to Bar Chart")
+        st.bar_chart(df.set_index(text_cols[0])[numeric_cols])
+        return
+
+    st.dataframe(df, hide_index=True, use_container_width=True)
+
+
 # Initialize Chat History
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -78,13 +117,12 @@ if "messages" not in st.session_state:
 # Display Chat History
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
-        # Check if this message is a DataFrame (Table)
+
         if message.get("type") == "dataframe":
-            st.dataframe(message["content"], hide_index=True)
+            auto_visualize(message["content"])
         else:
-            # Standard text message
             st.markdown(message["content"])
-            
+
         if "sql" in message:
             with st.expander("View Generated SQL"):
                 st.code(message["sql"], language="sql")
@@ -106,12 +144,8 @@ if prompt := st.chat_input("Ex: How much revenue from high risk customers?"):
                 # CASE 1: Response is a DataFrame (Success!)
                 if isinstance(response_data, pd.DataFrame):
                     if not response_data.empty:
-                        st.dataframe(
-                            response_data, 
-                            hide_index=True, 
-                            use_container_width=True
-                        )
-                        # Store as dataframe
+                        auto_visualize(response_data)
+                        
                         st.session_state.messages.append({
                             "role": "assistant", 
                             "content": response_data,
@@ -123,7 +157,7 @@ if prompt := st.chat_input("Ex: How much revenue from high risk customers?"):
                 
                 # CASE 2: Response is a String (Error Message or Text Answer)
                 elif isinstance(response_data, str):
-                    st.error(response_data) # Show the error in red
+                    st.error(response_data) 
                     st.session_state.messages.append({
                         "role": "assistant", 
                         "content": response_data,
@@ -134,8 +168,7 @@ if prompt := st.chat_input("Ex: How much revenue from high risk customers?"):
                 # CASE 3: Response is something else (None, etc.)
                 else:
                     st.error("I could not generate a valid answer.")
-                
-                # Always show the SQL if it exists
+
                 if sql_query:
                     with st.expander("View Generated SQL"):
                         st.code(sql_query, language="sql")

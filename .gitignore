@@ -24,3 +24,4 @@ data/chroma_db/
 npm-debug.log*
 
 .streamlit/secrets.toml
+.streamlit/config.toml
