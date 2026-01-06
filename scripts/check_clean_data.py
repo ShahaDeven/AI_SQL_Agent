@@ -2,10 +2,13 @@ import duckdb
 import pandas as pd
 import os
 
-db_path = 'D:\\Main_Python\\Projects\\AI_SQL_Agent\\data\\supply_chain.db'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))
+
+db_path = os.path.join(PROJECT_ROOT, "data", "supply_chain.db")
 
 if not os.path.exists(db_path):
-    raise FileNotFoundError(f"❌ Database not found at {db_path}.")
+    raise FileNotFoundError(f"Database not found at {db_path}.")
 
 con = duckdb.connect(db_path, read_only=True)
 

@@ -14,14 +14,11 @@ import sqlparse
 
 load_dotenv()
 
-# CONFIGURATION
-import os
-
 # Define the paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..")) 
 
-DEMO_DB_PATH = os.path.join(PROJECT_ROOT, "data","sql_agent_demo.db")
+DEMO_DB_PATH = os.path.join(PROJECT_ROOT, "data", "sql_agent_demo.db")
 FULL_DB_PATH = os.path.join(PROJECT_ROOT, "data", "supply_chain.db")
 
 if os.path.exists(DEMO_DB_PATH):
@@ -34,7 +31,6 @@ else:
     raise FileNotFoundError(f"🚨 Critical Error: No database found! Checked: \n1. {DEMO_DB_PATH}\n2. {FULL_DB_PATH}")
 
 MODEL_NAME = "gemini-2.5-flash" 
-
 llm = ChatGoogleGenerativeAI(model=MODEL_NAME, temperature=0)
 
 def get_schema():

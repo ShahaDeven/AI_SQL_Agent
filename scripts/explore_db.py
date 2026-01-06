@@ -1,6 +1,11 @@
 import duckdb
+import os
 
-db_path = 'D:\\Main_Python\\Projects\\AI_SQL_Agent\\data\\supply_chain.db'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))
+
+db_path = os.path.join(PROJECT_ROOT, "data", "supply_chain.db")
+
 con = duckdb.connect(db_path, read_only=True)
 
 print(f"Connecting to {db_path}...\n")

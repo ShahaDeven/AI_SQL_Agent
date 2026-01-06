@@ -2,11 +2,22 @@ import json
 import shutil
 import os
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_core.documents import Document 
+from dotenv import load_dotenv
 
-JSON_PATH = "D:\\Main_Python\\Projects\\AI_SQL_Agent\data\\sql_examples.json"
-CHROMA_PATH = "D:\\Main_Python\\Projects\\AI_SQL_Agent\data\\chroma_db"
+load_dotenv()
+
+if not os.getenv("GOOGLE_API_KEY"):
+    raise ValueError("❌ GOOGLE_API_KEY not found! Make sure it is in your .env file.")
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..")) 
+
+JSON_PATH = os.path.join(PROJECT_ROOT, "data", "sql_examples.json")
+CHROMA_PATH = os.path.join(PROJECT_ROOT, "data", "chroma_db")
+
+embedding_function = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 
 def setup_vector_db():
     """
@@ -27,10 +38,8 @@ def setup_vector_db():
         )
         documents.append(doc)
 
-    print(f"🔄 Vectorizing {len(documents)} examples... (This uses a free local model)")
+    print(f"🔄 Vectorizing {len(documents)} examples...")
     
-    embedding_function = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-
     if os.path.exists(CHROMA_PATH):
         shutil.rmtree(CHROMA_PATH)
         
@@ -46,7 +55,6 @@ def get_few_shot_examples(user_query, k=3):
     """
     Retrieves the top K most similar SQL examples for a given question.
     """
-    embedding_function = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     
     vector_db = Chroma(
         persist_directory=CHROMA_PATH, 

@@ -1,7 +1,10 @@
 import duckdb
 import os
 
-db_path = 'D:\\Main_Python\\Projects\\AI_SQL_Agent\\data\\sql_agent_demo.db'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))
+
+db_path = os.path.join(PROJECT_ROOT, "data", "sql_agent_demo.db")
 
 os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
