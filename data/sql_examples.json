@@ -1,0 +1,42 @@
+[
+    {
+        "question": "Find the top 5 customers by total spending",
+        "sql": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders o ON c.c_custkey = o.o_custkey JOIN lineitem l ON l.l_orderkey = o.o_orderkey GROUP BY c.c_name ORDER BY revenue DESC LIMIT 5;"
+    },
+    {
+        "question": "List all suppliers in France",
+        "sql": "SELECT s.s_name, n.n_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey WHERE n.n_name = 'FRANCE';"
+    },
+    {
+        "question": "Count the number of high risk customers",
+        "sql": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';"
+    },
+    {
+        "question": "What is the total revenue for the year 1994?",
+        "sql": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey WHERE strftime('%Y', o.o_orderdate) = '1994';"
+    },
+    {
+        "question": "Show me the distribution of customer churn risk",
+        "sql": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;"
+    },
+    {
+        "question": "Who are the suppliers for the part 'lace'?",
+        "sql": "SELECT s.s_name FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey JOIN part p ON p.p_partkey = ps.ps_partkey WHERE p.p_name LIKE '%lace%';"
+    },
+    {
+        "question": "What is the forecasted value vs actual value for order 1?",
+        "sql": "SELECT l_orderkey, SUM(total_value) as actual, SUM(total_value_forecast) as forecast FROM lineitem WHERE l_orderkey = 1 GROUP BY l_orderkey;"
+    },
+    {
+        "question": "Which nation has the most customers?",
+        "sql": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey GROUP BY n.n_name ORDER BY customer_count DESC LIMIT 1;"
+    },
+    {
+        "question": "Find high priority orders placed after 1995",
+        "sql": "SELECT o_orderkey, o_orderdate, o_orderpriority FROM orders WHERE o_orderpriority = '1-URGENT' AND o_orderdate > '1995-01-01';"
+    },
+    {
+        "question": "Calculate the total discount given on all orders",
+        "sql": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;"
+    }
+]
