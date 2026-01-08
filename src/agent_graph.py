@@ -90,7 +90,9 @@ def agent_workflow(user_question):
     """
     The Self-Healing Loop.
     """
-    print(f"Thinking about: {user_question}")
+    print(f"🧠 Thinking about: {user_question}")
+    
+    # 1. Retrieve Examples
     examples = get_few_shot_examples(user_question)
     schema = get_schema()
 
@@ -108,7 +110,16 @@ def agent_workflow(user_question):
     3. Return ONLY the SQL query. No markdown formatting. No explanation.
     4. If the user asks to delete or change data, politely refuse.
 
-    5. VISUALIZATION RULES (CRITICAL):
+    5. COMPLEX QUERY HANDLING (CHAIN OF THOUGHT):
+       - If a user asks a complex question (e.g. "Find the region with lowest revenue and list its top supplier"), 
+         you MUST use a CTE (Common Table Expression) to solve it in ONE step.
+       - Example Logic:
+         WITH regional_revenue AS (
+             SELECT n_regionkey, SUM(...) as rev FROM ... GROUP BY n_regionkey ORDER BY rev ASC LIMIT 1
+         )
+         SELECT s_name FROM supplier JOIN nation ... WHERE n_regionkey = (SELECT n_regionkey FROM regional_revenue);
+
+    6. VISUALIZATION RULES (CRITICAL):
        - When grouping by a category (Region, Nation, Customer), YOU MUST SELECT THE NAME, NOT THE ID.
        - WRONG: SELECT n_regionkey, sum(revenue)...
        - CORRECT: SELECT r_name, sum(revenue)...
@@ -133,12 +144,14 @@ def agent_workflow(user_question):
     ]
     
     for attempt in range(3):
-        print(f"Attempt {attempt + 1}...")
+        print(f"  🔄 Attempt {attempt + 1}...")
 
         response = llm.invoke(messages)
         sql_query = response.content
+        
+        # CLEANUP: Remove Markdown
         sql_query = sql_query.replace("```sql", "").replace("```", "").strip()
-        print(f"Generated SQL: {sql_query}")
+        print(f"    -> Generated SQL: {sql_query}")
         
         try:
             check_sql_safety(sql_query)
@@ -148,17 +161,18 @@ def agent_workflow(user_question):
         data, error = run_query(sql_query)
         
         if error:
-            print(f"Error: {error}")
-            messages.append(("ai", sql_query))
+            print(f"    ❌ Error: {error}")
+            messages.append(("assistant", sql_query))
             messages.append(("human", f"That query failed with error: {error}. Please fix the SQL based on the schema provided."))
         else:
-            print("Success!")
+            print("    ✅ Success!")
             return data, sql_query
 
     return None, "Failed to generate valid SQL after 3 attempts."
 
 if __name__ == "__main__":
-    q = "What is the total revenue we made from high risk customers?"
+    # TEST CASE FOR PHASE 2: Complex Logic
+    q = "Who is the supplier with the most parts in the region with the lowest revenue?"
     result, final_sql = agent_workflow(q)
     print("\n--- FINAL RESULT ---")
     print(result)
