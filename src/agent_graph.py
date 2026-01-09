@@ -90,12 +90,13 @@ def agent_workflow(user_question):
     """
     The Self-Healing Loop.
     """
-    print(f"🧠 Thinking about: {user_question}")
+    print(f"Thinking about: {user_question}")
     
     # 1. Retrieve Examples
     examples = get_few_shot_examples(user_question)
     schema = get_schema()
 
+    # 2. Dynamic System Prompt
     system_prompt = f"""
     You are an expert SQL Data Analyst.
     You are querying a TPC-H database with CUSTOM column names.
@@ -138,13 +139,38 @@ def agent_workflow(user_question):
     {examples}
     """
     
+    # 🎯 PHASE 3: SIMULATION LOGIC INJECTION
+    if "what if" in user_question.lower() or "simulate" in user_question.lower() or "impact" in user_question.lower():
+        print("DETECTED SIMULATION INTENT")
+        system_prompt += """
+        \n\nSIMULATION MODE ACTIVE:
+        The user is asking a "What If" question. You must use a CTE to modify the data temporarily.
+        
+        INSTRUCTIONS:
+        1. Identify the variable the user wants to change (e.g., "increase discount by 5%").
+        2. Create a CTE called 'simulated_data' that mimics the table but modifies that specific column.
+           - Example: If changing 'lineitem', SELECT *, l_discount + 0.05 as l_discount FROM lineitem.
+        3. Run the user's requested analysis on 'simulated_data' instead of the real table.
+        4. If comparing, you can select the 'Original' metric and the 'Simulated' metric in the final SELECT.
+        
+        Example SQL Structure:
+        WITH simulated_lineitem AS (
+            SELECT *, total_value * 1.10 as total_value FROM lineitem -- Simulating 10% price hike
+        )
+        SELECT 
+           sum(l.total_value) as original_revenue,
+           sum(s.total_value) as simulated_revenue
+        FROM lineitem l, simulated_lineitem s
+        -- (Ideally join properly or just calculate the simulated one if that's what they asked)
+        """
+
     messages = [
         ("system", system_prompt),
         ("human", f"Question: {user_question}")
     ]
     
     for attempt in range(3):
-        print(f"  🔄 Attempt {attempt + 1}...")
+        print(f"Attempt {attempt + 1}...")
 
         response = llm.invoke(messages)
         sql_query = response.content
@@ -161,18 +187,17 @@ def agent_workflow(user_question):
         data, error = run_query(sql_query)
         
         if error:
-            print(f"    ❌ Error: {error}")
+            print(f" Error: {error}")
             messages.append(("assistant", sql_query))
             messages.append(("human", f"That query failed with error: {error}. Please fix the SQL based on the schema provided."))
         else:
-            print("    ✅ Success!")
+            print("Success!")
             return data, sql_query
 
     return None, "Failed to generate valid SQL after 3 attempts."
 
 if __name__ == "__main__":
-    # TEST CASE FOR PHASE 2: Complex Logic
-    q = "Who is the supplier with the most parts in the region with the lowest revenue?"
+    q = "What if we increased the discount by 10%? How would that affect total revenue?"
     result, final_sql = agent_workflow(q)
     print("\n--- FINAL RESULT ---")
     print(result)
