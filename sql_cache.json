@@ -1,0 +1,8 @@
+{
+    "What is the total revenue for the AFRICAN nation?": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) AS total_revenue\nFROM lineitem AS l\nJOIN orders AS o\n  ON l.l_orderkey = o.o_orderkey\nJOIN customer AS c\n  ON o.o_custkey = c.c_custkey\nJOIN nation AS n\n  ON c.c_nationkey = n.n_nationkey\nWHERE\n  n.n_name = 'AFRICAN';",
+    "give me top 3 revenue countries and their revenue": "WITH country_revenue AS (\n    SELECT\n        n.n_name,\n        SUM(l.total_value * (1 - l.promo_reduction)) AS total_revenue\n    FROM\n        nation n\n    JOIN\n        customer c ON n.n_nationkey = c.c_nationkey\n    JOIN\n        orders o ON c.c_custkey = o.o_custkey\n    JOIN\n        lineitem l ON o.o_orderkey = l.l_orderkey\n    GROUP BY\n        n.n_name\n)\nSELECT\n    n_name,\n    total_revenue\nFROM\n    country_revenue\nORDER BY\n    total_revenue DESC\nLIMIT 3;",
+    "give me top 1 revenue countries and their revenue": "SELECT n.n_name, SUM(l.total_value * (1 - l.promo_reduction)) AS total_revenue FROM nation n JOIN customer c ON n.n_nationkey = c.c_nationkey JOIN orders o ON c.c_custkey = o.o_custkey JOIN lineitem l ON o.o_orderkey = l.l_orderkey GROUP BY n.n_name ORDER BY total_revenue DESC LIMIT 1",
+    "hi": "SELECT 1;",
+    "hi, tell me about the database": "PRAGMA show_tables;",
+    "tell me what all things are happening in this database": "SELECT\n    COUNT(DISTINCT o.o_orderkey) AS total_orders,\n    COUNT(DISTINCT c.c_custkey) AS total_customers,\n    SUM(l.total_value * (1 - l.promo_reduction)) AS total_revenue,\n    MIN(o.o_orderdate) AS first_order_date,\n    MAX(o.o_orderdate) AS latest_order_date\nFROM\n    orders o\nJOIN\n    lineitem l ON o.o_orderkey = l.l_orderkey\nJOIN\n    customer c ON o.o_custkey = c.c_custkey;"
+}

@@ -19,6 +19,8 @@ os.environ["ANONYMIZED_TELEMETRY"] = "False"
 
 st.set_page_config(page_title="AI SQL Agent", page_icon="🤖", layout="wide")
 
+USER_AVATAR = "🧑‍💼"  # Or any emoji you like
+BOT_AVATAR = "🤖"
 
 @st.cache_resource
 def load_agent_resources():
@@ -107,7 +109,8 @@ if "messages" not in st.session_state:
 
 # Display Chat History
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
+    icon = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
+    with st.chat_message(message["role"], avatar=icon):
         if message.get("type") == "dataframe":
             auto_visualize(message["content"])
         else:
@@ -121,11 +124,11 @@ for message in st.session_state.messages:
 if prompt := st.chat_input("Ex: What is the total revenue per region?"):
     # 1. Display User Message
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
+    with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
 
     # 2. Generate Answer
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("🧠 Thinking & Querying Database..."):
             try:
                 # Call the Agent

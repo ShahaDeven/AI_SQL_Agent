@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
@@ -9,6 +10,7 @@ import duckdb
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from src.retriever import get_few_shot_examples
 import sqlparse
 
@@ -28,10 +30,16 @@ elif os.path.exists(FULL_DB_PATH):
     DB_PATH = FULL_DB_PATH
     print(f"Using FULL database: {DB_PATH}")
 else:
-    raise FileNotFoundError(f"🚨 Critical Error: No database found! Checked: \n1. {DEMO_DB_PATH}\n2. {FULL_DB_PATH}")
+    raise FileNotFoundError(f"Critical Error: No database found! Checked: \n1. {DEMO_DB_PATH}\n2. {FULL_DB_PATH}")
 
 MODEL_NAME = "gemini-2.5-flash" 
-llm = ChatGoogleGenerativeAI(model=MODEL_NAME, temperature=0)
+llm = ChatGoogleGenerativeAI(
+    model=MODEL_NAME, 
+    temperature=0,
+    transport="rest" 
+)
+
+CACHE_FILE = os.path.join(PROJECT_ROOT, "sql_cache.json")
 
 def get_schema():
     """
@@ -49,6 +57,32 @@ def get_schema():
     con.close()
     return schema_str
 
+def get_cached_sql(question):
+    """Checks if we have already answered this exact question."""
+    if os.path.exists(CACHE_FILE):
+        try:
+            with open(CACHE_FILE, "r") as f:
+                cache = json.load(f)
+            return cache.get(question)
+        except:
+            return None
+    return None
+
+def save_to_cache(question, sql):
+    """Saves valid SQL to the cache file."""
+    cache = {}
+    if os.path.exists(CACHE_FILE):
+        try:
+            with open(CACHE_FILE, "r") as f:
+                cache = json.load(f)
+        except:
+            cache = {}
+    
+    cache[question] = sql
+    
+    with open(CACHE_FILE, "w") as f:
+        json.dump(cache, f, indent=4)
+
 def run_query(sql_query):
     """
     Executes SQL. Returns (Result, Error).
@@ -60,7 +94,6 @@ def run_query(sql_query):
         if "DROP" in clean_sql.upper() or "DELETE" in clean_sql.upper():
             return None, "Security Error: Read-Only Access."
             
-        # result = con.execute(clean_sql).fetchall()
         df = con.execute(sql_query).fetchdf()
         con.close()
         return df, None
@@ -72,31 +105,45 @@ def check_sql_safety(sql_query):
     Parses SQL to ensure only READ-ONLY statements are executed.
     Blocks DROP, DELETE, INSERT, UPDATE, ALTER, etc.
     """
-    # Parse the SQL
     parsed = sqlparse.parse(sql_query)
 
     for statement in parsed:
         stmt_type = statement.get_type().upper()
 
         if stmt_type not in ['SELECT', 'UNKNOWN']:
-            raise ValueError(f"🚨 SECURITY ALERT: Harmful SQL detected. Statement type '{stmt_type}' is not allowed.")
+            raise ValueError(f"SECURITY ALERT: Harmful SQL detected. Statement type '{stmt_type}' is not allowed.")
 
     for token in parsed[0].flatten():
         if token.ttype is sqlparse.tokens.DML or token.ttype is sqlparse.tokens.DDL:
             if token.value.upper() in ['DELETE', 'UPDATE', 'DROP', 'INSERT', 'ALTER', 'TRUNCATE']:
-                raise ValueError(f"🚨 SECURITY ALERT: Harmful keyword '{token.value.upper()}' detected.")
+                raise ValueError(f"SECURITY ALERT: Harmful keyword '{token.value.upper()}' detected.")
             
-def agent_workflow(user_question):
+def agent_workflow(user_question, chat_history=None):
     """
-    The Self-Healing Loop.
+    Self-Healing Loop + Memory + Simulation + Network Fixes + Caching
     """
+    if chat_history is None:
+        chat_history = []
+
     print(f"Thinking about: {user_question}")
     
-    # 1. Retrieve Examples
-    examples = get_few_shot_examples(user_question)
+    cached_sql = get_cached_sql(user_question)
+    if cached_sql:
+        print("CACHE HIT: Skipping LLM generation.")
+        data, error = run_query(cached_sql)
+        if not error:
+            return data, cached_sql
+        else:
+            print("   (Cache invalid, retrying with LLM...)")
+
+    try:
+        examples = get_few_shot_examples(user_question)
+    except Exception as e:
+        print(f"Retriever skipped: {e}")
+        examples = ""
+
     schema = get_schema()
 
-    # 2. Dynamic System Prompt
     system_prompt = f"""
     You are an expert SQL Data Analyst.
     You are querying a TPC-H database with CUSTOM column names.
@@ -112,92 +159,72 @@ def agent_workflow(user_question):
     4. If the user asks to delete or change data, politely refuse.
 
     5. COMPLEX QUERY HANDLING (CHAIN OF THOUGHT):
-       - If a user asks a complex question (e.g. "Find the region with lowest revenue and list its top supplier"), 
-         you MUST use a CTE (Common Table Expression) to solve it in ONE step.
-       - Example Logic:
-         WITH regional_revenue AS (
-             SELECT n_regionkey, SUM(...) as rev FROM ... GROUP BY n_regionkey ORDER BY rev ASC LIMIT 1
-         )
-         SELECT s_name FROM supplier JOIN nation ... WHERE n_regionkey = (SELECT n_regionkey FROM regional_revenue);
+       - If a user asks a complex question (e.g. "Find the region with lowest revenue"), 
+         you MUST use a CTE.
+       - Example Logic: WITH regional_revenue AS (...) SELECT ...
 
     6. VISUALIZATION RULES (CRITICAL):
-       - When grouping by a category (Region, Nation, Customer), YOU MUST SELECT THE NAME, NOT THE ID.
-       - WRONG: SELECT n_regionkey, sum(revenue)...
+       - When grouping by a category, YOU MUST SELECT THE NAME, NOT THE ID.
        - CORRECT: SELECT r_name, sum(revenue)...
-       - Always JOIN the necessary tables (like 'region') to get the human-readable names.
        
-    VISUALIZATION LOGIC:
-    - If the user asks for a trend over time (years, months), suggest a LINE chart.
-    - If the user compares categories (nations, regions, segments), suggest a BAR chart.
-    - If the user asks for parts of a whole, suggest a PIE chart.
-    - Otherwise, default to TABLE.
-    
-    NOTE: You cannot draw charts yourself. Just write the SQL to fetch the data. 
-    The frontend will handle the rest based on the data shape.
-    
-    Here are some examples of how to write queries for this specific database:
+    7. COLUMN SECURITY:
+       - If the user asks for a missing column (e.g. Profit), REFUSE and explain why.
+       - Return text starting with "MISSING DATA:"
+
+    Here are some examples:
     {examples}
     """
-    
-    # 🎯 PHASE 3: SIMULATION LOGIC INJECTION
-    if "what if" in user_question.lower() or "simulate" in user_question.lower() or "impact" in user_question.lower():
+
+    if "what if" in user_question.lower() or "simulate" in user_question.lower():
         print("DETECTED SIMULATION INTENT")
         system_prompt += """
-        \n\nSIMULATION MODE ACTIVE:
-        The user is asking a "What If" question. You must use a CTE to modify the data temporarily.
-        
-        INSTRUCTIONS:
-        1. Identify the variable the user wants to change (e.g., "increase discount by 5%").
-        2. Create a CTE called 'simulated_data' that mimics the table but modifies that specific column.
-           - Example: If changing 'lineitem', SELECT *, l_discount + 0.05 as l_discount FROM lineitem.
-        3. Run the user's requested analysis on 'simulated_data' instead of the real table.
-        4. If comparing, you can select the 'Original' metric and the 'Simulated' metric in the final SELECT.
-        
-        Example SQL Structure:
-        WITH simulated_lineitem AS (
-            SELECT *, total_value * 1.10 as total_value FROM lineitem -- Simulating 10% price hike
-        )
-        SELECT 
-           sum(l.total_value) as original_revenue,
-           sum(s.total_value) as simulated_revenue
-        FROM lineitem l, simulated_lineitem s
-        -- (Ideally join properly or just calculate the simulated one if that's what they asked)
+        \n\n SIMULATION MODE ACTIVE:
+        Use a CTE to modify data temporarily (e.g., increase price by 10%).
+        Then compare Original vs Simulated metrics.
         """
-
-    messages = [
-        ("system", system_prompt),
-        ("human", f"Question: {user_question}")
-    ]
+    
+    messages = [SystemMessage(content=system_prompt)]
+    messages.extend(chat_history)
+    messages.append(HumanMessage(content=user_question))
     
     for attempt in range(3):
-        print(f"Attempt {attempt + 1}...")
-
-        response = llm.invoke(messages)
-        sql_query = response.content
+        print(f"  🔄 Attempt {attempt + 1}...")
         
-        # CLEANUP: Remove Markdown
-        sql_query = sql_query.replace("```sql", "").replace("```", "").strip()
+        try:
+            response = llm.invoke(messages)
+            content = response.content.strip()
+        except Exception as e:
+            return None, f"NETWORK ERROR: {e}"
+        
+        if content.startswith("MISSING DATA") or content.startswith("I cannot"):
+            return None, content 
+
+        sql_query = content.replace("```sql", "").replace("```", "").strip()
         print(f"    -> Generated SQL: {sql_query}")
         
         try:
             check_sql_safety(sql_query)
         except ValueError as e:
-            return f"I cannot execute that query. {e}", sql_query
+            return None, f"I cannot execute that query. {e}"
 
         data, error = run_query(sql_query)
         
         if error:
-            print(f" Error: {error}")
-            messages.append(("assistant", sql_query))
-            messages.append(("human", f"That query failed with error: {error}. Please fix the SQL based on the schema provided."))
+            print(f"Error: {error}")
+            messages.append(AIMessage(content=sql_query))
+            messages.append(HumanMessage(content=f"That query failed with error: {error}. Please fix the SQL."))
         else:
             print("Success!")
+            
+            if "what if" not in user_question.lower():
+                save_to_cache(user_question, sql_query)
+                
             return data, sql_query
 
     return None, "Failed to generate valid SQL after 3 attempts."
 
 if __name__ == "__main__":
-    q = "What if we increased the discount by 10%? How would that affect total revenue?"
+    q = "What is the total revenue for the AFRICAN region?"
     result, final_sql = agent_workflow(q)
     print("\n--- FINAL RESULT ---")
     print(result)
