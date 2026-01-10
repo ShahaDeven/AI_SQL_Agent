@@ -61,7 +61,7 @@ AI_SQL_Agent/
 ## ⚡ Installation & Setup
 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/AI_SQL_Agent.git
+git clone https://github.com/ShahaDeven/AI_SQL_Agent.git
 cd AI_SQL_Agent
 ```
 
