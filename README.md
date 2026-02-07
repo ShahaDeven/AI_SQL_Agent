@@ -12,7 +12,7 @@ Built on the **TPC-H Benchmark** dataset, this project demonstrates advanced RAG
 
 ### 🧠 Phase 1: The Core Agent (Text-to-SQL)
 - **Natural Language Interface:** Translate questions like *"Show me top 5 suppliers by revenue in Europe"* into optimized DuckDB SQL.
-- **Hybrid Search Retriever:** Uses **BM25 + Semantic Search** (ChromaDB) to map vague user terms to specific database columns, achieving a **93.8% success rate** across an [18-question benchmark](EVALUATION.md).
+- **Hybrid Search Retriever:** Uses **BM25 + Semantic Search** (ChromaDB) to map vague user terms to specific database columns, achieving a **93.8% success rate** across an [18-question benchmark](Evaluation.md).
 - **Self-Healing Execution Loop:** Autonomously detects SQL syntax errors or security violations and triggers iterative re-prompting to correct the query before crashing.
 
 ### 🧪 Phase 2: "What-If" Simulator (The CFO Agent)
@@ -55,7 +55,7 @@ AI_SQL_Agent/
 │   └── evaluate_agent.py     # 18-question benchmark evaluation harness
 ├── app.py                    # Streamlit Frontend application
 ├── requirements.txt          # Python dependencies
-├── EVALUATION.md             # Testing methodology & benchmark results
+├── Evaluation.md             # Testing methodology & benchmark results
 ├── .env                      # API Keys (Not committed)
 └── .gitignore
 ```
@@ -125,7 +125,7 @@ streamlit run app.py
 
 ### 📊 Benchmark Results
 
-Evaluated on an 18-question benchmark across 5 difficulty tiers. Full methodology and per-question results are documented in [`EVALUATION.md`](EVALUATION.md).
+Evaluated on an 18-question benchmark across 5 difficulty tiers. Full methodology and per-question results are documented in [`Evaluation.md`](Evaluation.md).
 
 | Metric | Value |
 |---|---|
