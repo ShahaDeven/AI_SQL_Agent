@@ -34,6 +34,7 @@ else:
     raise FileNotFoundError(f"Critical Error: No database found! Checked: \n1. {DEMO_DB_PATH}\n2. {FULL_DB_PATH}")
 
 MODEL_NAME = "gemini-2.5-flash" 
+# llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0, transport="rest")
 llm = ChatAnthropic(model="claude-sonnet-4-20250514", temperature=0)
 
 CACHE_FILE = os.path.join(PROJECT_ROOT, "sql_cache.json")

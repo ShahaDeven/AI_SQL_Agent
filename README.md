@@ -86,7 +86,8 @@ pip install -r requirements.txt
 4. Configure Environment Variables
 Create a .env file in the root directory:
 ```ini
-GOOGLE_API_KEY=your_google_api_key_here
+GOOGLE_API_KEY=your_google_api_key_here OR
+ANTHROPIC_API_KEY = your_anthropic_api_key_here
 # Optional: Disable telemetry for privacy
 ANONYMIZED_TELEMETRY=False
 ```
