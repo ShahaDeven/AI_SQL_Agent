@@ -8,11 +8,12 @@ os.environ['ANONYMIZED_TELEMETRY'] = 'False'
 
 import duckdb
 from dotenv import load_dotenv
-from langchain_google_genai import ChatGoogleGenerativeAI
+# from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from src.retriever import get_few_shot_examples
 import sqlparse
+from langchain_anthropic import ChatAnthropic
 
 load_dotenv()
 
@@ -33,11 +34,7 @@ else:
     raise FileNotFoundError(f"Critical Error: No database found! Checked: \n1. {DEMO_DB_PATH}\n2. {FULL_DB_PATH}")
 
 MODEL_NAME = "gemini-2.5-flash" 
-llm = ChatGoogleGenerativeAI(
-    model=MODEL_NAME, 
-    temperature=0,
-    transport="rest" 
-)
+llm = ChatAnthropic(model="claude-sonnet-4-20250514", temperature=0)
 
 CACHE_FILE = os.path.join(PROJECT_ROOT, "sql_cache.json")
 
@@ -101,22 +98,19 @@ def run_query(sql_query):
         return None, str(e)
 
 def check_sql_safety(sql_query):
-    """
-    Parses SQL to ensure only READ-ONLY statements are executed.
-    Blocks DROP, DELETE, INSERT, UPDATE, ALTER, etc.
-    """
+    BLOCKED_KEYWORDS = {'DELETE', 'UPDATE', 'DROP', 'INSERT', 'ALTER', 'TRUNCATE', 'GRANT', 'REVOKE'}
+    
     parsed = sqlparse.parse(sql_query)
-
     for statement in parsed:
-        stmt_type = statement.get_type().upper()
-
-        if stmt_type not in ['SELECT', 'UNKNOWN']:
+        stmt_type = statement.get_type()
+        if stmt_type and stmt_type.upper() not in ['SELECT', 'UNKNOWN']:
             raise ValueError(f"SECURITY ALERT: Harmful SQL detected. Statement type '{stmt_type}' is not allowed.")
 
-    for token in parsed[0].flatten():
-        if token.ttype is sqlparse.tokens.DML or token.ttype is sqlparse.tokens.DDL:
-            if token.value.upper() in ['DELETE', 'UPDATE', 'DROP', 'INSERT', 'ALTER', 'TRUNCATE']:
-                raise ValueError(f"SECURITY ALERT: Harmful keyword '{token.value.upper()}' detected.")
+    # Keyword-level scan as a safety net
+    tokens = [token.value.upper() for token in parsed[0].flatten() if not token.is_whitespace]
+    for token_val in tokens:
+        if token_val in BLOCKED_KEYWORDS:
+            raise ValueError(f"SECURITY ALERT: Harmful keyword '{token_val}' detected.")
             
 def agent_workflow(user_question, chat_history=None):
     """

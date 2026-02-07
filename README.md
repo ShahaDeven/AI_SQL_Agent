@@ -12,7 +12,7 @@ Built on the **TPC-H Benchmark** dataset, this project demonstrates advanced RAG
 
 ### 🧠 Phase 1: The Core Agent (Text-to-SQL)
 - **Natural Language Interface:** Translate questions like *"Show me top 5 suppliers by revenue in Europe"* into optimized DuckDB SQL.
-- **Hybrid Search Retriever:** Uses **BM25 + Semantic Search** (ChromaDB) to map vague user terms to specific database columns, handling schema ambiguity with **95% accuracy**.
+- **Hybrid Search Retriever:** Uses **BM25 + Semantic Search** (ChromaDB) to map vague user terms to specific database columns, achieving a **93.8% success rate** across an [18-question benchmark](EVALUATION.md).
 - **Self-Healing Execution Loop:** Autonomously detects SQL syntax errors or security violations and triggers iterative re-prompting to correct the query before crashing.
 
 ### 🧪 Phase 2: "What-If" Simulator (The CFO Agent)
@@ -50,10 +50,14 @@ AI_SQL_Agent/
 ├── src/
 │   ├── agent_graph.py        # Core Logic: Agent Loop, Caching, Simulation
 │   └── retriever.py          # Hybrid Search (BM25 + Semantic) logic
+├── tests/
+│   ├── test_agent.py         # Unit & integration tests (25 tests)
+│   └── evaluate_agent.py     # 18-question benchmark evaluation harness
 ├── app.py                    # Streamlit Frontend application
 ├── requirements.txt          # Python dependencies
+├── EVALUATION.md             # Testing methodology & benchmark results
 ├── .env                      # API Keys (Not committed)
-└── sql_cache.json            # Local cache for SQL queries (Auto-generated)
+└── .gitignore
 ```
 
 ---
@@ -113,8 +117,33 @@ streamlit run app.py
 ### 🔒 Security & Safety
 
 - **Read-Only Access:** DuckDB runs in `read_only=True` mode.
-- **SQL Guardrails:** `check_sql_safety` blocks all DDL/DML commands.
-- **Hallucination Control:** Queries referencing non-existent columns are rejected unless defined.
+- **SQL Guardrails:** `check_sql_safety` blocks all DDL/DML commands (DROP, DELETE, INSERT, UPDATE, ALTER, TRUNCATE).
+- **Hallucination Control:** Queries referencing non-existent columns are rejected before any SQL is generated.
+
+---
+
+### 📊 Benchmark Results
+
+Evaluated on an 18-question benchmark across 5 difficulty tiers. Full methodology and per-question results are documented in [`EVALUATION.md`](EVALUATION.md).
+
+| Metric | Value |
+|---|---|
+| **Success Rate** | **93.8%** (15/16 non-safety queries) |
+| **Correct Safety Refusals** | **2/2** |
+| **Avg Latency** | **3.03s** |
+| **Unit Tests** | **25/25 passed** |
+
+**Highlights:**
+- All **easy and medium** queries (10/10) passed — joins, aggregations, year extraction.
+- **Hard queries** including multi-level CTEs and window functions (LAG) scored 3/4.
+- Both **What-If simulations** generated correct original vs. simulated revenue comparisons.
+- The agent correctly **refused** a DELETE command and a request for a non-existent profit column.
+
+```bash
+# Run the tests yourself
+pytest tests/test_agent.py -v          # Unit & integration tests
+python tests/evaluate_agent.py         # Full benchmark
+```
 
 ---
 

@@ -9,3 +9,5 @@ langchain-chroma
 langchain-huggingface
 sentence-transformers
 streamlit
+pytest
+langchain-anthropic

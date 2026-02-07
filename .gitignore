@@ -25,3 +25,5 @@ npm-debug.log*
 
 .streamlit/secrets.toml
 .streamlit/config.toml
+
+sql_cache.json
