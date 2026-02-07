@@ -1,17 +1,38 @@
 import os
 import sys
 import json
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import time
+import warnings
+import logging
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+# ===== SUPPRESS ALL WARNINGS/TELEMETRY BEFORE OTHER IMPORTS =====
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['ANONYMIZED_TELEMETRY'] = 'False'
+os.environ["POSTHOG_DISABLED"] = "true"
+os.environ["CHROMA_TELEMETRY"] = "False"
+
+# Suppress logging from noisy libraries
+logging.getLogger('chromadb').setLevel(logging.ERROR)
+logging.getLogger('chromadb.telemetry').setLevel(logging.CRITICAL)
+logging.getLogger('chromadb.telemetry.product').setLevel(logging.CRITICAL)
+logging.getLogger('posthog').setLevel(logging.CRITICAL)
+logging.getLogger('httpx').setLevel(logging.WARNING)
+logging.getLogger('httpcore').setLevel(logging.WARNING)
+
+# Suppress warnings
+warnings.filterwarnings('ignore', category=UserWarning)
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+warnings.filterwarnings('ignore', message='.*torch.classes.*')
+warnings.filterwarnings('ignore', message='.*telemetry.*')
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import duckdb
 from dotenv import load_dotenv
-# from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from src.retriever import get_few_shot_examples
+from src.metrics import MetricsTracker
 import sqlparse
 from langchain_anthropic import ChatAnthropic
 
@@ -34,10 +55,12 @@ else:
     raise FileNotFoundError(f"Critical Error: No database found! Checked: \n1. {DEMO_DB_PATH}\n2. {FULL_DB_PATH}")
 
 MODEL_NAME = "gemini-2.5-flash" 
-# llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0, transport="rest")
 llm = ChatAnthropic(model="claude-sonnet-4-20250514", temperature=0)
 
 CACHE_FILE = os.path.join(PROJECT_ROOT, "sql_cache.json")
+
+# Global metrics tracker (shared with app.py via import)
+metrics = MetricsTracker()
 
 def get_schema():
     """
@@ -45,7 +68,7 @@ def get_schema():
     """
     con = duckdb.connect(DB_PATH, read_only=True)
     schema_str = "Database Schema (DuckDB):\n"
-    target_tables = ['customer', 'lineitem', 'orders', 'supplier', 'nation', 'part']
+    target_tables = ['customer', 'lineitem', 'orders', 'supplier', 'nation', 'part', 'region', 'partsupp']
     
     for table in target_tables:
         cols = con.execute(f"DESCRIBE {table}").fetchall()
@@ -92,16 +115,21 @@ def run_query(sql_query):
         if "DROP" in clean_sql.upper() or "DELETE" in clean_sql.upper():
             return None, "Security Error: Read-Only Access."
             
-        df = con.execute(sql_query).fetchdf()
+        df = con.execute(clean_sql).fetchdf()  # FIX: Use clean_sql, not sql_query
         con.close()
         return df, None
     except Exception as e:
         return None, str(e)
 
 def check_sql_safety(sql_query):
+    """
+    Parses SQL to ensure only READ-ONLY statements are executed.
+    Blocks DROP, DELETE, INSERT, UPDATE, ALTER, TRUNCATE, etc.
+    """
     BLOCKED_KEYWORDS = {'DELETE', 'UPDATE', 'DROP', 'INSERT', 'ALTER', 'TRUNCATE', 'GRANT', 'REVOKE'}
-    
+
     parsed = sqlparse.parse(sql_query)
+
     for statement in parsed:
         stmt_type = statement.get_type()
         if stmt_type and stmt_type.upper() not in ['SELECT', 'UNKNOWN']:
@@ -115,25 +143,44 @@ def check_sql_safety(sql_query):
             
 def agent_workflow(user_question, chat_history=None):
     """
-    Self-Healing Loop + Memory + Simulation + Network Fixes + Caching
+    Self-Healing Loop + Memory + Simulation + Network Fixes + Caching + Metrics
     """
     if chat_history is None:
         chat_history = []
 
+    # Start tracking this query
+    metrics.begin_query(user_question)
+
     print(f"Thinking about: {user_question}")
     
+    # --- Cache Check ---
     cached_sql = get_cached_sql(user_question)
     if cached_sql:
         print("CACHE HIT: Skipping LLM generation.")
+        metrics.record_cache_hit()
+
+        db_start = time.time()
         data, error = run_query(cached_sql)
+        db_elapsed = time.time() - db_start
+        
         if not error:
+            metrics.record_db_execution(db_elapsed, rows=len(data))
+            metrics.record_success(cached_sql)
+            metrics.end_query()
             return data, cached_sql
         else:
-            print("   (Cache invalid, retrying with LLM...)")
+            # FIX 1: Cache is invalid - log it and continue to LLM path
+            print(f"   (Cache invalid: {error}, retrying with LLM...)")
+            # Don't end_query here - let it continue to LLM generation
 
+    # --- Retriever ---
     try:
+        metrics.start_timer("retriever")
         examples = get_few_shot_examples(user_question)
+        ret_elapsed = metrics.stop_timer("retriever")
+        metrics.record_retriever_time(ret_elapsed)
     except Exception as e:
+        metrics.stop_timer("retriever")
         print(f"Retriever skipped: {e}")
         examples = ""
 
@@ -172,6 +219,7 @@ def agent_workflow(user_question, chat_history=None):
 
     if "what if" in user_question.lower() or "simulate" in user_question.lower():
         print("DETECTED SIMULATION INTENT")
+        metrics.record_simulation()
         system_prompt += """
         \n\n SIMULATION MODE ACTIVE:
         Use a CTE to modify data temporarily (e.g., increase price by 10%).
@@ -182,16 +230,32 @@ def agent_workflow(user_question, chat_history=None):
     messages.extend(chat_history)
     messages.append(HumanMessage(content=user_question))
     
+    prompt_chars = len(system_prompt) + len(user_question)
+    
     for attempt in range(3):
         print(f"  🔄 Attempt {attempt + 1}...")
         
         try:
+            llm_start = time.time()
             response = llm.invoke(messages)
+            llm_elapsed = time.time() - llm_start
             content = response.content.strip()
+            
+            metrics.record_llm_call(
+                elapsed=llm_elapsed,
+                attempt=attempt + 1,
+                prompt_chars=prompt_chars,
+                completion_chars=len(content)
+            )
         except Exception as e:
+            metrics.record_error(f"NETWORK ERROR: {e}")
+            metrics.end_query()
             return None, f"NETWORK ERROR: {e}"
         
         if content.startswith("MISSING DATA") or content.startswith("I cannot"):
+            metrics.record_safety_refusal()
+            metrics.record_error(content)
+            metrics.end_query()
             return None, content 
 
         sql_query = content.replace("```sql", "").replace("```", "").strip()
@@ -200,22 +264,33 @@ def agent_workflow(user_question, chat_history=None):
         try:
             check_sql_safety(sql_query)
         except ValueError as e:
+            metrics.record_safety_refusal()
+            metrics.record_error(str(e))
+            metrics.end_query()
             return None, f"I cannot execute that query. {e}"
 
+        db_start = time.time()
         data, error = run_query(sql_query)
+        db_elapsed = time.time() - db_start
         
         if error:
             print(f"Error: {error}")
             messages.append(AIMessage(content=sql_query))
             messages.append(HumanMessage(content=f"That query failed with error: {error}. Please fix the SQL."))
+            prompt_chars += len(sql_query) + len(error) + 50
         else:
             print("Success!")
+            metrics.record_db_execution(db_elapsed, rows=len(data))
+            metrics.record_success(sql_query)
+            metrics.end_query()
             
             if "what if" not in user_question.lower():
                 save_to_cache(user_question, sql_query)
                 
             return data, sql_query
 
+    metrics.record_error("Failed to generate valid SQL after 3 attempts.")
+    metrics.end_query()
     return None, "Failed to generate valid SQL after 3 attempts."
 
 if __name__ == "__main__":
@@ -223,3 +298,5 @@ if __name__ == "__main__":
     result, final_sql = agent_workflow(q)
     print("\n--- FINAL RESULT ---")
     print(result)
+    print("\n--- METRICS ---")
+    print(json.dumps(metrics.get_summary(), indent=2))
