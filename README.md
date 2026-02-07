@@ -8,6 +8,63 @@ Built on the **TPC-H Benchmark** dataset, this project demonstrates advanced RAG
 
 ---
 
+## Architecture
+
+```mermaid
+flowchart TD
+    A[User - Natural Language Question] --> B[Streamlit Frontend]
+    
+    B --> C{Cache Check - sql_cache.json}
+    
+    C -- Cache Hit --> K[Execute Cached SQL]
+    C -- Cache Miss --> D[Hybrid Retriever - BM25 + ChromaDB]
+    
+    D --> E[Few-Shot Examples Retrieved]
+    E --> F[LLM Prompt Construction - Schema + Examples + Rules]
+    
+    F --> G{Simulation Detected?}
+    G -- Yes --> H[Inject CTE Simulation Mode]
+    G -- No --> I[Generate SQL]
+    H --> I
+    
+    I --> J{SQL Safety Check}
+    
+    J -- Dangerous --> M[Refuse and Explain]
+    J -- Safe --> K2[Execute on DuckDB - Read Only]
+    
+    K --> L{Success?}
+    K2 --> L
+    
+    L -- Error --> N{Retry - Max 3 Attempts}
+    N -- Yes --> F
+    N -- No --> O[Return Error Message]
+    
+    L -- Success --> P[Save to Cache]
+    P --> Q[Auto-Visualizer]
+    
+    Q --> R[Response to User]
+    M --> R
+
+    style A fill:#4A90D9,stroke:#2C5F8A,color:#fff
+    style B fill:#FF4B4B,stroke:#CC3333,color:#fff
+    style C fill:#F5A623,stroke:#D4891A,color:#fff
+    style D fill:#7B68EE,stroke:#5A4FCF,color:#fff
+    style G fill:#F5A623,stroke:#D4891A,color:#fff
+    style H fill:#FF6B6B,stroke:#CC4444,color:#fff
+    style J fill:#FF6347,stroke:#CC4F38,color:#fff
+    style K fill:#50C878,stroke:#3DA362,color:#fff
+    style K2 fill:#50C878,stroke:#3DA362,color:#fff
+    style L fill:#F5A623,stroke:#D4891A,color:#fff
+    style N fill:#F5A623,stroke:#D4891A,color:#fff
+    style M fill:#FF4444,stroke:#CC3333,color:#fff
+    style O fill:#FF4444,stroke:#CC3333,color:#fff
+    style P fill:#50C878,stroke:#3DA362,color:#fff
+    style Q fill:#9B59B6,stroke:#7D3C98,color:#fff
+    style R fill:#4A90D9,stroke:#2C5F8A,color:#fff
+```
+
+---
+
 ## 🚀 Key Features
 
 ### 🧠 Phase 1: The Core Agent (Text-to-SQL)
