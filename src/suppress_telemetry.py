@@ -48,11 +48,9 @@ warnings.filterwarnings('ignore', message='.*Examining the path.*')
 def _disable_chroma_telemetry():
     """Completely disable ChromaDB telemetry by patching the client."""
     try:
-        # Try to patch before ChromaDB is imported
         import chromadb
         from chromadb.telemetry.product import posthog
         
-        # Replace the capture method with a no-op
         class NoOpTelemetry:
             def capture(self, *args, **kwargs):
                 pass

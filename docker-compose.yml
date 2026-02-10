@@ -1,0 +1,13 @@
+services:
+  ai-sql-agent:
+    build: .
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      # Persist database and vector store between container restarts
+      - ./data:/app/data
+      # Persist cache between restarts
+      - ./sql_cache.json:/app/sql_cache.json
+    restart: unless-stopped

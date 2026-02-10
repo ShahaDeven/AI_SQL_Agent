@@ -251,7 +251,6 @@ with st.sidebar:
 st.title("🤖 AI SQL Agent")
 st.markdown("Ask questions about your **Supply Chain Data** in plain English.")
 
-# Initialize Session State
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -263,8 +262,6 @@ if "original_question" not in st.session_state:
 
 # Display Chat History
 for idx, message in enumerate(st.session_state.messages):
-    # Skip the last clarification message if we have a pending clarification
-    # (it will be rendered by the pending clarification handler with buttons)
     if (st.session_state.pending_clarification and 
         message.get("type") == "clarification" and 
         idx == len(st.session_state.messages) - 1):
@@ -275,10 +272,8 @@ for idx, message in enumerate(st.session_state.messages):
         if message.get("type") == "dataframe":
             auto_visualize(message["content"])
         elif message.get("type") == "clarification":
-            # Display clarification message naturally
             st.markdown(message["content"])
         elif message.get("type") == "selection":
-            # User's selection shown as a simple response
             st.markdown(f"**{message['content']}**")
         else:
             st.markdown(message["content"])
@@ -294,12 +289,10 @@ if st.session_state.pending_clarification:
     clarification = st.session_state.pending_clarification
     
     with st.chat_message("assistant", avatar=BOT_AVATAR):
-        # Conversational message
         st.markdown(clarification.message)
         
-        st.markdown("")  # Small spacing
-        
-        # Create pill-style buttons in a row
+        st.markdown("") 
+
         cols = st.columns(len(clarification.options))
         
         for i, option in enumerate(clarification.options):
@@ -308,29 +301,24 @@ if st.session_state.pending_clarification:
                 key=f"clarify_{i}", 
                 use_container_width=True
             ):
-                # User selected an option - refine the question
                 original_q = st.session_state.original_question
                 refined_q = refine_question(original_q, clarification.ambiguity_type, option)
-                
-                # Clear the pending clarification
+
                 st.session_state.pending_clarification = None
                 st.session_state.original_question = None
                 
-                # Add the selection to chat history (conversationally)
                 st.session_state.messages.append({
                     "role": "user",
                     "content": option,
                     "type": "selection"
                 })
-                
-                # Execute the refined query
+
                 with st.spinner("🧠 Got it! Let me pull that data..."):
                     execute_query(refined_q)
                 
                 st.session_state["_last_query_completed"] = time.time()
                 st.rerun()
-        
-        # Subtle skip option
+
         st.markdown("")
         st.caption("Or, if you'd prefer:")
         if st.button("↩️ Just try my original question as-is", key="skip_clarify"):
@@ -348,20 +336,16 @@ if st.session_state.pending_clarification:
 # INPUT BOX
 # =============================================
 if prompt := st.chat_input("Ex: What is the total revenue per region?"):
-    # Add user message to history
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
 
-    # Check if clarification is needed (Rule-based, instant, free)
     clarification_result = check_needs_clarification(prompt)
     
     if clarification_result.needs_clarification:
-        # Store the pending clarification state
         st.session_state.pending_clarification = clarification_result
         st.session_state.original_question = prompt
-        
-        # Add clarification request to chat history (natural message only)
+
         st.session_state.messages.append({
             "role": "assistant",
             "content": clarification_result.message,
@@ -370,7 +354,6 @@ if prompt := st.chat_input("Ex: What is the total revenue per region?"):
         
         st.rerun()
     else:
-        # No clarification needed - execute directly
         with st.chat_message("assistant", avatar=BOT_AVATAR):
             with st.spinner("🧠 Thinking & Querying Database..."):
                 execute_query(prompt)

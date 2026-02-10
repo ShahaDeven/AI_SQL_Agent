@@ -111,7 +111,6 @@ class MetricsTracker:
         if self._current:
             self._current.llm_latency += round(elapsed, 4)
             self._current.llm_attempts = attempt
-            # Rough token estimate: ~4 chars per token
             self._current.estimated_prompt_tokens += prompt_chars // 4
             self._current.estimated_completion_tokens += completion_chars // 4
             if attempt > 1:

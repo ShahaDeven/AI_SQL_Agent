@@ -1,0 +1,41 @@
+# Secrets — never bake into image
+.env
+.env.local
+
+# Version control
+.git
+.gitignore
+
+# Python cache
+__pycache__
+*.pyc
+.venv
+venv
+
+# IDE
+.vscode
+.idea
+.DS_Store
+
+# Logs
+*.log
+
+# Runtime-generated files (will be created by entrypoint or volume mount)
+sql_cache.json
+data/chroma_db
+
+# Large DB files (will come from volume mount or auto-generate)
+data/supply_chain.db
+
+# Docs (not needed in image)
+README.md
+Evaluation.md
+
+# Test files (not needed in production image)
+tests/
+.pytest_cache
+
+# Docker files (prevent recursive copy)
+Dockerfile
+docker-compose.yml
+.dockerignore
