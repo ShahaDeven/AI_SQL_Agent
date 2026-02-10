@@ -1,10 +1,21 @@
 # 🤖 AI-Powered Supply Chain Analytics Agent
 
-![Python](https://img.shields.io/badge/Python-3.11%2B-blue) ![Streamlit](https://img.shields.io/badge/Streamlit-App-ff4b4b) ![LangChain](https://img.shields.io/badge/LangChain-Orchestration-green) ![DuckDB](https://img.shields.io/badge/DuckDB-OLAP-yellow)
+![Python](https://img.shields.io/badge/Python-3.11%2B-blue) ![Streamlit](https://img.shields.io/badge/Streamlit-App-ff4b4b) ![LangChain](https://img.shields.io/badge/LangChain-Orchestration-green) ![DuckDB](https://img.shields.io/badge/DuckDB-OLAP-yellow) ![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)
+
 
 A production-grade **Text-to-SQL Agent** designed to democratize supply chain data access. This application allows non-technical stakeholders (finance, operations) to query complex database schemas using natural language, simulate financial scenarios, and instantly visualize results without writing a single line of code.
 
 Built on the **TPC-H Benchmark** dataset, this project demonstrates advanced RAG (Retrieval-Augmented Generation) patterns, self-healing SQL execution, and "What-If" scenario modeling.
+
+---
+
+## ⚡ Run in 60 Seconds
+
+```bash
+git clone https://github.com/ShahaDeven/AI_SQL_Agent.git
+cd AI_SQL_Agent
+docker compose up --build
+```
 
 ---
 
@@ -71,6 +82,8 @@ flowchart TD
 - **Natural Language Interface:** Translate questions like *"Show me top 5 suppliers by revenue in Europe"* into optimized DuckDB SQL.
 - **Hybrid Search Retriever:** Uses **BM25 + Semantic Search** (ChromaDB) to map vague user terms to specific database columns, achieving a **93.8% success rate** across an [18-question benchmark](Evaluation.md).
 - **Self-Healing Execution Loop:** Autonomously detects SQL syntax errors or security violations and triggers iterative re-prompting to correct the query before crashing.
+- **Agentic Execution Loop:** Multi-step reasoning pipeline with retrieval, validation, execution, and retry stages orchestrated through a structured agent graph.
+
 
 ### 🧪 Phase 2: "What-If" Simulator (The CFO Agent)
 - **Scenario Analysis:** Interprets conditional prompts (e.g., *"What if we increased the discount by 10%?"*) and dynamically injects **Common Table Expressions (CTEs)** to simulate the impact on revenue/margin.
@@ -83,17 +96,19 @@ flowchart TD
 ### ⚡ Engineering Optimizations
 - **Smart Caching:** Implements a semantic caching layer (`sql_cache.json`) to store validated SQL queries, reducing API latency and costs for recurrent questions.
 - **REST Protocol Enforcement:** Optimized for restrictive network environments (corporate/university firewalls) by bypassing standard gRPC blocks.
+- **Reproducible Environment:** Dockerized deployment guarantees consistent execution across machines without local dependency conflicts.
+
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **LLM Orchestration:** LangChain, Google Gemini 2.5 Flash
+- **LLM Orchestration:** LangChain, Google Gemini 2.5 Flash / Anthropic Claude
 - **Database:** DuckDB (OLAP-optimized, local file-based)
 - **Frontend:** Streamlit
 - **Vector Store:** ChromaDB (Local persistence)
 - **Embeddings:** HuggingFace (`all-MiniLM-L6-v2`) runs locally on CPU
-- **Environment:** Python 3.9+, Docker (optional)
+- **Environment:** Python 3.11+, Docker & Docker Compose
 
 ---
 
@@ -114,12 +129,54 @@ AI_SQL_Agent/
 ├── requirements.txt          # Python dependencies
 ├── Evaluation.md             # Testing methodology & benchmark results
 ├── .env                      # API Keys (Not committed)
+├── Dockerfile
+├── docker-compose.yml
+├── docker-entrypoint.sh
+├── .dockerignore
 └── .gitignore
 ```
 
 ---
 
+## 🐳 Docker Setup (Recommended)
+
+The application can be run fully containerized without installing Python or dependencies locally.
+
+### Prerequisites
+- Docker Desktop installed and running
+
+### 1. Configure Environment Variables
+
+Create a `.env` file in the project root:
+
+```ini
+ANTHROPIC_API_KEY=your_key_here
+ANONYMIZED_TELEMETRY=False
+```
+
+### 2. Build and Run
+```bash
+docker compose up --build
+```
+This will:
+- Build the Docker image.
+- Automatically initialize the vector store (ChromaDB) if missing.
+- Start the Streamlit application.
+
+### 3. Open the Application
+Then open: [http://localhost:8501](http://localhost:8501)
+
+### 4. Stop the Container
+```bash
+docker compose down
+```
+
+---
+
 ## ⚡ Installation & Setup
+
+If you did not use Docker:
+
 1. Clone the Repository
 ```bash
 git clone https://github.com/ShahaDeven/AI_SQL_Agent.git
@@ -207,7 +264,7 @@ python tests/evaluate_agent.py         # Full benchmark
 
 ### 📝 Future Roadmap
 
-[ ] Containerization: Full Docker-Compose setup for cloud deployment.
+[x] Containerization: Docker and Docker Compose with auto-setup entrypoint.
 
 [ ] Feedback Loop: RLHF integration to allow users to flag incorrect SQL for model fine-tuning.
 
