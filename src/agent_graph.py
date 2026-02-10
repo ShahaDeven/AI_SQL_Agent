@@ -217,13 +217,44 @@ def agent_workflow(user_question, chat_history=None):
     {examples}
     """
 
-    if "what if" in user_question.lower() or "simulate" in user_question.lower():
+    is_simulation = ("what if" in user_question.lower() or 
+                     "simulate" in user_question.lower() or 
+                     "sensitivity" in user_question.lower() or
+                     "scenario" in user_question.lower())
+
+    if is_simulation:
         print("DETECTED SIMULATION INTENT")
         metrics.record_simulation()
         system_prompt += """
-        \n\n SIMULATION MODE ACTIVE:
-        Use a CTE to modify data temporarily (e.g., increase price by 10%).
-        Then compare Original vs Simulated metrics.
+
+        SIMULATION MODE ACTIVE — FOLLOW THESE RULES STRICTLY:
+
+        1. MULTI-VARIABLE SUPPORT:
+           - The user may change MULTIPLE variables at once (e.g., "increase price by 5% AND reduce discount by 3%").
+           - Apply ALL modifications in the same CTE.
+           - If the user specifies a SCOPE (e.g., "for EUROPE only" or "for AUTOMOBILE segment"), 
+             apply the modification ONLY to matching rows using CASE WHEN. Keep other rows unchanged.
+
+        2. MANDATORY OUTPUT FORMAT — SIDE-BY-SIDE COMPARISON:
+           - You MUST always return BOTH original AND simulated values in the same result set.
+           - Required output columns: group column (if grouped), original_value, simulated_value, difference, pct_change.
+           - If grouped (e.g., by region), show original vs simulated PER GROUP.
+           - Always include: ROUND(((simulated - original) / original) * 100, 2) as pct_change
+           - Example:
+             WITH original_data AS (...), simulated_data AS (...)
+             SELECT group_col, original_value, simulated_value,
+                    (simulated_value - original_value) as difference,
+                    ROUND(((simulated_value - original_value) / original_value) * 100, 2) as pct_change
+             FROM original_data JOIN simulated_data ...
+
+        3. SENSITIVITY ANALYSIS:
+           - If the user asks "how sensitive is revenue to discount" or similar,
+             generate a query that tests MULTIPLE levels (e.g., +5%, +10%, +15%, +20%).
+           - Use UNION ALL to combine results from each level.
+           - Output columns: scenario_label, original_value, simulated_value, difference, pct_change.
+           - Example: 'Discount +5%', 'Discount +10%', etc. as scenario_label.
+
+        4. ALWAYS use revenue formula: SUM(total_value * (1 - promo_reduction))
         """
     
     messages = [SystemMessage(content=system_prompt)]
@@ -284,7 +315,7 @@ def agent_workflow(user_question, chat_history=None):
             metrics.record_success(sql_query)
             metrics.end_query()
             
-            if "what if" not in user_question.lower():
+            if not is_simulation:
                 save_to_cache(user_question, sql_query)
                 
             return data, sql_query
