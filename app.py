@@ -205,6 +205,21 @@ def execute_query(prompt: str):
                     "type": "dataframe",
                     "sql": sql_query
                 })
+                
+                # Save simulation results to history for comparison
+                if is_simulation_result(response_data):
+                    # Create a short label from the prompt
+                    label = prompt[:60] + "..." if len(prompt) > 60 else prompt
+                    st.session_state["_scenario_history"].append({
+                        "label": label,
+                        "df": response_data.copy(),
+                        "sql": sql_query,
+                        "timestamp": time.strftime("%H:%M:%S"),
+                    })
+                    # Keep only last 10 scenarios
+                    if len(st.session_state["_scenario_history"]) > 10:
+                        st.session_state["_scenario_history"] = st.session_state["_scenario_history"][-10:]
+                        
             else:
                 st.warning("The query returned no results (Empty Table).")
                 st.session_state.messages.append({
@@ -414,6 +429,98 @@ with st.sidebar:
         if st.button("📊 Revenue sensitivity to price", key="sc_sens_price", use_container_width=True):
             st.session_state["_scenario_prompt"] = f"How sensitive is total revenue to price changes{scope_filter}? Test price increases of 5%, 10%, 15%, and 20%."
 
+        # --- Scenario History & Comparison ---
+        st.divider()
+        st.subheader("📜 Scenario History")
+        
+        history = st.session_state.get("_scenario_history", [])
+        
+        if not history:
+            st.caption("No scenarios run yet. Click a preset or type a What-If question.")
+        else:
+            st.caption(f"{len(history)} scenario(s) saved this session.")
+            
+            # Show each saved scenario
+            for i, sc in enumerate(reversed(history)):
+                with st.expander(f"🕐 {sc['timestamp']} — {sc['label']}"):
+                    st.dataframe(sc["df"], hide_index=True, use_container_width=True)
+                    st.code(sc["sql"], language="sql")
+            
+            # --- Compare mode: select 2+ scenarios ---
+            if len(history) >= 2:
+                st.divider()
+                st.subheader("⚖️ Compare Scenarios")
+                
+                # Let user pick which scenarios to compare
+                scenario_labels = [f"{sc['timestamp']} — {sc['label']}" for sc in history]
+                selected = st.multiselect(
+                    "Select scenarios to compare:",
+                    options=scenario_labels,
+                    default=scenario_labels[-2:],  # Default to last 2
+                    key="sc_compare_select"
+                )
+                
+                if len(selected) >= 2:
+                    # Find the selected scenarios
+                    selected_scenarios = []
+                    for label in selected:
+                        for sc in history:
+                            full_label = f"{sc['timestamp']} — {sc['label']}"
+                            if full_label == label:
+                                selected_scenarios.append(sc)
+                                break
+                    
+                    # Try to build a comparison table
+                    # Look for a common numeric column (simulated_value, revenue, etc.)
+                    comparison_rows = []
+                    for sc in selected_scenarios:
+                        df = sc["df"]
+                        cols_lower = {c.lower(): c for c in df.columns}
+                        
+                        # Find the key metric column
+                        metric_col = None
+                        for candidate in ['simulated_value', 'simulated_revenue', 'revenue', 'total_revenue']:
+                            if candidate in cols_lower:
+                                metric_col = cols_lower[candidate]
+                                break
+                        
+                        if metric_col is None:
+                            # Use first numeric column
+                            numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
+                            if numeric_cols:
+                                metric_col = numeric_cols[0]
+                        
+                        if metric_col:
+                            # Check if grouped (has text column)
+                            text_cols = df.select_dtypes(include=['object', 'string']).columns.tolist()
+                            if text_cols:
+                                # Grouped result — sum up for comparison
+                                total = df[metric_col].sum()
+                            else:
+                                total = df[metric_col].iloc[0]
+                            
+                            comparison_rows.append({
+                                "Scenario": sc["label"][:40],
+                                "Value": round(total, 2),
+                                "Time": sc["timestamp"]
+                            })
+                    
+                    if comparison_rows:
+                        comp_df = pd.DataFrame(comparison_rows)
+                        
+                        # Bar chart comparison
+                        st.bar_chart(comp_df.set_index("Scenario")[["Value"]])
+                        
+                        # Data table
+                        st.dataframe(comp_df, hide_index=True, use_container_width=True)
+                    else:
+                        st.warning("Could not extract comparable metrics from selected scenarios.")
+            
+            # Clear history button
+            if st.button("🗑️ Clear scenario history", key="sc_clear_history", use_container_width=True):
+                st.session_state["_scenario_history"] = []
+                st.rerun()
+
     elif sidebar_tab == "📊 Metrics":
         st.header("📊 Agent Metrics")
         
@@ -491,6 +598,9 @@ if "original_question" not in st.session_state:
 
 if "_scenario_context" not in st.session_state:
     st.session_state["_scenario_context"] = {}
+
+if "_scenario_history" not in st.session_state:
+    st.session_state["_scenario_history"] = []  # List of {label, df, sql, timestamp}
 
 # Display Chat History
 for idx, message in enumerate(st.session_state.messages):
