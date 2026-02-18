@@ -264,7 +264,7 @@ def agent_workflow(user_question, chat_history=None):
     prompt_chars = len(system_prompt) + len(user_question)
     
     for attempt in range(3):
-        print(f"  🔄 Attempt {attempt + 1}...")
+        print(f"Attempt {attempt + 1}...")
         
         try:
             llm_start = time.time()

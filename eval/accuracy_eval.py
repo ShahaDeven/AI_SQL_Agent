@@ -286,14 +286,14 @@ def run_accuracy_eval():
                 entry["match_type"] = "correct_refusal"
                 totals["refusal_correct"] += 1
                 tier_results[difficulty]["pass"] += 1
-                print(f"  ✅ Correctly refused ({elapsed:.1f}s)")
+                print(f"Correctly refused ({elapsed:.1f}s)")
             else:
                 entry["status"] = "FAIL"
                 entry["match_type"] = "wrong_refusal"
                 entry["failure_category"] = "should_have_refused"
                 totals["refusal_wrong"] += 1
                 tier_results[difficulty]["fail"] += 1
-                print(f"  ❌ Should have refused ({elapsed:.1f}s)")
+                print(f"Should have refused ({elapsed:.1f}s)")
             results.append(entry)
             continue
         
@@ -305,7 +305,7 @@ def run_accuracy_eval():
             gold_data, gold_error = execute_sql(gold_sql)
             if gold_error:
                 entry["gold_error"] = gold_error
-                print(f"  ⚠️  Gold SQL failed: {gold_error[:60]}")
+                print(f"Gold SQL failed: {gold_error[:60]}")
         
         if not isinstance(agent_data, pd.DataFrame) or agent_data.empty:
             entry["status"] = "FAIL"
@@ -315,7 +315,7 @@ def run_accuracy_eval():
             tier_results[difficulty]["fail"] += 1
             cat = entry["failure_category"]
             failure_categories[cat] = failure_categories.get(cat, 0) + 1
-            print(f"  ❌ Failed ({cat}) ({elapsed:.1f}s)")
+            print(f"Failed ({cat}) ({elapsed:.1f}s)")
             results.append(entry)
             continue
         
@@ -335,14 +335,14 @@ def run_accuracy_eval():
                 else:
                     totals["exact_match"] += 1  # fallback
                 tier_results[difficulty]["pass"] += 1
-                print(f"  ✅ {comparison['match_type']} ({elapsed:.1f}s)")
+                print(f"{comparison['match_type']} ({elapsed:.1f}s)")
             else:
                 entry["status"] = "FAIL"
                 entry["failure_category"] = "wrong_result"
                 totals["fail"] += 1
                 tier_results[difficulty]["fail"] += 1
                 failure_categories["wrong_result"] = failure_categories.get("wrong_result", 0) + 1
-                print(f"  ❌ Wrong result ({elapsed:.1f}s): {comparison['details'][:80]}")
+                print(f"Wrong result ({elapsed:.1f}s): {comparison['details'][:80]}")
         else:
             col_check = all(c in agent_data.columns for c in test.get("expected_columns", []))
             row_check = len(agent_data) >= test.get("expected_min_rows", 1)
@@ -352,14 +352,14 @@ def run_accuracy_eval():
                 entry["match_type"] = "execution_only"
                 totals["exact_match"] += 1 
                 tier_results[difficulty]["pass"] += 1
-                print(f"  ✅ Execution pass (no gold comparison) ({elapsed:.1f}s)")
+                print(f"Execution pass (no gold comparison) ({elapsed:.1f}s)")
             else:
                 entry["status"] = "FAIL"
                 entry["failure_category"] = "wrong_result"
                 totals["fail"] += 1
                 tier_results[difficulty]["fail"] += 1
                 failure_categories["wrong_result"] = failure_categories.get("wrong_result", 0) + 1
-                print(f"  ❌ Execution check failed ({elapsed:.1f}s)")
+                print(f"Execution check failed ({elapsed:.1f}s)")
         
         results.append(entry)
     

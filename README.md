@@ -1,271 +1,270 @@
 # 🤖 AI-Powered Supply Chain Analytics Agent
 
-![Python](https://img.shields.io/badge/Python-3.11%2B-blue) ![Streamlit](https://img.shields.io/badge/Streamlit-App-ff4b4b) ![LangChain](https://img.shields.io/badge/LangChain-Orchestration-green) ![DuckDB](https://img.shields.io/badge/DuckDB-OLAP-yellow) ![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.11%2B-blue) ![Streamlit](https://img.shields.io/badge/Streamlit-App-ff4b4b) ![LangChain](https://img.shields.io/badge/LangChain-Orchestration-green) ![DuckDB](https://img.shields.io/badge/DuckDB-OLAP-yellow) ![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED) ![CI/CD](https://img.shields.io/badge/GitHub_Actions-CI%2FCD-2088FF)
 
+A production-grade **Text-to-SQL Agent** that lets non-technical stakeholders (finance, operations) query complex supply chain databases using natural language, simulate multi-variable financial scenarios, and instantly visualize results — without writing SQL.
 
-A production-grade **Text-to-SQL Agent** designed to democratize supply chain data access. This application allows non-technical stakeholders (finance, operations) to query complex database schemas using natural language, simulate financial scenarios, and instantly visualize results without writing a single line of code.
+Achieves **91.7% accuracy** on a 60-query benchmark across 7 difficulty tiers with **100% schema faithfulness** and **99.1% retrieval recall**.
 
-Built on the **TPC-H Benchmark** dataset, this project demonstrates advanced RAG (Retrieval-Augmented Generation) patterns, self-healing SQL execution, and "What-If" scenario modeling.
-
----
-
-## ⚡ Run in 60 Seconds
-
-```bash
-git clone https://github.com/ShahaDeven/AI_SQL_Agent.git
-cd AI_SQL_Agent
-docker compose up --build
-```
+Built on the **TPC-H Benchmark** dataset with custom schema modifications to test real-world ambiguity handling.
 
 ---
 
 ## Architecture
 
-```mermaid
-flowchart TD
-    A[User - Natural Language Question] --> B[Streamlit Frontend]
-    
-    B --> C{Cache Check - sql_cache.json}
-    
-    C -- Cache Hit --> K[Execute Cached SQL]
-    C -- Cache Miss --> D[Hybrid Retriever - BM25 + ChromaDB]
-    
-    D --> E[Few-Shot Examples Retrieved]
-    E --> F[LLM Prompt Construction - Schema + Examples + Rules]
-    
-    F --> G{Simulation Detected?}
-    G -- Yes --> H[Inject CTE Simulation Mode]
-    G -- No --> I[Generate SQL]
-    H --> I
-    
-    I --> J{SQL Safety Check}
-    
-    J -- Dangerous --> M[Refuse and Explain]
-    J -- Safe --> K2[Execute on DuckDB - Read Only]
-    
-    K --> L{Success?}
-    K2 --> L
-    
-    L -- Error --> N{Retry - Max 3 Attempts}
-    N -- Yes --> F
-    N -- No --> O[Return Error Message]
-    
-    L -- Success --> P[Save to Cache]
-    P --> Q[Auto-Visualizer]
-    
-    Q --> R[Response to User]
-    M --> R
-
-    style A fill:#4A90D9,stroke:#2C5F8A,color:#fff
-    style B fill:#FF4B4B,stroke:#CC3333,color:#fff
-    style C fill:#F5A623,stroke:#D4891A,color:#fff
-    style D fill:#7B68EE,stroke:#5A4FCF,color:#fff
-    style G fill:#F5A623,stroke:#D4891A,color:#fff
-    style H fill:#FF6B6B,stroke:#CC4444,color:#fff
-    style J fill:#FF6347,stroke:#CC4F38,color:#fff
-    style K fill:#50C878,stroke:#3DA362,color:#fff
-    style K2 fill:#50C878,stroke:#3DA362,color:#fff
-    style L fill:#F5A623,stroke:#D4891A,color:#fff
-    style N fill:#F5A623,stroke:#D4891A,color:#fff
-    style M fill:#FF4444,stroke:#CC3333,color:#fff
-    style O fill:#FF4444,stroke:#CC3333,color:#fff
-    style P fill:#50C878,stroke:#3DA362,color:#fff
-    style Q fill:#9B59B6,stroke:#7D3C98,color:#fff
-    style R fill:#4A90D9,stroke:#2C5F8A,color:#fff
-```
+![Architecture Diagram](architecture_diagram.png)
 
 ---
 
 ## 🚀 Key Features
 
-### 🧠 Phase 1: The Core Agent (Text-to-SQL)
-- **Natural Language Interface:** Translate questions like *"Show me top 5 suppliers by revenue in Europe"* into optimized DuckDB SQL.
-- **Hybrid Search Retriever:** Uses **BM25 + Semantic Search** (ChromaDB) to map vague user terms to specific database columns, achieving a **93.8% success rate** across an [18-question benchmark](Evaluation.md).
-- **Self-Healing Execution Loop:** Autonomously detects SQL syntax errors or security violations and triggers iterative re-prompting to correct the query before crashing.
-- **Agentic Execution Loop:** Multi-step reasoning pipeline with retrieval, validation, execution, and retry stages orchestrated through a structured agent graph.
+### 🧠 Text-to-SQL Agent
+- **Natural Language Interface:** Translate questions like *"Show me top 5 suppliers by revenue in Europe"* into optimized DuckDB SQL with 5-table joins.
+- **Hybrid Search Retriever:** BM25 + Semantic Search (ChromaDB) with **99.1% table recall** — maps vague user terms to specific database columns.
+- **Rule-Based Clarifier:** Detects ambiguous queries (e.g., "show me revenue" — by region? by nation?) and prompts users to clarify before making an API call.
+- **Self-Healing Execution Loop:** 3-attempt retry with error feedback — autonomously fixes SQL syntax errors and regenerates queries.
 
+### 🧪 What-If Scenario Simulator
+- **Multi-Variable Scenarios:** Handle combinations like *"What if we increase price by 5% AND reduce discount by 3% for the EUROPE region?"*
+- **Sensitivity Analysis:** Automatically tests multiple levels (5%, 10%, 15%, 20%) and plots impact trends.
+- **Region/Segment Scoping:** Simulate changes scoped to specific regions, nations, or customer segments using CASE WHEN in CTEs.
+- **Scenario Presets:** 8 one-click preset scenarios in the sidebar (Pricing, Discounts, Multi-Variable, Sensitivity).
+- **Dynamic Context Tracking:** Presets automatically adapt to your conversation context — if you've been querying ASIA, the presets update to use ASIA. Zero API cost (rule-based regex extraction).
+- **Scenario History & Comparison:** Store up to 10 simulation results per session and compare them side-by-side with bar charts and data tables.
+- **Non-Destructive:** All simulations run via read-only CTEs — zero risk to production data.
 
-### 🧪 Phase 2: "What-If" Simulator (The CFO Agent)
-- **Scenario Analysis:** Interprets conditional prompts (e.g., *"What if we increased the discount by 10%?"*) and dynamically injects **Common Table Expressions (CTEs)** to simulate the impact on revenue/margin.
-- **Non-Destructive:** Performs all simulations in-memory (read-only), ensuring zero risk to production data integrity.
+### 📊 Simulation-Aware Auto-Visualizer
+- **Intelligent Detection:** Distinguishes between normal query results and simulation outputs based on column patterns (original_value, simulated_value, difference, pct_change).
+- **Three Visualization Modes:**
+  - **Sensitivity Analysis:** Data table + scenario bar chart + impact trend line
+  - **Grouped Comparison:** Side-by-side bar chart (original vs simulated per group)
+  - **Single Comparison:** Metric cards with delta indicators (Original → Simulated → Impact)
+- **Standard Queries:** Auto-detects time-series → line chart, categorical → bar chart, or renders data tables.
 
-### 📊 Phase 3: Auto-Visualizer
-- **Dynamic Rendering:** Automatically detects data patterns (Time-Series vs. Categorical vs. Relational) to render the optimal chart type (Line, Bar, or Data Table) using Streamlit.
-- **Interactive Dashboards:** Replaces static weekly reports with an ad-hoc, interactive exploration tool.
+### 🔒 Security & Safety
+- **Read-Only Access:** DuckDB runs in `read_only=True` mode.
+- **Dual-Layer SQL Guardrails:** `sqlparse` statement-type validation + keyword blocklist (DROP, DELETE, INSERT, UPDATE, ALTER, TRUNCATE).
+- **Hallucination Control:** Queries referencing non-existent columns (e.g., "profit", "net margin") are rejected with explanations.
+- **100% safety refusal rate** on the evaluation (5/5 destructive queries blocked).
 
-### ⚡ Engineering Optimizations
-- **Smart Caching:** Implements a semantic caching layer (`sql_cache.json`) to store validated SQL queries, reducing API latency and costs for recurrent questions.
-- **REST Protocol Enforcement:** Optimized for restrictive network environments (corporate/university firewalls) by bypassing standard gRPC blocks.
-- **Reproducible Environment:** Dockerized deployment guarantees consistent execution across machines without local dependency conflicts.
+### 📈 Observability Dashboard
+- Live metrics panel in the sidebar tracking total queries, cache hit rate, average latency, per-stage timing (retriever, LLM, DB execution), and estimated token usage.
 
+### 🎯 Evaluation Framework
+- **60-query benchmark** across 7 difficulty tiers (simple select, single join, aggregation, multi-hop, window functions, simulation, safety).
+- **Result-set comparison** against gold SQL — not string matching, actual data comparison with exact, approximate, fuzzy column, and lenient matching.
+- **Retrieval evaluation** measuring Precision@k, Recall@k, and MRR for the hybrid retriever.
+- **Faithfulness check** validating all generated SQL references only real tables, columns, and valid foreign key joins.
+- **Failure categorization** — every failed query is classified (wrong_result, syntax_error, wrong_tables, empty_result, etc.).
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **LLM Orchestration:** LangChain, Google Gemini 2.5 Flash / Anthropic Claude
-- **Database:** DuckDB (OLAP-optimized, local file-based)
-- **Frontend:** Streamlit
-- **Vector Store:** ChromaDB (Local persistence)
-- **Embeddings:** HuggingFace (`all-MiniLM-L6-v2`) runs locally on CPU
-- **Environment:** Python 3.11+, Docker & Docker Compose
+| Component | Technology |
+|---|---|
+| **LLM** | Anthropic Claude Sonnet 4 |
+| **Orchestration** | LangChain |
+| **Database** | DuckDB (OLAP-optimized) |
+| **Frontend** | Streamlit |
+| **Vector Store** | ChromaDB (local persistence) |
+| **Embeddings** | HuggingFace `all-MiniLM-L6-v2` (runs on CPU) |
+| **Containerization** | Docker + Docker Compose |
+| **CI/CD** | GitHub Actions → GHCR |
+| **Testing** | pytest + custom eval framework |
 
 ---
 
 ## 📂 Project Structure
 
-```bash
+```
 AI_SQL_Agent/
-├── data/
-│   ├── supply_chain.db       # Main DuckDB database (TPC-H schema)
-│   └── sql_agent_demo.db     # (Optional) Smaller demo DB
+├── app.py                        # Streamlit frontend (chat, viz, presets, history)
+├── Dockerfile                    # Container definition
+├── docker-compose.yml            # One-command deployment
+├── docker-entrypoint.sh          # Auto-setup: generates DB + vector store if missing
+├── requirements.txt              # Pinned dependencies
+├── .env                          # API keys (not committed)
+│
 ├── src/
-│   ├── agent_graph.py        # Core Logic: Agent Loop, Caching, Simulation
-│   └── retriever.py          # Hybrid Search (BM25 + Semantic) logic
+│   ├── agent_graph.py            # Core agent: LLM loop, caching, simulation, safety
+│   ├── retriever.py              # Hybrid retriever: BM25 + ChromaDB ensemble
+│   ├── clarifier.py              # Rule-based query ambiguity detection
+│   └── metrics.py                # Observability: latency, cache hits, token tracking
+│
+├── eval/
+│   ├── benchmark.json            # 60 labeled test queries across 7 tiers
+│   ├── accuracy_eval.py          # Result-set comparison with gold SQL
+│   ├── retrieval_eval.py         # Precision@k, Recall@k, MRR for retriever
+│   ├── faithfulness_check.py     # Schema validation of generated SQL
+│   └── results/
+│       ├── accuracy_report.json  # Latest accuracy results
+│       ├── retrieval_report.json # Latest retrieval results
+│       └── faithfulness_report.json # Latest faithfulness results
+│
 ├── tests/
-│   ├── test_agent.py         # Unit & integration tests (25 tests)
-│   └── evaluate_agent.py     # 18-question benchmark evaluation harness
-├── app.py                    # Streamlit Frontend application
-├── requirements.txt          # Python dependencies
-├── Evaluation.md             # Testing methodology & benchmark results
-├── .env                      # API Keys (Not committed)
-├── Dockerfile
-├── docker-compose.yml
-├── docker-entrypoint.sh
-├── .dockerignore
-└── .gitignore
+│   └── test_agent.py             # pytest unit & integration tests (25 tests)
+│
+├── scripts/
+│   ├── demo_db.py                # Generate TPC-H demo database (SF=0.1)
+│   ├── rename_data.py            # Add custom columns to full DB
+│   └── check_models.py           # List available API models
+│
+├── data/
+│   ├── sql_examples.json         # Few-shot examples for retriever
+│   ├── chroma_db/                # Persisted vector store
+│   ├── supply_chain.db           # Full TPC-H database (SF=1)
+│   └── sql_agent_demo.db         # Demo database (SF=0.1)
+│
+└── .github/
+    └── workflows/
+        └── docker-publish.yml    # Auto-build and push image to GHCR
 ```
 
 ---
 
-## 🐳 Docker Setup (Recommended)
+## ⚡ Quick Start
 
-The application can be run fully containerized without installing Python or dependencies locally.
-
-### Prerequisites
-- Docker Desktop installed and running
-
-### 1. Configure Environment Variables
-
-Create a `.env` file in the project root:
-
-```ini
-ANTHROPIC_API_KEY=your_key_here
-ANONYMIZED_TELEMETRY=False
-```
-
-### 2. Build and Run
-```bash
-docker compose up --build
-```
-This will:
-- Build the Docker image.
-- Automatically initialize the vector store (ChromaDB) if missing.
-- Start the Streamlit application.
-
-### 3. Open the Application
-Then open: [http://localhost:8501](http://localhost:8501)
-
-### 4. Stop the Container
-```bash
-docker compose down
-```
-
----
-
-## ⚡ Installation & Setup
-
-If you did not use Docker:
-
-1. Clone the Repository
+### Option A: Docker (Recommended)
 ```bash
 git clone https://github.com/ShahaDeven/AI_SQL_Agent.git
 cd AI_SQL_Agent
+
+# Add your API key
+echo "ANTHROPIC_API_KEY=your_key_here" > .env
+
+# Run (auto-generates demo DB on first run)
+docker compose up --build
+# Open http://localhost:8501
 ```
 
-2. Create Virtual Environment
+### Option B: Local Development
 ```bash
+git clone https://github.com/ShahaDeven/AI_SQL_Agent.git
+cd AI_SQL_Agent
+
 python -m venv venv
-# Windows
-venv\Scripts\activate
-# Mac/Linux
-source venv/bin/activate
-```
+# Windows: venv\Scripts\activate
+# Mac/Linux: source venv/bin/activate
 
-3. Install Dependencies
-```bash
 pip install -r requirements.txt
-```
 
-4. Configure Environment Variables
-Create a .env file in the root directory:
-```ini
-GOOGLE_API_KEY=your_google_api_key_here OR
-ANTHROPIC_API_KEY = your_anthropic_api_key_here
-# Optional: Disable telemetry for privacy
-ANONYMIZED_TELEMETRY=False
-```
+# Add your API key
+echo "ANTHROPIC_API_KEY=your_key_here" > .env
 
-5. Run the Application
-```bash
+# Generate demo database (first time only)
+python scripts/demo_db.py
+
+# Setup vector store (first time only)
+python -c "from src.retriever import setup_vector_db; setup_vector_db()"
+
+# Run
 streamlit run app.py
 ```
 
 ---
 
-### 🧪 Usage Examples
+## 🧪 Usage Examples
 
-#### 1. Basic Analytics:
+**Basic Analytics:**
+> "What is the total revenue per region?"
+> "List the top 3 customers in the AUTOMOBILE segment."
 
-   "What is the total revenue per region for the last year?" OR "List the top 3 customers in the AUTOMOBILE segment."
+**Complex Reasoning (Multi-Hop):**
+> "Who is the supplier with the most parts in the region with the lowest revenue?"
 
-#### 2. Complex Reasoning (Chain-of-Thought):
+**What-If Simulation:**
+> "What if we increased the discount by 10%? How would that affect total revenue?"
 
-   "Who is the supplier with the most parts in the region with the lowest revenue?" (The agent will use a CTE to first find the lowest revenue region, then filter suppliers.)
+**Multi-Variable + Scoped:**
+> "What if we increased the price by 5% AND reduced the discount by 3% for the EUROPE region?"
 
-#### 3. Simulation ("What-If"):
-
-   "What if we increased the discount by 5%? How would that affect total revenue?" (The agent generates a simulated view and compares it against actuals.)
-
----
-
-### 🔒 Security & Safety
-
-- **Read-Only Access:** DuckDB runs in `read_only=True` mode.
-- **SQL Guardrails:** `check_sql_safety` blocks all DDL/DML commands (DROP, DELETE, INSERT, UPDATE, ALTER, TRUNCATE).
-- **Hallucination Control:** Queries referencing non-existent columns are rejected before any SQL is generated.
+**Sensitivity Analysis:**
+> "How sensitive is total revenue to discount changes? Test 5%, 10%, 15%, and 20%."
 
 ---
 
-### 📊 Benchmark Results
+## 📊 Evaluation Results
 
-Evaluated on an 18-question benchmark across 5 difficulty tiers. Full methodology and per-question results are documented in [`Evaluation.md`](Evaluation.md).
+Evaluated on a **60-query benchmark** across 7 difficulty tiers with result-set comparison against gold SQL.
+
+### SQL Generation Accuracy
+
+| Tier | Queries | Accuracy |
+|---|---|---|
+| Simple Select | 10 | **100%** |
+| Single Join | 10 | **100%** |
+| Aggregation | 10 | **100%** |
+| Multi-Hop Reasoning | 10 | **90%** |
+| Window Functions | 10 | **70%** |
+| Simulation (What-If) | 5 | **80%** |
+| Safety Refusals | 5 | **100%** |
+| **Overall** | **60** | **91.7%** |
+
+### Retrieval Quality (Hybrid BM25 + Semantic)
+
+| Metric | Score |
+|---|---|
+| Table Recall@3 | **99.1%** |
+| Column Recall@3 | **85.9%** |
+| MRR | **0.94** |
+
+### Schema Faithfulness
+
+| Metric | Score |
+|---|---|
+| Faithfulness Rate | **100%** (55/55) |
+| Hallucinated Tables | **0** |
+| Hallucinated Columns | **0** |
+| Invalid Joins | **0** |
+
+### Performance
 
 | Metric | Value |
 |---|---|
-| **Success Rate** | **93.8%** (15/16 non-safety queries) |
-| **Correct Safety Refusals** | **2/2** |
-| **Avg Latency** | **3.03s** |
-| **Unit Tests** | **25/25 passed** |
-
-**Highlights:**
-- All **easy and medium** queries (10/10) passed — joins, aggregations, year extraction.
-- **Hard queries** including multi-level CTEs and window functions (LAG) scored 3/4.
-- Both **What-If simulations** generated correct original vs. simulated revenue comparisons.
-- The agent correctly **refused** a DELETE command and a request for a non-existent profit column.
+| Avg Latency | **0.67s** |
+| Safety Refusal Rate | **100%** (5/5) |
+| Unit Tests | **25/25 passed** |
 
 ```bash
-# Run the tests yourself
-pytest tests/test_agent.py -v          # Unit & integration tests
-python tests/evaluate_agent.py         # Full benchmark
+# Run evaluations yourself
+pytest tests/test_agent.py -v               # Unit tests
+python eval/accuracy_eval.py                 # 60-query accuracy benchmark
+python eval/retrieval_eval.py                # Retrieval precision/recall
+python eval/faithfulness_check.py            # Schema faithfulness validation
 ```
 
 ---
 
-### 📝 Future Roadmap
+## 🐳 Docker & CI/CD
 
-[x] Containerization: Docker and Docker Compose with auto-setup entrypoint.
+The application is fully containerized with an auto-setup entrypoint that generates the TPC-H database and ChromaDB vector store on first run.
 
-[ ] Feedback Loop: RLHF integration to allow users to flag incorrect SQL for model fine-tuning.
+```bash
+# Build and run
+docker compose up --build
 
-[ ] Multi-Database Support: Abstracting connections to support Snowflake/Postgres.
+# Or pull the pre-built image
+docker pull ghcr.io/shahadeven/ai_sql_agent:latest
+```
+
+**GitHub Actions CI/CD:** Every push to `main` automatically builds and publishes a Docker image to GitHub Container Registry (GHCR).
+
+---
+
+## 📝 Roadmap
+
+- [x] Core Text-to-SQL Agent with hybrid retrieval
+- [x] Self-healing execution pipeline with 3-attempt retry
+- [x] What-If scenario simulator with CTE injection
+- [x] Auto-visualizer with pattern detection
+- [x] Rule-based query clarification system
+- [x] Observability dashboard (latency, cache, tokens)
+- [x] Multi-variable scenarios + sensitivity analysis
+- [x] Dynamic scenario presets with context tracking
+- [x] Scenario history & comparison
+- [x] Docker containerization with auto-setup entrypoint
+- [x] GitHub Actions CI/CD → GHCR
+- [x] 60-query evaluation framework (accuracy + retrieval + faithfulness)
+- [ ] Live demo deployment (Streamlit Cloud / HF Spaces)
+- [ ] CI-integrated eval (fail build if accuracy < 90%)

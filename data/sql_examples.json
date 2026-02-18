@@ -38,5 +38,17 @@
     {
         "question": "Calculate the total discount given on all orders",
         "sql": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;"
+    },
+    {
+        "question": "What is the total revenue per region?",
+        "sql": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY revenue DESC;"
+    },
+    {
+        "question": "How many suppliers are in each region?",
+        "sql": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name;"
+    },
+    {
+        "question": "Show all nations and which region they belong to.",
+        "sql": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;"
     }
 ]

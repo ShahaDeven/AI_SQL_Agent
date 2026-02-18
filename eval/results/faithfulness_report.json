@@ -1,0 +1,1663 @@
+{
+  "summary": {
+    "total_checked": 55,
+    "faithful": 55,
+    "unfaithful": 0,
+    "skipped": 5,
+    "faithfulness_rate_pct": 100.0,
+    "issue_breakdown": {
+      "hallucinated_tables": 0,
+      "hallucinated_columns": 0,
+      "column_table_mismatch": 0,
+      "invalid_joins": 0
+    }
+  },
+  "tier_results": {
+    "simple_select": {
+      "total": 10,
+      "faithful": 10,
+      "rate": 100.0
+    },
+    "single_join": {
+      "total": 10,
+      "faithful": 10,
+      "rate": 100.0
+    },
+    "aggregation": {
+      "total": 10,
+      "faithful": 10,
+      "rate": 100.0
+    },
+    "multi_hop": {
+      "total": 10,
+      "faithful": 10,
+      "rate": 100.0
+    },
+    "window_function": {
+      "total": 10,
+      "faithful": 10,
+      "rate": 100.0
+    },
+    "simulation": {
+      "total": 5,
+      "faithful": 5,
+      "rate": 100.0
+    }
+  },
+  "results": [
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 1,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "simple_01",
+      "question": "How many customers are there?",
+      "difficulty": "simple_select"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 1,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "r_name"
+      ],
+      "hallucinated_columns": [],
+      "id": "simple_02",
+      "question": "List all region names.",
+      "difficulty": "simple_select"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 1,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "nation"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "n_nationkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "simple_03",
+      "question": "How many nations are there?",
+      "difficulty": "simple_select"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 1,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "o_orderpriority"
+      ],
+      "hallucinated_columns": [],
+      "id": "simple_04",
+      "question": "What are the distinct order priorities?",
+      "difficulty": "simple_select"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 2,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_acctbal",
+        "c_name"
+      ],
+      "hallucinated_columns": [],
+      "id": "simple_05",
+      "question": "Show the top 5 customers by account balance.",
+      "difficulty": "simple_select"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 0,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [],
+      "hallucinated_columns": [],
+      "id": "simple_06",
+      "question": "How many orders are in the database?",
+      "difficulty": "simple_select"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 1,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_mktsegment"
+      ],
+      "hallucinated_columns": [],
+      "id": "simple_07",
+      "question": "List all distinct customer market segments.",
+      "difficulty": "simple_select"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 1,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "o_orderdate"
+      ],
+      "hallucinated_columns": [],
+      "id": "simple_08",
+      "question": "What is the earliest order date?",
+      "difficulty": "simple_select"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 0,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "supplier"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [],
+      "hallucinated_columns": [],
+      "id": "simple_09",
+      "question": "How many suppliers are there?",
+      "difficulty": "simple_select"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 1,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "churn_risk"
+      ],
+      "hallucinated_columns": [],
+      "id": "simple_10",
+      "question": "Show the distribution of churn risk across customers.",
+      "difficulty": "simple_select"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 4,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "nation"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_name",
+        "c_nationkey",
+        "n_name",
+        "n_nationkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "join_01",
+      "question": "Which nation does each customer belong to? Show first 20.",
+      "difficulty": "single_join"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 4,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "nation",
+        "supplier"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "n_name",
+        "n_nationkey",
+        "s_name",
+        "s_nationkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "join_02",
+      "question": "List suppliers and their nation.",
+      "difficulty": "single_join"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 4,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "nation",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "n_name",
+        "n_regionkey",
+        "r_name",
+        "r_regionkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "join_03",
+      "question": "Show all nations and which region they belong to.",
+      "difficulty": "single_join"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 4,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "nation"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "n_name",
+        "n_nationkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "join_04",
+      "question": "How many customers are in each nation?",
+      "difficulty": "single_join"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 4,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "nation"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "n_name",
+        "n_nationkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "join_05",
+      "question": "Which nation has the most customers?",
+      "difficulty": "single_join"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 4,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "partsupp",
+        "supplier"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "ps_partkey",
+        "ps_suppkey",
+        "s_name",
+        "s_suppkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "join_06",
+      "question": "How many parts does each supplier provide? Show top 10.",
+      "difficulty": "single_join"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 5,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "nation"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_name",
+        "c_nationkey",
+        "churn_risk",
+        "n_name",
+        "n_nationkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "join_07",
+      "question": "List all high-risk customers and their nation. Show first 20.",
+      "difficulty": "single_join"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 4,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_name",
+        "o_custkey",
+        "o_orderkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "join_08",
+      "question": "How many orders does each customer have? Show top 10.",
+      "difficulty": "single_join"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 3,
+        "tables_hallucinated": 0,
+        "columns_referenced": 6,
+        "columns_hallucinated": 0,
+        "joins_found": 2,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "nation",
+        "region",
+        "supplier"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "n_nationkey",
+        "n_regionkey",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "s_suppkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "join_09",
+      "question": "Show the number of suppliers per region.",
+      "difficulty": "single_join"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 3,
+        "tables_hallucinated": 0,
+        "columns_referenced": 7,
+        "columns_hallucinated": 0,
+        "joins_found": 2,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "nation",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "churn_risk",
+        "n_nationkey",
+        "n_regionkey",
+        "r_name",
+        "r_regionkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "join_10",
+      "question": "How many high-risk customers are in each region?",
+      "difficulty": "single_join"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 5,
+        "tables_hallucinated": 0,
+        "columns_referenced": 11,
+        "columns_hallucinated": 0,
+        "joins_found": 4,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "agg_01",
+      "question": "What is the total revenue per region?",
+      "difficulty": "aggregation"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 5,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "lineitem",
+        "supplier"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "l_suppkey",
+        "promo_reduction",
+        "s_name",
+        "s_suppkey",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "agg_02",
+      "question": "Show the top 3 suppliers by total revenue.",
+      "difficulty": "aggregation"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 2,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "o_orderdate",
+        "o_orderkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "agg_03",
+      "question": "How many orders were placed per year?",
+      "difficulty": "aggregation"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 4,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_mktsegment",
+        "o_custkey",
+        "o_totalprice"
+      ],
+      "hallucinated_columns": [],
+      "id": "agg_04",
+      "question": "What is the average order value per customer segment?",
+      "difficulty": "aggregation"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 4,
+        "tables_hallucinated": 0,
+        "columns_referenced": 9,
+        "columns_hallucinated": 0,
+        "joins_found": 3,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "agg_05",
+      "question": "What is the total revenue per nation?",
+      "difficulty": "aggregation"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 3,
+        "tables_hallucinated": 0,
+        "columns_referenced": 6,
+        "columns_hallucinated": 0,
+        "joins_found": 2,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "nation",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_acctbal",
+        "c_nationkey",
+        "n_nationkey",
+        "n_regionkey",
+        "r_name",
+        "r_regionkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "agg_06",
+      "question": "What is the average account balance per region?",
+      "difficulty": "aggregation"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 3,
+        "tables_hallucinated": 0,
+        "columns_referenced": 7,
+        "columns_hallucinated": 0,
+        "joins_found": 2,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_mktsegment",
+        "l_orderkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "agg_07",
+      "question": "Which customer segment generates the most revenue?",
+      "difficulty": "aggregation"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 5,
+        "tables_hallucinated": 0,
+        "columns_referenced": 10,
+        "columns_hallucinated": 0,
+        "joins_found": 4,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "l_quantity",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "r_name",
+        "r_regionkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "agg_08",
+      "question": "What is the total quantity shipped per region?",
+      "difficulty": "aggregation"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 5,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "lineitem",
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "l_orderkey",
+        "o_orderkey",
+        "o_orderpriority",
+        "promo_reduction",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "agg_09",
+      "question": "Show revenue by order priority.",
+      "difficulty": "aggregation"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 5,
+        "tables_hallucinated": 0,
+        "columns_referenced": 10,
+        "columns_hallucinated": 0,
+        "joins_found": 4,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "agg_10",
+      "question": "What is the average discount per region?",
+      "difficulty": "aggregation"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 7,
+        "tables_hallucinated": 0,
+        "columns_referenced": 16,
+        "columns_hallucinated": 0,
+        "joins_found": 8,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "partsupp",
+        "region",
+        "supplier"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "ps_partkey",
+        "ps_suppkey",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "s_suppkey",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "multi_01",
+      "question": "Which supplier has the most parts in the region with the lowest revenue?",
+      "difficulty": "multi_hop"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 4,
+        "tables_hallucinated": 0,
+        "columns_referenced": 9,
+        "columns_hallucinated": 0,
+        "joins_found": 3,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "multi_02",
+      "question": "Find the top 3 nations by revenue where the average discount is above 0.05.",
+      "difficulty": "multi_hop"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 4,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_name",
+        "o_custkey",
+        "o_orderkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "multi_03",
+      "question": "List customers who have placed more orders than the average number of orders per customer.",
+      "difficulty": "multi_hop"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 4,
+        "tables_hallucinated": 0,
+        "columns_referenced": 8,
+        "columns_hallucinated": 0,
+        "joins_found": 3,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_totalprice",
+        "r_name",
+        "r_regionkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "multi_04",
+      "question": "Which region has the highest average order value?",
+      "difficulty": "multi_hop"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 4,
+        "tables_hallucinated": 0,
+        "columns_referenced": 10,
+        "columns_hallucinated": 0,
+        "joins_found": 3,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "lineitem",
+        "nation",
+        "region",
+        "supplier"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "l_suppkey",
+        "n_nationkey",
+        "n_regionkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "s_suppkey",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "multi_05",
+      "question": "Find the supplier with the highest revenue in each region.",
+      "difficulty": "multi_hop"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 5,
+        "tables_hallucinated": 0,
+        "columns_referenced": 11,
+        "columns_hallucinated": 0,
+        "joins_found": 4,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "multi_06",
+      "question": "What percentage of total revenue comes from each region?",
+      "difficulty": "multi_hop"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 4,
+        "tables_hallucinated": 0,
+        "columns_referenced": 10,
+        "columns_hallucinated": 0,
+        "joins_found": 3,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "multi_07",
+      "question": "Which nation has the highest revenue among high-risk customers?",
+      "difficulty": "multi_hop"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 5,
+        "tables_hallucinated": 0,
+        "columns_referenced": 12,
+        "columns_hallucinated": 0,
+        "joins_found": 4,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "multi_08",
+      "question": "Show the top 5 customers by revenue in the ASIA region.",
+      "difficulty": "multi_hop"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 3,
+        "tables_hallucinated": 0,
+        "columns_referenced": 7,
+        "columns_hallucinated": 0,
+        "joins_found": 2,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "nation",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_acctbal",
+        "c_nationkey",
+        "churn_risk",
+        "n_nationkey",
+        "n_regionkey",
+        "r_name",
+        "r_regionkey"
+      ],
+      "hallucinated_columns": [],
+      "id": "multi_09",
+      "question": "Compare average account balance between high-risk and low-risk customers by region.",
+      "difficulty": "multi_hop"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 2,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_mktsegment",
+        "churn_risk"
+      ],
+      "hallucinated_columns": [],
+      "id": "multi_10",
+      "question": "Which market segment has the most high-risk customers?",
+      "difficulty": "multi_hop"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 5,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "lineitem",
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "l_orderkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "window_01",
+      "question": "What is the month-over-month revenue trend for 1995?",
+      "difficulty": "window_function"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 5,
+        "tables_hallucinated": 0,
+        "columns_referenced": 12,
+        "columns_hallucinated": 0,
+        "joins_found": 4,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "window_02",
+      "question": "Rank nations by total revenue within each region.",
+      "difficulty": "window_function"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 5,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "lineitem",
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "l_orderkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "window_03",
+      "question": "Show cumulative revenue over time by year.",
+      "difficulty": "window_function"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 5,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "lineitem",
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "l_orderkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "window_04",
+      "question": "Show the year-over-year revenue growth rate.",
+      "difficulty": "window_function"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 1,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "o_orderdate"
+      ],
+      "hallucinated_columns": [],
+      "id": "window_05",
+      "question": "Show a running total of orders per month in 1996.",
+      "difficulty": "window_function"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 3,
+        "tables_hallucinated": 0,
+        "columns_referenced": 7,
+        "columns_hallucinated": 0,
+        "joins_found": 2,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_name",
+        "l_orderkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "window_06",
+      "question": "Rank customers by total spending and show their percentile. Show top 20.",
+      "difficulty": "window_function"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 5,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "lineitem",
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "l_orderkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "window_07",
+      "question": "What is the 3-month moving average of revenue in 1995?",
+      "difficulty": "window_function"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 5,
+        "tables_hallucinated": 0,
+        "columns_referenced": 11,
+        "columns_hallucinated": 0,
+        "joins_found": 4,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "window_08",
+      "question": "Show each region's revenue and its difference from the overall average.",
+      "difficulty": "window_function"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 3,
+        "tables_hallucinated": 0,
+        "columns_referenced": 8,
+        "columns_hallucinated": 0,
+        "joins_found": 2,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "lineitem",
+        "nation",
+        "supplier"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "l_suppkey",
+        "n_name",
+        "n_nationkey",
+        "promo_reduction",
+        "s_name",
+        "s_nationkey",
+        "s_suppkey",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "window_09",
+      "question": "Show the top supplier per nation by revenue.",
+      "difficulty": "window_function"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 2,
+        "tables_hallucinated": 0,
+        "columns_referenced": 5,
+        "columns_hallucinated": 0,
+        "joins_found": 1,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "lineitem",
+        "orders"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "l_orderkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "window_10",
+      "question": "Show quarterly revenue for 1995 with quarter-over-quarter growth.",
+      "difficulty": "window_function"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 2,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "lineitem"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "promo_reduction",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "sim_01",
+      "question": "What if we increased the discount by 10%? How would that affect total revenue?",
+      "difficulty": "simulation"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 5,
+        "tables_hallucinated": 0,
+        "columns_referenced": 11,
+        "columns_hallucinated": 0,
+        "joins_found": 9,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "sim_02",
+      "question": "Simulate a 5% price increase on all line items and show revenue by region.",
+      "difficulty": "simulation"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 5,
+        "tables_hallucinated": 0,
+        "columns_referenced": 11,
+        "columns_hallucinated": 0,
+        "joins_found": 9,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "sim_03",
+      "question": "What if we increased the discount by 15% for the EUROPE region only? Show revenue by region.",
+      "difficulty": "simulation"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 5,
+        "tables_hallucinated": 0,
+        "columns_referenced": 11,
+        "columns_hallucinated": 0,
+        "joins_found": 9,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "sim_04",
+      "question": "What if we increased the price by 5% and reduced the discount by 3%? Show revenue by region.",
+      "difficulty": "simulation"
+    },
+    {
+      "faithful": true,
+      "issues": [],
+      "stats": {
+        "tables_referenced": 1,
+        "tables_hallucinated": 0,
+        "columns_referenced": 2,
+        "columns_hallucinated": 0,
+        "joins_found": 0,
+        "joins_invalid": 0
+      },
+      "referenced_tables": [
+        "lineitem"
+      ],
+      "hallucinated_tables": [],
+      "referenced_columns": [
+        "promo_reduction",
+        "total_value"
+      ],
+      "hallucinated_columns": [],
+      "id": "sim_05",
+      "question": "How sensitive is total revenue to discount changes? Test discount increases of 5%, 10%, 15%, and 20%.",
+      "difficulty": "simulation"
+    }
+  ]
+}

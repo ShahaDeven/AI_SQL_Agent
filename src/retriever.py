@@ -50,7 +50,7 @@ def setup_vector_db():
     """
     documents = _load_documents()
 
-    print(f"🔄 Vectorizing {len(documents)} examples locally...")
+    print(f"Vectorizing {len(documents)} examples locally...")
     
     if os.path.exists(CHROMA_PATH):
         shutil.rmtree(CHROMA_PATH)
@@ -60,7 +60,7 @@ def setup_vector_db():
         embedding=embedding_function, 
         persist_directory=CHROMA_PATH
     )
-    print("✅ Local Vector Database created at data/chroma_db")
+    print("Local Vector Database created at data/chroma_db")
     return vector_db
 
 def get_few_shot_examples(user_query, k=3):

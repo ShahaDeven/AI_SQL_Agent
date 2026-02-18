@@ -19,6 +19,7 @@ build/
 
 data/supply_chain.db
 data/chroma_db/
+data/sql_agent_demo.db
 
 *.log
 npm-debug.log*

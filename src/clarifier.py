@@ -395,7 +395,7 @@ if __name__ == "__main__":
     
     for query in test_queries:
         result = check_needs_clarification(query)
-        status = "❓ NEEDS CLARIFICATION" if result.needs_clarification else "✅ CLEAR"
+        status = "NEEDS CLARIFICATION" if result.needs_clarification else "CLEAR"
         print(f"\n{status}: \"{query}\"")
         if result.needs_clarification:
             print(f"   Type: {result.ambiguity_type}")

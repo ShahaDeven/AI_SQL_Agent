@@ -1,0 +1,6965 @@
+{
+  "summary": {
+    "total_queries": 55,
+    "k": 3,
+    "overall": {
+      "avg_table_precision": 0.469,
+      "avg_table_recall": 0.991,
+      "avg_column_precision": 0.167,
+      "avg_column_recall": 0.859,
+      "avg_mrr": 0.939
+    },
+    "per_tier": {
+      "simple_select": {
+        "count": 10,
+        "avg_table_precision": 0.193,
+        "avg_table_recall": 1.0,
+        "avg_column_precision": 0.069,
+        "avg_column_recall": 0.85,
+        "avg_mrr": 0.783
+      },
+      "single_join": {
+        "count": 10,
+        "avg_table_precision": 0.375,
+        "avg_table_recall": 0.95,
+        "avg_column_precision": 0.207,
+        "avg_column_recall": 0.842,
+        "avg_mrr": 1.0
+      },
+      "aggregation": {
+        "count": 10,
+        "avg_table_precision": 0.539,
+        "avg_table_recall": 1.0,
+        "avg_column_precision": 0.13,
+        "avg_column_recall": 0.767,
+        "avg_mrr": 0.95
+      },
+      "multi_hop": {
+        "count": 10,
+        "avg_table_precision": 0.705,
+        "avg_table_recall": 1.0,
+        "avg_column_precision": 0.217,
+        "avg_column_recall": 0.842,
+        "avg_mrr": 1.0
+      },
+      "window_function": {
+        "count": 10,
+        "avg_table_precision": 0.477,
+        "avg_table_recall": 1.0,
+        "avg_column_precision": 0.201,
+        "avg_column_recall": 0.925,
+        "avg_mrr": 0.933
+      },
+      "simulation": {
+        "count": 5,
+        "avg_table_precision": 0.58,
+        "avg_table_recall": 1.0,
+        "avg_column_precision": 0.193,
+        "avg_column_recall": 1.0,
+        "avg_mrr": 1.0
+      }
+    }
+  },
+  "worst_recall_queries": [
+    {
+      "id": "join_06",
+      "question": "How many parts does each supplier provide? Show top 10.",
+      "table_recall": 0.5,
+      "table_misses": [
+        "partsupp"
+      ]
+    },
+    {
+      "id": "simple_01",
+      "question": "How many customers are there?",
+      "table_recall": 1.0,
+      "table_misses": []
+    },
+    {
+      "id": "simple_02",
+      "question": "List all region names.",
+      "table_recall": 1.0,
+      "table_misses": []
+    },
+    {
+      "id": "simple_03",
+      "question": "How many nations are there?",
+      "table_recall": 1.0,
+      "table_misses": []
+    },
+    {
+      "id": "simple_04",
+      "question": "What are the distinct order priorities?",
+      "table_recall": 1.0,
+      "table_misses": []
+    }
+  ],
+  "results": [
+    {
+      "table_precision": 0.125,
+      "table_recall": 1.0,
+      "column_precision": 0.048,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "part",
+        "partsupp",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer"
+      ],
+      "table_hits": [
+        "customer"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "p_name",
+        "p_partkey",
+        "promo_reduction",
+        "ps_partkey",
+        "ps_suppkey",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "s_suppkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "c_custkey"
+      ],
+      "column_hits": [
+        "c_custkey"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT s.s_name FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey JOIN part p ON p.p_p",
+          "tables": [
+            "part",
+            "partsupp",
+            "supplier"
+          ],
+          "columns": [
+            "p_name",
+            "p_partkey",
+            "ps_partkey",
+            "ps_suppkey",
+            "s_name",
+            "s_suppkey"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "simple_01",
+      "question": "How many customers are there?",
+      "difficulty": "simple_select"
+    },
+    {
+      "table_precision": 0.167,
+      "table_recall": 1.0,
+      "column_precision": 0.071,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "region"
+      ],
+      "table_hits": [
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "r_name"
+      ],
+      "column_hits": [
+        "r_name"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+          "tables": [
+            "nation",
+            "region"
+          ],
+          "columns": [
+            "n_name",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT s.s_name, n.n_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey WHERE n.n_n",
+          "tables": [
+            "nation",
+            "supplier"
+          ],
+          "columns": [
+            "n_name",
+            "n_nationkey",
+            "s_name",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "simple_02",
+      "question": "List all region names.",
+      "difficulty": "simple_select"
+    },
+    {
+      "table_precision": 0.167,
+      "table_recall": 1.0,
+      "column_precision": 0.071,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "nation",
+        "part",
+        "partsupp",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "nation"
+      ],
+      "table_hits": [
+        "nation"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "p_name",
+        "p_partkey",
+        "ps_partkey",
+        "ps_suppkey",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "s_suppkey"
+      ],
+      "gold_columns": [
+        "n_nationkey"
+      ],
+      "column_hits": [
+        "n_nationkey"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+          "tables": [
+            "nation",
+            "region"
+          ],
+          "columns": [
+            "n_name",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT s.s_name FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey JOIN part p ON p.p_p",
+          "tables": [
+            "part",
+            "partsupp",
+            "supplier"
+          ],
+          "columns": [
+            "p_name",
+            "p_partkey",
+            "ps_partkey",
+            "ps_suppkey",
+            "s_name",
+            "s_suppkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        }
+      ],
+      "id": "simple_03",
+      "question": "How many nations are there?",
+      "difficulty": "simple_select"
+    },
+    {
+      "table_precision": 0.2,
+      "table_recall": 1.0,
+      "column_precision": 0.077,
+      "column_recall": 1.0,
+      "mrr": 0.5,
+      "retrieved_tables": [
+        "lineitem",
+        "orders",
+        "part",
+        "partsupp",
+        "supplier"
+      ],
+      "gold_tables": [
+        "orders"
+      ],
+      "table_hits": [
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "l_orderkey",
+        "o_orderdate",
+        "o_orderkey",
+        "o_orderpriority",
+        "p_name",
+        "p_partkey",
+        "promo_reduction",
+        "ps_partkey",
+        "ps_suppkey",
+        "s_name",
+        "s_suppkey",
+        "total_value",
+        "total_value_forecast"
+      ],
+      "gold_columns": [
+        "o_orderpriority"
+      ],
+      "column_hits": [
+        "o_orderpriority"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT l_orderkey, SUM(total_value) as actual, SUM(total_value_forecast) as forecast FROM lineitem W",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "l_orderkey",
+            "total_value",
+            "total_value_forecast"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT o_orderkey, o_orderdate, o_orderpriority FROM orders WHERE o_orderpriority = '1-URGENT' AND o",
+          "tables": [
+            "orders"
+          ],
+          "columns": [
+            "o_orderdate",
+            "o_orderkey",
+            "o_orderpriority"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT s.s_name FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey JOIN part p ON p.p_p",
+          "tables": [
+            "part",
+            "partsupp",
+            "supplier"
+          ],
+          "columns": [
+            "p_name",
+            "p_partkey",
+            "ps_partkey",
+            "ps_suppkey",
+            "s_name",
+            "s_suppkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "simple_04",
+      "question": "What are the distinct order priorities?",
+      "difficulty": "simple_select"
+    },
+    {
+      "table_precision": 0.333,
+      "table_recall": 1.0,
+      "column_precision": 0.125,
+      "column_recall": 0.5,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "orders"
+      ],
+      "gold_tables": [
+        "customer"
+      ],
+      "table_hits": [
+        "customer"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "churn_risk",
+        "l_orderkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "total_value"
+      ],
+      "gold_columns": [
+        "c_acctbal",
+        "c_name"
+      ],
+      "column_hits": [
+        "c_name"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        }
+      ],
+      "id": "simple_05",
+      "question": "Show the top 5 customers by account balance.",
+      "difficulty": "simple_select"
+    },
+    {
+      "table_precision": 0.143,
+      "table_recall": 1.0,
+      "column_precision": 0.062,
+      "column_recall": 1.0,
+      "mrr": 0.333,
+      "retrieved_tables": [
+        "lineitem",
+        "nation",
+        "orders",
+        "part",
+        "partsupp",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "orders"
+      ],
+      "table_hits": [
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "n_nationkey",
+        "n_regionkey",
+        "o_orderdate",
+        "o_orderkey",
+        "o_orderpriority",
+        "p_name",
+        "p_partkey",
+        "promo_reduction",
+        "ps_partkey",
+        "ps_suppkey",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "s_suppkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "o_orderkey"
+      ],
+      "column_hits": [
+        "o_orderkey"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT o_orderkey, o_orderdate, o_orderpriority FROM orders WHERE o_orderpriority = '1-URGENT' AND o",
+          "tables": [
+            "orders"
+          ],
+          "columns": [
+            "o_orderdate",
+            "o_orderkey",
+            "o_orderpriority"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT s.s_name FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey JOIN part p ON p.p_p",
+          "tables": [
+            "part",
+            "partsupp",
+            "supplier"
+          ],
+          "columns": [
+            "p_name",
+            "p_partkey",
+            "ps_partkey",
+            "ps_suppkey",
+            "s_name",
+            "s_suppkey"
+          ]
+        }
+      ],
+      "id": "simple_06",
+      "question": "How many orders are in the database?",
+      "difficulty": "simple_select"
+    },
+    {
+      "table_precision": 0.2,
+      "table_recall": 1.0,
+      "column_precision": 0.0,
+      "column_recall": 0.0,
+      "mrr": 0.5,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer"
+      ],
+      "table_hits": [
+        "customer"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "s_name",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "c_mktsegment"
+      ],
+      "column_hits": [],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT s.s_name, n.n_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey WHERE n.n_n",
+          "tables": [
+            "nation",
+            "supplier"
+          ],
+          "columns": [
+            "n_name",
+            "n_nationkey",
+            "s_name",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 6,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        }
+      ],
+      "id": "simple_07",
+      "question": "List all distinct customer market segments.",
+      "difficulty": "simple_select"
+    },
+    {
+      "table_precision": 0.2,
+      "table_recall": 1.0,
+      "column_precision": 0.071,
+      "column_recall": 1.0,
+      "mrr": 0.5,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "orders"
+      ],
+      "table_hits": [
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "o_orderpriority",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value",
+        "total_value_forecast"
+      ],
+      "gold_columns": [
+        "o_orderdate"
+      ],
+      "column_hits": [
+        "o_orderdate"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT l_orderkey, SUM(total_value) as actual, SUM(total_value_forecast) as forecast FROM lineitem W",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "l_orderkey",
+            "total_value",
+            "total_value_forecast"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT o_orderkey, o_orderdate, o_orderpriority FROM orders WHERE o_orderpriority = '1-URGENT' AND o",
+          "tables": [
+            "orders"
+          ],
+          "columns": [
+            "o_orderdate",
+            "o_orderkey",
+            "o_orderpriority"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "simple_08",
+      "question": "What is the earliest order date?",
+      "difficulty": "simple_select"
+    },
+    {
+      "table_precision": 0.2,
+      "table_recall": 1.0,
+      "column_precision": 0.083,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "nation",
+        "part",
+        "partsupp",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "supplier"
+      ],
+      "table_hits": [
+        "supplier"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "p_name",
+        "p_partkey",
+        "ps_partkey",
+        "ps_suppkey",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "s_suppkey"
+      ],
+      "gold_columns": [
+        "s_suppkey"
+      ],
+      "column_hits": [
+        "s_suppkey"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT s.s_name FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey JOIN part p ON p.p_p",
+          "tables": [
+            "part",
+            "partsupp",
+            "supplier"
+          ],
+          "columns": [
+            "p_name",
+            "p_partkey",
+            "ps_partkey",
+            "ps_suppkey",
+            "s_name",
+            "s_suppkey"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT s.s_name, n.n_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey WHERE n.n_n",
+          "tables": [
+            "nation",
+            "supplier"
+          ],
+          "columns": [
+            "n_name",
+            "n_nationkey",
+            "s_name",
+            "s_nationkey"
+          ]
+        }
+      ],
+      "id": "simple_09",
+      "question": "How many suppliers are there?",
+      "difficulty": "simple_select"
+    },
+    {
+      "table_precision": 0.2,
+      "table_recall": 1.0,
+      "column_precision": 0.083,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "customer"
+      ],
+      "table_hits": [
+        "customer"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "churn_risk"
+      ],
+      "column_hits": [
+        "churn_risk"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+          "tables": [
+            "nation",
+            "region"
+          ],
+          "columns": [
+            "n_name",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "simple_10",
+      "question": "Show the distribution of churn risk across customers.",
+      "difficulty": "simple_select"
+    },
+    {
+      "table_precision": 0.333,
+      "table_recall": 1.0,
+      "column_precision": 0.267,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "nation"
+      ],
+      "table_hits": [
+        "customer",
+        "nation"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "c_name",
+        "c_nationkey",
+        "n_name",
+        "n_nationkey"
+      ],
+      "column_hits": [
+        "c_name",
+        "c_nationkey",
+        "n_name",
+        "n_nationkey"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+          "tables": [
+            "nation",
+            "region"
+          ],
+          "columns": [
+            "n_name",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "join_01",
+      "question": "Which nation does each customer belong to? Show first 20.",
+      "difficulty": "single_join"
+    },
+    {
+      "table_precision": 0.5,
+      "table_recall": 1.0,
+      "column_precision": 0.444,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "nation",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "nation",
+        "supplier"
+      ],
+      "table_hits": [
+        "nation",
+        "supplier"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey"
+      ],
+      "gold_columns": [
+        "n_name",
+        "n_nationkey",
+        "s_name",
+        "s_nationkey"
+      ],
+      "column_hits": [
+        "n_name",
+        "n_nationkey",
+        "s_name",
+        "s_nationkey"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT s.s_name, n.n_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey WHERE n.n_n",
+          "tables": [
+            "nation",
+            "supplier"
+          ],
+          "columns": [
+            "n_name",
+            "n_nationkey",
+            "s_name",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+          "tables": [
+            "nation",
+            "region"
+          ],
+          "columns": [
+            "n_name",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        }
+      ],
+      "id": "join_02",
+      "question": "List suppliers and their nation.",
+      "difficulty": "single_join"
+    },
+    {
+      "table_precision": 0.333,
+      "table_recall": 1.0,
+      "column_precision": 0.267,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "nation",
+        "region"
+      ],
+      "table_hits": [
+        "nation",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "n_name",
+        "n_regionkey",
+        "r_name",
+        "r_regionkey"
+      ],
+      "column_hits": [
+        "n_name",
+        "n_regionkey",
+        "r_name",
+        "r_regionkey"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+          "tables": [
+            "nation",
+            "region"
+          ],
+          "columns": [
+            "n_name",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT s.s_name, n.n_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey WHERE n.n_n",
+          "tables": [
+            "nation",
+            "supplier"
+          ],
+          "columns": [
+            "n_name",
+            "n_nationkey",
+            "s_name",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "join_03",
+      "question": "Show all nations and which region they belong to.",
+      "difficulty": "single_join"
+    },
+    {
+      "table_precision": 0.333,
+      "table_recall": 1.0,
+      "column_precision": 0.267,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "nation"
+      ],
+      "table_hits": [
+        "customer",
+        "nation"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "n_name",
+        "n_nationkey"
+      ],
+      "column_hits": [
+        "c_custkey",
+        "c_nationkey",
+        "n_name",
+        "n_nationkey"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT s.s_name, n.n_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey WHERE n.n_n",
+          "tables": [
+            "nation",
+            "supplier"
+          ],
+          "columns": [
+            "n_name",
+            "n_nationkey",
+            "s_name",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "join_04",
+      "question": "How many customers are in each nation?",
+      "difficulty": "single_join"
+    },
+    {
+      "table_precision": 0.25,
+      "table_recall": 1.0,
+      "column_precision": 0.095,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "part",
+        "partsupp",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "nation"
+      ],
+      "table_hits": [
+        "customer",
+        "nation"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "p_name",
+        "p_partkey",
+        "promo_reduction",
+        "ps_partkey",
+        "ps_suppkey",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "s_suppkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "c_custkey",
+        "n_name"
+      ],
+      "column_hits": [
+        "c_custkey",
+        "n_name"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT s.s_name FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey JOIN part p ON p.p_p",
+          "tables": [
+            "part",
+            "partsupp",
+            "supplier"
+          ],
+          "columns": [
+            "p_name",
+            "p_partkey",
+            "ps_partkey",
+            "ps_suppkey",
+            "s_name",
+            "s_suppkey"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "join_05",
+      "question": "Which nation has the most customers?",
+      "difficulty": "single_join"
+    },
+    {
+      "table_precision": 0.167,
+      "table_recall": 0.5,
+      "column_precision": 0.067,
+      "column_recall": 0.25,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "partsupp",
+        "supplier"
+      ],
+      "table_hits": [
+        "supplier"
+      ],
+      "table_misses": [
+        "partsupp"
+      ],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "ps_partkey",
+        "ps_suppkey",
+        "s_name",
+        "s_suppkey"
+      ],
+      "column_hits": [
+        "s_name"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT s.s_name, n.n_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey WHERE n.n_n",
+          "tables": [
+            "nation",
+            "supplier"
+          ],
+          "columns": [
+            "n_name",
+            "n_nationkey",
+            "s_name",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        }
+      ],
+      "id": "join_06",
+      "question": "How many parts does each supplier provide? Show top 10.",
+      "difficulty": "single_join"
+    },
+    {
+      "table_precision": 0.5,
+      "table_recall": 1.0,
+      "column_precision": 0.2,
+      "column_recall": 0.667,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "nation",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "nation"
+      ],
+      "table_hits": [
+        "customer",
+        "nation"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "churn_risk",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey"
+      ],
+      "gold_columns": [
+        "c_name",
+        "churn_risk",
+        "n_name"
+      ],
+      "column_hits": [
+        "churn_risk",
+        "n_name"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+          "tables": [
+            "nation",
+            "region"
+          ],
+          "columns": [
+            "n_name",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT s.s_name, n.n_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey WHERE n.n_n",
+          "tables": [
+            "nation",
+            "supplier"
+          ],
+          "columns": [
+            "n_name",
+            "n_nationkey",
+            "s_name",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        }
+      ],
+      "id": "join_07",
+      "question": "List all high-risk customers and their nation. Show first 20.",
+      "difficulty": "single_join"
+    },
+    {
+      "table_precision": 0.333,
+      "table_recall": 1.0,
+      "column_precision": 0.267,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "orders"
+      ],
+      "table_hits": [
+        "customer",
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "c_custkey",
+        "c_name",
+        "o_custkey",
+        "o_orderkey"
+      ],
+      "column_hits": [
+        "c_custkey",
+        "c_name",
+        "o_custkey",
+        "o_orderkey"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        }
+      ],
+      "id": "join_08",
+      "question": "How many orders does each customer have? Show top 10.",
+      "difficulty": "single_join"
+    },
+    {
+      "table_precision": 0.5,
+      "table_recall": 1.0,
+      "column_precision": 0.067,
+      "column_recall": 0.5,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "nation",
+        "region",
+        "supplier"
+      ],
+      "table_hits": [
+        "nation",
+        "region",
+        "supplier"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "r_name",
+        "s_suppkey"
+      ],
+      "column_hits": [
+        "r_name"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT s.s_name, n.n_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey WHERE n.n_n",
+          "tables": [
+            "nation",
+            "supplier"
+          ],
+          "columns": [
+            "n_name",
+            "n_nationkey",
+            "s_name",
+            "s_nationkey"
+          ]
+        }
+      ],
+      "id": "join_09",
+      "question": "Show the number of suppliers per region.",
+      "difficulty": "single_join"
+    },
+    {
+      "table_precision": 0.5,
+      "table_recall": 1.0,
+      "column_precision": 0.133,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "nation",
+        "region"
+      ],
+      "table_hits": [
+        "customer",
+        "nation",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "churn_risk",
+        "r_name"
+      ],
+      "column_hits": [
+        "churn_risk",
+        "r_name"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT s.s_name, n.n_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey WHERE n.n_n",
+          "tables": [
+            "nation",
+            "supplier"
+          ],
+          "columns": [
+            "n_name",
+            "n_nationkey",
+            "s_name",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        }
+      ],
+      "id": "join_10",
+      "question": "How many high-risk customers are in each region?",
+      "difficulty": "single_join"
+    },
+    {
+      "table_precision": 0.833,
+      "table_recall": 1.0,
+      "column_precision": 0.214,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value",
+        "total_value_forecast"
+      ],
+      "gold_columns": [
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "column_hits": [
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT l_orderkey, SUM(total_value) as actual, SUM(total_value_forecast) as forecast FROM lineitem W",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "l_orderkey",
+            "total_value",
+            "total_value_forecast"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        }
+      ],
+      "id": "agg_01",
+      "question": "What is the total revenue per region?",
+      "difficulty": "aggregation"
+    },
+    {
+      "table_precision": 0.25,
+      "table_recall": 1.0,
+      "column_precision": 0.15,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "part",
+        "partsupp",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "lineitem",
+        "supplier"
+      ],
+      "table_hits": [
+        "lineitem",
+        "supplier"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "p_name",
+        "p_partkey",
+        "promo_reduction",
+        "ps_partkey",
+        "ps_suppkey",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "s_suppkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "promo_reduction",
+        "s_name",
+        "total_value"
+      ],
+      "column_hits": [
+        "promo_reduction",
+        "s_name",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT s.s_name FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey JOIN part p ON p.p_p",
+          "tables": [
+            "part",
+            "partsupp",
+            "supplier"
+          ],
+          "columns": [
+            "p_name",
+            "p_partkey",
+            "ps_partkey",
+            "ps_suppkey",
+            "s_name",
+            "s_suppkey"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "agg_02",
+      "question": "Show the top 3 suppliers by total revenue.",
+      "difficulty": "aggregation"
+    },
+    {
+      "table_precision": 0.167,
+      "table_recall": 1.0,
+      "column_precision": 0.143,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "orders"
+      ],
+      "table_hits": [
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "o_orderpriority",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "o_orderdate",
+        "o_orderkey"
+      ],
+      "column_hits": [
+        "o_orderdate",
+        "o_orderkey"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT o_orderkey, o_orderdate, o_orderpriority FROM orders WHERE o_orderpriority = '1-URGENT' AND o",
+          "tables": [
+            "orders"
+          ],
+          "columns": [
+            "o_orderdate",
+            "o_orderkey",
+            "o_orderpriority"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "agg_03",
+      "question": "How many orders were placed per year?",
+      "difficulty": "aggregation"
+    },
+    {
+      "table_precision": 0.4,
+      "table_recall": 1.0,
+      "column_precision": 0.0,
+      "column_recall": 0.0,
+      "mrr": 0.5,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "customer",
+        "orders"
+      ],
+      "table_hits": [
+        "customer",
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value",
+        "total_value_forecast"
+      ],
+      "gold_columns": [
+        "c_mktsegment",
+        "o_totalprice"
+      ],
+      "column_hits": [],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT l_orderkey, SUM(total_value) as actual, SUM(total_value_forecast) as forecast FROM lineitem W",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "l_orderkey",
+            "total_value",
+            "total_value_forecast"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 6,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        }
+      ],
+      "id": "agg_04",
+      "question": "What is the average order value per customer segment?",
+      "difficulty": "aggregation"
+    },
+    {
+      "table_precision": 0.8,
+      "table_recall": 1.0,
+      "column_precision": 0.214,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value",
+        "total_value_forecast"
+      ],
+      "gold_columns": [
+        "n_name",
+        "promo_reduction",
+        "total_value"
+      ],
+      "column_hits": [
+        "n_name",
+        "promo_reduction",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT l_orderkey, SUM(total_value) as actual, SUM(total_value_forecast) as forecast FROM lineitem W",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "l_orderkey",
+            "total_value",
+            "total_value_forecast"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        }
+      ],
+      "id": "agg_05",
+      "question": "What is the total revenue per nation?",
+      "difficulty": "aggregation"
+    },
+    {
+      "table_precision": 0.5,
+      "table_recall": 1.0,
+      "column_precision": 0.067,
+      "column_recall": 0.5,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "nation",
+        "region"
+      ],
+      "table_hits": [
+        "customer",
+        "nation",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value",
+        "total_value_forecast"
+      ],
+      "gold_columns": [
+        "c_acctbal",
+        "r_name"
+      ],
+      "column_hits": [
+        "r_name"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT l_orderkey, SUM(total_value) as actual, SUM(total_value_forecast) as forecast FROM lineitem W",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "l_orderkey",
+            "total_value",
+            "total_value_forecast"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        }
+      ],
+      "id": "agg_06",
+      "question": "What is the average account balance per region?",
+      "difficulty": "aggregation"
+    },
+    {
+      "table_precision": 0.375,
+      "table_recall": 1.0,
+      "column_precision": 0.1,
+      "column_recall": 0.667,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "part",
+        "partsupp",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "orders"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "p_name",
+        "p_partkey",
+        "promo_reduction",
+        "ps_partkey",
+        "ps_suppkey",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_suppkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "c_mktsegment",
+        "promo_reduction",
+        "total_value"
+      ],
+      "column_hits": [
+        "promo_reduction",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT s.s_name FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey JOIN part p ON p.p_p",
+          "tables": [
+            "part",
+            "partsupp",
+            "supplier"
+          ],
+          "columns": [
+            "p_name",
+            "p_partkey",
+            "ps_partkey",
+            "ps_suppkey",
+            "s_name",
+            "s_suppkey"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "agg_07",
+      "question": "Which customer segment generates the most revenue?",
+      "difficulty": "aggregation"
+    },
+    {
+      "table_precision": 0.833,
+      "table_recall": 1.0,
+      "column_precision": 0.067,
+      "column_recall": 0.5,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value",
+        "total_value_forecast"
+      ],
+      "gold_columns": [
+        "l_quantity",
+        "r_name"
+      ],
+      "column_hits": [
+        "r_name"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT l_orderkey, SUM(total_value) as actual, SUM(total_value_forecast) as forecast FROM lineitem W",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "l_orderkey",
+            "total_value",
+            "total_value_forecast"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        }
+      ],
+      "id": "agg_08",
+      "question": "What is the total quantity shipped per region?",
+      "difficulty": "aggregation"
+    },
+    {
+      "table_precision": 0.4,
+      "table_recall": 1.0,
+      "column_precision": 0.2,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "lineitem",
+        "orders"
+      ],
+      "table_hits": [
+        "lineitem",
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "o_orderpriority",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value",
+        "total_value_forecast"
+      ],
+      "gold_columns": [
+        "o_orderpriority",
+        "promo_reduction",
+        "total_value"
+      ],
+      "column_hits": [
+        "o_orderpriority",
+        "promo_reduction",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT o_orderkey, o_orderdate, o_orderpriority FROM orders WHERE o_orderpriority = '1-URGENT' AND o",
+          "tables": [
+            "orders"
+          ],
+          "columns": [
+            "o_orderdate",
+            "o_orderkey",
+            "o_orderpriority"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT l_orderkey, SUM(total_value) as actual, SUM(total_value_forecast) as forecast FROM lineitem W",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "l_orderkey",
+            "total_value",
+            "total_value_forecast"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "agg_09",
+      "question": "Show revenue by order priority.",
+      "difficulty": "aggregation"
+    },
+    {
+      "table_precision": 0.833,
+      "table_recall": 1.0,
+      "column_precision": 0.143,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "promo_reduction",
+        "r_name"
+      ],
+      "column_hits": [
+        "promo_reduction",
+        "r_name"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        }
+      ],
+      "id": "agg_10",
+      "question": "What is the average discount per region?",
+      "difficulty": "aggregation"
+    },
+    {
+      "table_precision": 0.875,
+      "table_recall": 1.0,
+      "column_precision": 0.263,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "part",
+        "partsupp",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "partsupp",
+        "region",
+        "supplier"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "partsupp",
+        "region",
+        "supplier"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "p_name",
+        "p_partkey",
+        "promo_reduction",
+        "ps_partkey",
+        "ps_suppkey",
+        "r_name",
+        "r_regionkey",
+        "s_name",
+        "s_nationkey",
+        "s_suppkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "promo_reduction",
+        "ps_partkey",
+        "r_name",
+        "s_name",
+        "total_value"
+      ],
+      "column_hits": [
+        "promo_reduction",
+        "ps_partkey",
+        "r_name",
+        "s_name",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT s.s_name FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey JOIN part p ON p.p_p",
+          "tables": [
+            "part",
+            "partsupp",
+            "supplier"
+          ],
+          "columns": [
+            "p_name",
+            "p_partkey",
+            "ps_partkey",
+            "ps_suppkey",
+            "s_name",
+            "s_suppkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+          "tables": [
+            "nation",
+            "region"
+          ],
+          "columns": [
+            "n_name",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "multi_01",
+      "question": "Which supplier has the most parts in the region with the lowest revenue?",
+      "difficulty": "multi_hop"
+    },
+    {
+      "table_precision": 0.8,
+      "table_recall": 1.0,
+      "column_precision": 0.214,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "n_name",
+        "promo_reduction",
+        "total_value"
+      ],
+      "column_hits": [
+        "n_name",
+        "promo_reduction",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        }
+      ],
+      "id": "multi_02",
+      "question": "Find the top 3 nations by revenue where the average discount is above 0.05.",
+      "difficulty": "multi_hop"
+    },
+    {
+      "table_precision": 0.667,
+      "table_recall": 1.0,
+      "column_precision": 0.4,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "orders"
+      ],
+      "gold_tables": [
+        "customer",
+        "orders"
+      ],
+      "table_hits": [
+        "customer",
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "churn_risk",
+        "l_orderkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "o_orderpriority",
+        "promo_reduction",
+        "total_value"
+      ],
+      "gold_columns": [
+        "c_custkey",
+        "c_name",
+        "o_custkey",
+        "o_orderkey"
+      ],
+      "column_hits": [
+        "c_custkey",
+        "c_name",
+        "o_custkey",
+        "o_orderkey"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT o_orderkey, o_orderdate, o_orderpriority FROM orders WHERE o_orderpriority = '1-URGENT' AND o",
+          "tables": [
+            "orders"
+          ],
+          "columns": [
+            "o_orderdate",
+            "o_orderkey",
+            "o_orderpriority"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        }
+      ],
+      "id": "multi_03",
+      "question": "List customers who have placed more orders than the average number of orders per customer.",
+      "difficulty": "multi_hop"
+    },
+    {
+      "table_precision": 0.667,
+      "table_recall": 1.0,
+      "column_precision": 0.071,
+      "column_recall": 0.5,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_hits": [
+        "customer",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value",
+        "total_value_forecast"
+      ],
+      "gold_columns": [
+        "o_totalprice",
+        "r_name"
+      ],
+      "column_hits": [
+        "r_name"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT l_orderkey, SUM(total_value) as actual, SUM(total_value_forecast) as forecast FROM lineitem W",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "l_orderkey",
+            "total_value",
+            "total_value_forecast"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+          "tables": [
+            "nation",
+            "region"
+          ],
+          "columns": [
+            "n_name",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        }
+      ],
+      "id": "multi_04",
+      "question": "Which region has the highest average order value?",
+      "difficulty": "multi_hop"
+    },
+    {
+      "table_precision": 0.667,
+      "table_recall": 1.0,
+      "column_precision": 0.214,
+      "column_recall": 0.75,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "lineitem",
+        "nation",
+        "region",
+        "supplier"
+      ],
+      "table_hits": [
+        "lineitem",
+        "nation",
+        "region",
+        "supplier"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "promo_reduction",
+        "r_name",
+        "s_name",
+        "total_value"
+      ],
+      "column_hits": [
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        }
+      ],
+      "id": "multi_05",
+      "question": "Find the supplier with the highest revenue in each region.",
+      "difficulty": "multi_hop"
+    },
+    {
+      "table_precision": 0.833,
+      "table_recall": 1.0,
+      "column_precision": 0.231,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "column_hits": [
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "multi_06",
+      "question": "What percentage of total revenue comes from each region?",
+      "difficulty": "multi_hop"
+    },
+    {
+      "table_precision": 0.8,
+      "table_recall": 1.0,
+      "column_precision": 0.286,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "churn_risk",
+        "n_name",
+        "promo_reduction",
+        "total_value"
+      ],
+      "column_hits": [
+        "churn_risk",
+        "n_name",
+        "promo_reduction",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "multi_07",
+      "question": "Which nation has the highest revenue among high-risk customers?",
+      "difficulty": "multi_hop"
+    },
+    {
+      "table_precision": 1.0,
+      "table_recall": 1.0,
+      "column_precision": 0.286,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "c_name",
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "column_hits": [
+        "c_name",
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        }
+      ],
+      "id": "multi_08",
+      "question": "Show the top 5 customers by revenue in the ASIA region.",
+      "difficulty": "multi_hop"
+    },
+    {
+      "table_precision": 0.6,
+      "table_recall": 1.0,
+      "column_precision": 0.143,
+      "column_recall": 0.667,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "customer",
+        "nation",
+        "region"
+      ],
+      "table_hits": [
+        "customer",
+        "nation",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "c_acctbal",
+        "churn_risk",
+        "r_name"
+      ],
+      "column_hits": [
+        "churn_risk",
+        "r_name"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+          "tables": [
+            "nation",
+            "region"
+          ],
+          "columns": [
+            "n_name",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        }
+      ],
+      "id": "multi_09",
+      "question": "Compare average account balance between high-risk and low-risk customers by region.",
+      "difficulty": "multi_hop"
+    },
+    {
+      "table_precision": 0.143,
+      "table_recall": 1.0,
+      "column_precision": 0.062,
+      "column_recall": 0.5,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "part",
+        "partsupp",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer"
+      ],
+      "table_hits": [
+        "customer"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "o_orderdate",
+        "o_orderkey",
+        "p_name",
+        "p_partkey",
+        "promo_reduction",
+        "ps_partkey",
+        "ps_suppkey",
+        "s_name",
+        "s_suppkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "c_mktsegment",
+        "churn_risk"
+      ],
+      "column_hits": [
+        "churn_risk"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT s.s_name FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey JOIN part p ON p.p_p",
+          "tables": [
+            "part",
+            "partsupp",
+            "supplier"
+          ],
+          "columns": [
+            "p_name",
+            "p_partkey",
+            "ps_partkey",
+            "ps_suppkey",
+            "s_name",
+            "s_suppkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "multi_10",
+      "question": "Which market segment has the most high-risk customers?",
+      "difficulty": "multi_hop"
+    },
+    {
+      "table_precision": 0.4,
+      "table_recall": 1.0,
+      "column_precision": 0.214,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "lineitem",
+        "orders"
+      ],
+      "table_hits": [
+        "lineitem",
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value",
+        "total_value_forecast"
+      ],
+      "gold_columns": [
+        "o_orderdate",
+        "promo_reduction",
+        "total_value"
+      ],
+      "column_hits": [
+        "o_orderdate",
+        "promo_reduction",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT l_orderkey, SUM(total_value) as actual, SUM(total_value_forecast) as forecast FROM lineitem W",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "l_orderkey",
+            "total_value",
+            "total_value_forecast"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "window_01",
+      "question": "What is the month-over-month revenue trend for 1995?",
+      "difficulty": "window_function"
+    },
+    {
+      "table_precision": 0.833,
+      "table_recall": 1.0,
+      "column_precision": 0.286,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "n_name",
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "column_hits": [
+        "n_name",
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+          "tables": [
+            "nation",
+            "region"
+          ],
+          "columns": [
+            "n_name",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey"
+          ]
+        }
+      ],
+      "id": "window_02",
+      "question": "Rank nations by total revenue within each region.",
+      "difficulty": "window_function"
+    },
+    {
+      "table_precision": 0.4,
+      "table_recall": 1.0,
+      "column_precision": 0.214,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "lineitem",
+        "orders"
+      ],
+      "table_hits": [
+        "lineitem",
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "o_orderdate",
+        "promo_reduction",
+        "total_value"
+      ],
+      "column_hits": [
+        "o_orderdate",
+        "promo_reduction",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        }
+      ],
+      "id": "window_03",
+      "question": "Show cumulative revenue over time by year.",
+      "difficulty": "window_function"
+    },
+    {
+      "table_precision": 0.4,
+      "table_recall": 1.0,
+      "column_precision": 0.214,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "lineitem",
+        "orders"
+      ],
+      "table_hits": [
+        "lineitem",
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "o_orderdate",
+        "promo_reduction",
+        "total_value"
+      ],
+      "column_hits": [
+        "o_orderdate",
+        "promo_reduction",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "window_04",
+      "question": "Show the year-over-year revenue growth rate.",
+      "difficulty": "window_function"
+    },
+    {
+      "table_precision": 0.2,
+      "table_recall": 1.0,
+      "column_precision": 0.143,
+      "column_recall": 1.0,
+      "mrr": 0.333,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "orders"
+      ],
+      "table_hits": [
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "churn_risk",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "o_orderpriority",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "o_orderdate",
+        "o_orderkey"
+      ],
+      "column_hits": [
+        "o_orderdate",
+        "o_orderkey"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT o_orderkey, o_orderdate, o_orderpriority FROM orders WHERE o_orderpriority = '1-URGENT' AND o",
+          "tables": [
+            "orders"
+          ],
+          "columns": [
+            "o_orderdate",
+            "o_orderkey",
+            "o_orderpriority"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "window_05",
+      "question": "Show a running total of orders per month in 1996.",
+      "difficulty": "window_function"
+    },
+    {
+      "table_precision": 0.4,
+      "table_recall": 1.0,
+      "column_precision": 0.083,
+      "column_recall": 0.5,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "customer",
+        "orders"
+      ],
+      "table_hits": [
+        "customer",
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "churn_risk",
+        "l_orderkey",
+        "n_name",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "c_name",
+        "o_totalprice"
+      ],
+      "column_hits": [
+        "c_name"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT COUNT(*) as high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK';",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+          "tables": [
+            "nation",
+            "region"
+          ],
+          "columns": [
+            "n_name",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT churn_risk, COUNT(*) as count FROM customer GROUP BY churn_risk;",
+          "tables": [
+            "customer"
+          ],
+          "columns": [
+            "churn_risk"
+          ]
+        }
+      ],
+      "id": "window_06",
+      "question": "Rank customers by total spending and show their percentile. Show top 20.",
+      "difficulty": "window_function"
+    },
+    {
+      "table_precision": 0.4,
+      "table_recall": 1.0,
+      "column_precision": 0.214,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "lineitem",
+        "orders"
+      ],
+      "table_hits": [
+        "lineitem",
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value",
+        "total_value_forecast"
+      ],
+      "gold_columns": [
+        "o_orderdate",
+        "promo_reduction",
+        "total_value"
+      ],
+      "column_hits": [
+        "o_orderdate",
+        "promo_reduction",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT l_orderkey, SUM(total_value) as actual, SUM(total_value_forecast) as forecast FROM lineitem W",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "l_orderkey",
+            "total_value",
+            "total_value_forecast"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "window_07",
+      "question": "What is the 3-month moving average of revenue in 1995?",
+      "difficulty": "window_function"
+    },
+    {
+      "table_precision": 0.833,
+      "table_recall": 1.0,
+      "column_precision": 0.214,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "column_hits": [
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+          "tables": [
+            "nation",
+            "region"
+          ],
+          "columns": [
+            "n_name",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "window_08",
+      "question": "Show each region's revenue and its difference from the overall average.",
+      "difficulty": "window_function"
+    },
+    {
+      "table_precision": 0.5,
+      "table_recall": 1.0,
+      "column_precision": 0.214,
+      "column_recall": 0.75,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "lineitem",
+        "nation",
+        "supplier"
+      ],
+      "table_hits": [
+        "lineitem",
+        "nation",
+        "supplier"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "n_name",
+        "promo_reduction",
+        "s_name",
+        "total_value"
+      ],
+      "column_hits": [
+        "n_name",
+        "promo_reduction",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT n.n_name, COUNT(c.c_custkey) as customer_count FROM customer c JOIN nation n ON c.c_nationkey",
+          "tables": [
+            "customer",
+            "nation"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "n_name",
+            "n_nationkey"
+          ]
+        }
+      ],
+      "id": "window_09",
+      "question": "Show the top supplier per nation by revenue.",
+      "difficulty": "window_function"
+    },
+    {
+      "table_precision": 0.4,
+      "table_recall": 1.0,
+      "column_precision": 0.214,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "lineitem",
+        "orders"
+      ],
+      "table_hits": [
+        "lineitem",
+        "orders"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "o_orderpriority",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "o_orderdate",
+        "promo_reduction",
+        "total_value"
+      ],
+      "column_hits": [
+        "o_orderdate",
+        "promo_reduction",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT o_orderkey, o_orderdate, o_orderpriority FROM orders WHERE o_orderpriority = '1-URGENT' AND o",
+          "tables": [
+            "orders"
+          ],
+          "columns": [
+            "o_orderdate",
+            "o_orderkey",
+            "o_orderpriority"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "window_10",
+      "question": "Show quarterly revenue for 1995 with quarter-over-quarter growth.",
+      "difficulty": "window_function"
+    },
+    {
+      "table_precision": 0.2,
+      "table_recall": 1.0,
+      "column_precision": 0.154,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "lineitem"
+      ],
+      "table_hits": [
+        "lineitem"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "promo_reduction",
+        "total_value"
+      ],
+      "column_hits": [
+        "promo_reduction",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "sim_01",
+      "question": "What if we increased the discount by 10%? How would that affect total revenue?",
+      "difficulty": "simulation"
+    },
+    {
+      "table_precision": 0.833,
+      "table_recall": 1.0,
+      "column_precision": 0.214,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "l_orderkey",
+        "n_name",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "column_hits": [
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+          "tables": [
+            "nation",
+            "region"
+          ],
+          "columns": [
+            "n_name",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey"
+          ]
+        },
+        {
+          "rank": 5,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        }
+      ],
+      "id": "sim_02",
+      "question": "Simulate a 5% price increase on all line items and show revenue by region.",
+      "difficulty": "simulation"
+    },
+    {
+      "table_precision": 0.833,
+      "table_recall": 1.0,
+      "column_precision": 0.214,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "column_hits": [
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        }
+      ],
+      "id": "sim_03",
+      "question": "What if we increased the discount by 15% for the EUROPE region only? Show revenue by region.",
+      "difficulty": "simulation"
+    },
+    {
+      "table_precision": 0.833,
+      "table_recall": 1.0,
+      "column_precision": 0.214,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region",
+        "supplier"
+      ],
+      "gold_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_hits": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_name",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "s_nationkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "column_hits": [
+        "promo_reduction",
+        "r_name",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) as revenue FROM customer c JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_name",
+            "l_orderkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 4,
+          "sql_fragment": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nat",
+          "tables": [
+            "nation",
+            "region",
+            "supplier"
+          ],
+          "columns": [
+            "n_nationkey",
+            "n_regionkey",
+            "r_name",
+            "r_regionkey",
+            "s_nationkey"
+          ]
+        }
+      ],
+      "id": "sim_04",
+      "question": "What if we increased the price by 5% and reduced the discount by 3%? Show revenue by region.",
+      "difficulty": "simulation"
+    },
+    {
+      "table_precision": 0.2,
+      "table_recall": 1.0,
+      "column_precision": 0.167,
+      "column_recall": 1.0,
+      "mrr": 1.0,
+      "retrieved_tables": [
+        "customer",
+        "lineitem",
+        "nation",
+        "orders",
+        "region"
+      ],
+      "gold_tables": [
+        "lineitem"
+      ],
+      "table_hits": [
+        "lineitem"
+      ],
+      "table_misses": [],
+      "retrieved_columns": [
+        "c_custkey",
+        "c_nationkey",
+        "l_orderkey",
+        "n_nationkey",
+        "n_regionkey",
+        "o_custkey",
+        "o_orderdate",
+        "o_orderkey",
+        "promo_reduction",
+        "r_name",
+        "r_regionkey",
+        "total_value"
+      ],
+      "gold_columns": [
+        "promo_reduction",
+        "total_value"
+      ],
+      "column_hits": [
+        "promo_reduction",
+        "total_value"
+      ],
+      "per_example": [
+        {
+          "rank": 1,
+          "sql_fragment": "SELECT SUM(l.total_value * l.promo_reduction) as total_discount_value FROM lineitem;",
+          "tables": [
+            "lineitem"
+          ],
+          "columns": [
+            "promo_reduction",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 2,
+          "sql_fragment": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders",
+          "tables": [
+            "customer",
+            "lineitem",
+            "nation",
+            "orders",
+            "region"
+          ],
+          "columns": [
+            "c_custkey",
+            "c_nationkey",
+            "l_orderkey",
+            "n_nationkey",
+            "n_regionkey",
+            "o_custkey",
+            "o_orderkey",
+            "promo_reduction",
+            "r_name",
+            "r_regionkey",
+            "total_value"
+          ]
+        },
+        {
+          "rank": 3,
+          "sql_fragment": "SELECT SUM(l.total_value * (1 - l.promo_reduction)) as total_revenue FROM lineitem l JOIN orders o O",
+          "tables": [
+            "lineitem",
+            "orders"
+          ],
+          "columns": [
+            "l_orderkey",
+            "o_orderdate",
+            "o_orderkey",
+            "promo_reduction",
+            "total_value"
+          ]
+        }
+      ],
+      "id": "sim_05",
+      "question": "How sensitive is total revenue to discount changes? Test discount increases of 5%, 10%, 15%, and 20%.",
+      "difficulty": "simulation"
+    }
+  ]
+}
