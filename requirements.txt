@@ -11,3 +11,4 @@ langchain-anthropic==0.1.23
 sentence-transformers
 streamlit
 pytest
+onnxruntime==1.18.1
