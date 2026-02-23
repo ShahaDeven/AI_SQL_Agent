@@ -105,7 +105,7 @@ def visualize_simulation(df):
         numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
         
         # Show the data table with styling
-        st.dataframe(df, hide_index=True, use_container_width=True)
+        st.dataframe(df, hide_index=True, width='stretch')
         
         # Bar chart: scenario vs simulated values
         sim_col = next((cols_lower[c] for c in cols_lower if 'simulated' in c), None)
@@ -137,7 +137,7 @@ def visualize_simulation(df):
         st.bar_chart(chart_df)
         
         # Full data table below
-        st.dataframe(df, hide_index=True, use_container_width=True)
+        st.dataframe(df, hide_index=True, width='stretch')
         return
     
     # --- SINGLE ROW COMPARISON (total level) ---
@@ -154,11 +154,11 @@ def visualize_simulation(df):
         col2.metric("Simulated", f"${sim_val:,.0f}")
         col3.metric("Impact", f"{pct:+.2f}%", delta=f"${diff:,.0f}")
         
-        st.dataframe(df, hide_index=True, use_container_width=True)
+        st.dataframe(df, hide_index=True, width='stretch')
         return
     
     # Fallback
-    st.dataframe(df, hide_index=True, use_container_width=True)
+    st.dataframe(df, hide_index=True, width='stretch')
 
 
 def auto_visualize(df, is_sim=False):
@@ -188,7 +188,7 @@ def auto_visualize(df, is_sim=False):
         st.bar_chart(df.set_index(text_cols[0])[numeric_cols])
         return
 
-    st.dataframe(df, hide_index=True, use_container_width=True)
+    st.dataframe(df, hide_index=True, width='stretch')
 
 
 def execute_query(prompt: str):
@@ -370,7 +370,7 @@ with st.sidebar:
                 desc = table_descriptions.get(table_name, "No description available.")
                 with st.expander(f"**{table_name.upper()}**"):
                     st.caption(desc) 
-                    st.dataframe(df_columns, hide_index=True, use_container_width=True)
+                    st.dataframe(df_columns, hide_index=True, width='stretch')
 
     elif sidebar_tab == "🧪 Scenarios":
         st.header("🧪 What-If Scenarios")
@@ -393,7 +393,7 @@ with st.sidebar:
 
         if ctx:
             st.caption(f"📌 Adapted to your context: **{scope_label}** | Price: {price_pct}% | Discount: {disc_pct}%")
-            if st.button("🔄 Reset to defaults", key="sc_reset", use_container_width=True):
+            if st.button("🔄 Reset to defaults", key="sc_reset", width='stretch'):
                 st.session_state["_scenario_context"] = {}
                 st.rerun()
             st.divider()
@@ -408,25 +408,25 @@ with st.sidebar:
             scope_filter = f" for the {segment} segment"
 
         st.subheader("💰 Pricing Scenarios")
-        if st.button(f"📈 Price +{price_pct}%, show by region", key="sc_price_up", use_container_width=True):
+        if st.button(f"📈 Price +{price_pct}%, show by region", key="sc_price_up", width='stretch'):
             st.session_state["_scenario_prompt"] = f"What if we increased the price by {price_pct}%{scope_filter}? Show the impact on revenue by region."
-        if st.button(f"📉 Price -{price_pct}%, show by region", key="sc_price_down", use_container_width=True):
+        if st.button(f"📉 Price -{price_pct}%, show by region", key="sc_price_down", width='stretch'):
             st.session_state["_scenario_prompt"] = f"What if we decreased the price by {price_pct}%{scope_filter}? Show the impact on revenue by region."
 
         st.subheader("🏷️ Discount Scenarios")
-        if st.button(f"🏷️ Discount +{disc_pct}%, total impact", key="sc_disc_up", use_container_width=True):
+        if st.button(f"🏷️ Discount +{disc_pct}%, total impact", key="sc_disc_up", width='stretch'):
             st.session_state["_scenario_prompt"] = f"What if we increased the discount by {disc_pct}%? How would that affect total revenue?"
-        if st.button(f"🏷️ Discount +{disc_pct}%{scope_filter} only", key="sc_disc_scoped", use_container_width=True):
+        if st.button(f"🏷️ Discount +{disc_pct}%{scope_filter} only", key="sc_disc_scoped", width='stretch'):
             st.session_state["_scenario_prompt"] = f"What if we increased the discount by {disc_pct}%{scope_filter} only? Show revenue by region comparing original vs simulated."
 
         st.subheader("🔀 Multi-Variable")
-        if st.button(f"📈 Price +{price_pct}% AND Discount -{max(disc_pct // 3, 1)}%", key="sc_multi", use_container_width=True):
+        if st.button(f"📈 Price +{price_pct}% AND Discount -{max(disc_pct // 3, 1)}%", key="sc_multi", width='stretch'):
             st.session_state["_scenario_prompt"] = f"What if we increased the price by {price_pct}% and reduced the discount by {max(disc_pct // 3, 1)}%{scope_filter}? Show revenue by region."
 
         st.subheader("📊 Sensitivity Analysis")
-        if st.button("📊 Revenue sensitivity to discount", key="sc_sens_disc", use_container_width=True):
+        if st.button("📊 Revenue sensitivity to discount", key="sc_sens_disc", width='stretch'):
             st.session_state["_scenario_prompt"] = f"How sensitive is total revenue to discount changes{scope_filter}? Test discount increases of 5%, 10%, 15%, and 20%."
-        if st.button("📊 Revenue sensitivity to price", key="sc_sens_price", use_container_width=True):
+        if st.button("📊 Revenue sensitivity to price", key="sc_sens_price", width='stretch'):
             st.session_state["_scenario_prompt"] = f"How sensitive is total revenue to price changes{scope_filter}? Test price increases of 5%, 10%, 15%, and 20%."
 
         # --- Scenario History & Comparison ---
@@ -443,7 +443,7 @@ with st.sidebar:
             # Show each saved scenario
             for i, sc in enumerate(reversed(history)):
                 with st.expander(f"🕐 {sc['timestamp']} — {sc['label']}"):
-                    st.dataframe(sc["df"], hide_index=True, use_container_width=True)
+                    st.dataframe(sc["df"], hide_index=True, width='stretch')
                     st.code(sc["sql"], language="sql")
             
             # --- Compare mode: select 2+ scenarios ---
@@ -512,19 +512,19 @@ with st.sidebar:
                         st.bar_chart(comp_df.set_index("Scenario")[["Value"]])
                         
                         # Data table
-                        st.dataframe(comp_df, hide_index=True, use_container_width=True)
+                        st.dataframe(comp_df, hide_index=True, width='stretch')
                     else:
                         st.warning("Could not extract comparable metrics from selected scenarios.")
             
             # Clear history button
-            if st.button("🗑️ Clear scenario history", key="sc_clear_history", use_container_width=True):
+            if st.button("🗑️ Clear scenario history", key="sc_clear_history", width='stretch'):
                 st.session_state["_scenario_history"] = []
                 st.rerun()
 
     elif sidebar_tab == "📊 Metrics":
         st.header("📊 Agent Metrics")
         
-        if st.button("🔄 Refresh Metrics", use_container_width=True):
+        if st.button("🔄 Refresh Metrics", width='stretch'):
             st.rerun()
 
         metrics = get_metrics()
@@ -651,7 +651,7 @@ if st.session_state.pending_clarification:
             if cols[i].button(
                 option, 
                 key=f"clarify_{i}", 
-                use_container_width=True
+                width='stretch'
             ):
                 # User selected an option - refine the question
                 original_q = st.session_state.original_question
