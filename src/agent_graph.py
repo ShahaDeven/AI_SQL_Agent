@@ -34,7 +34,6 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from src.retriever import get_few_shot_examples
 from src.metrics import MetricsTracker
 import sqlparse
-from langchain_anthropic import ChatAnthropic
 
 load_dotenv()
 
@@ -54,8 +53,21 @@ elif os.path.exists(FULL_DB_PATH):
 else:
     raise FileNotFoundError(f"Critical Error: No database found! Checked: \n1. {DEMO_DB_PATH}\n2. {FULL_DB_PATH}")
 
-MODEL_NAME = "gemini-2.5-flash" 
-llm = ChatAnthropic(model="claude-sonnet-4-5-20250929", temperature=0)
+# Dynamic LLM selection based on available API key
+if os.getenv("ANTHROPIC_API_KEY"):
+    from langchain_anthropic import ChatAnthropic
+    llm = ChatAnthropic(model="claude-sonnet-4-20250514", temperature=0)
+    print("Using: Anthropic Claude Sonnet 4")
+elif os.getenv("GOOGLE_API_KEY"):
+    from langchain_google_genai import ChatGoogleGenerativeAI
+    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0)
+    print("Using: Google Gemini 2.5 Flash")
+elif os.getenv("OPENAI_API_KEY"):
+    from langchain_openai import ChatOpenAI
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    print("Using: OpenAI GPT-4o Mini")
+else:
+    raise ValueError("No API key found. Set ANTHROPIC_API_KEY, GOOGLE_API_KEY, or OPENAI_API_KEY in .env")
 
 CACHE_FILE = os.path.join(PROJECT_ROOT, "sql_cache.json")
 

@@ -105,7 +105,7 @@ def visualize_simulation(df):
         numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
         
         # Show the data table with styling
-        st.dataframe(df, hide_index=True, width='stretch')
+        st.dataframe(df, hide_index=True, width=1200)
         
         # Bar chart: scenario vs simulated values
         sim_col = next((cols_lower[c] for c in cols_lower if 'simulated' in c), None)
@@ -137,7 +137,7 @@ def visualize_simulation(df):
         st.bar_chart(chart_df)
         
         # Full data table below
-        st.dataframe(df, hide_index=True, width='stretch')
+        st.dataframe(df, hide_index=True, width=1200)
         return
     
     # --- SINGLE ROW COMPARISON (total level) ---
@@ -154,11 +154,11 @@ def visualize_simulation(df):
         col2.metric("Simulated", f"${sim_val:,.0f}")
         col3.metric("Impact", f"{pct:+.2f}%", delta=f"${diff:,.0f}")
         
-        st.dataframe(df, hide_index=True, width='stretch')
+        st.dataframe(df, hide_index=True, width=1200)
         return
     
     # Fallback
-    st.dataframe(df, hide_index=True, width='stretch')
+    st.dataframe(df, hide_index=True, width=1200)
 
 
 def auto_visualize(df, is_sim=False):
@@ -188,7 +188,7 @@ def auto_visualize(df, is_sim=False):
         st.bar_chart(df.set_index(text_cols[0])[numeric_cols])
         return
 
-    st.dataframe(df, hide_index=True, width='stretch')
+    st.dataframe(df, hide_index=True, width=1200)
 
 
 def execute_query(prompt: str):
@@ -370,7 +370,7 @@ with st.sidebar:
                 desc = table_descriptions.get(table_name, "No description available.")
                 with st.expander(f"**{table_name.upper()}**"):
                     st.caption(desc) 
-                    st.dataframe(df_columns, hide_index=True, width='stretch')
+                    st.dataframe(df_columns, hide_index=True, width=1200)
 
     elif sidebar_tab == "🧪 Scenarios":
         st.header("🧪 What-If Scenarios")
@@ -443,7 +443,7 @@ with st.sidebar:
             # Show each saved scenario
             for i, sc in enumerate(reversed(history)):
                 with st.expander(f"🕐 {sc['timestamp']} — {sc['label']}"):
-                    st.dataframe(sc["df"], hide_index=True, width='stretch')
+                    st.dataframe(sc["df"], hide_index=True, width=1200)
                     st.code(sc["sql"], language="sql")
             
             # --- Compare mode: select 2+ scenarios ---
@@ -512,7 +512,7 @@ with st.sidebar:
                         st.bar_chart(comp_df.set_index("Scenario")[["Value"]])
                         
                         # Data table
-                        st.dataframe(comp_df, hide_index=True, width='stretch')
+                        st.dataframe(comp_df, hide_index=True, width=1200)
                     else:
                         st.warning("Could not extract comparable metrics from selected scenarios.")
             

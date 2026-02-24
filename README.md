@@ -132,6 +132,8 @@ cd AI_SQL_Agent
 
 # Add your API key
 echo "ANTHROPIC_API_KEY=your_key_here" > .env
+# OR: echo "GOOGLE_API_KEY=your_key_here" > .env
+# OR: echo "OPENAI_API_KEY=your_key_here" > .env
 
 # Run (auto-generates demo DB on first run)
 docker compose up --build
@@ -151,6 +153,8 @@ pip install -r requirements.txt
 
 # Add your API key
 echo "ANTHROPIC_API_KEY=your_key_here" > .env
+# OR: echo "GOOGLE_API_KEY=your_key_here" > .env
+# OR: echo "OPENAI_API_KEY=your_key_here" > .env
 
 # Generate demo database (first time only)
 python scripts/demo_db.py
@@ -161,6 +165,15 @@ python -c "from src.retriever import setup_vector_db; setup_vector_db()"
 # Run
 streamlit run app.py
 ```
+
+### Supported LLM Providers
+| Provider | API Key | Model Used |
+|---|---|---|
+| **Anthropic** | `ANTHROPIC_API_KEY` | Claude Sonnet 4 |
+| **Google** | `GOOGLE_API_KEY` | Gemini 2.5 Flash |
+| **OpenAI** | `OPENAI_API_KEY` | GPT-4o Mini |
+
+> The agent auto-detects which API key is set. Only one is required.
 
 ---
 

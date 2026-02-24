@@ -8,6 +8,7 @@ langchain-google-genai==1.0.10
 langchain-chroma==0.2.2
 langchain-huggingface==0.0.3
 langchain-anthropic==0.1.23
+langchain-openai==0.1.25
 sentence-transformers
 streamlit
 pytest
