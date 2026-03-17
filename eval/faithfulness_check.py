@@ -354,12 +354,12 @@ def run_faithfulness_check():
     print(f"  Faithfulness Rate:    {faithfulness_rate}%")
 
     if any(v > 0 for v in issue_counts.values()):
-        print(f"\n  Issue Breakdown:")
+        print("\n  Issue Breakdown:")
         for issue_type, count in issue_counts.items():
             if count > 0:
                 print(f"    {issue_type}: {count}")
 
-    print(f"\n  Per-Tier:")
+    print("\n  Per-Tier:")
     for tier in ["simple_select", "single_join", "aggregation", "multi_hop", "window_function", "simulation"]:
         if tier in tier_summary:
             t = tier_summary[tier]
@@ -368,7 +368,7 @@ def run_faithfulness_check():
     # Show unfaithful queries
     unfaithful = [r for r in results if not r["faithful"]]
     if unfaithful:
-        print(f"\n  Unfaithful Queries:")
+        print("\n  Unfaithful Queries:")
         for r in unfaithful:
             print(f"    {r['id']}: {r['issues'][0][:80]}")
 

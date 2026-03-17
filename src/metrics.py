@@ -17,9 +17,7 @@ Session-level aggregates:
 """
 
 import time
-import json
-import os
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, asdict
 from typing import Optional
 
 

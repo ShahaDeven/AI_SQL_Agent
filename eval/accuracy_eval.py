@@ -18,7 +18,6 @@ import os
 import sys
 import json
 import time
-import traceback
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, PROJECT_ROOT)
@@ -167,7 +166,7 @@ def compare_results(gold_df: pd.DataFrame, agent_df: pd.DataFrame) -> dict:
                                 all_close = False
                                 break
                         if all_close:
-                            return {"match": True, "match_type": "approximate", "details": f"Same groups, all numeric columns within 1%"}
+                            return {"match": True, "match_type": "approximate", "details": "Same groups, all numeric columns within 1%"}
     
     # 5. Subset match (agent returned correct data + extra columns)
     if len(gold_norm) == len(agent_norm):
@@ -191,7 +190,7 @@ def compare_results(gold_df: pd.DataFrame, agent_df: pd.DataFrame) -> dict:
                     all_close = False
                     break
             if all_close:
-                return {"match": True, "match_type": "lenient_match", "details": f"Same shape, numeric values within 5%"}
+                return {"match": True, "match_type": "lenient_match", "details": "Same shape, numeric values within 5%"}
 
     # No match
     details = (
@@ -368,7 +367,6 @@ def run_accuracy_eval():
     # ---------------------------------------------------------------------------
     total_q = len(benchmark)
     total_pass = total_q - totals["fail"] - totals["refusal_wrong"]
-    non_safety = [r for r in results if not benchmark[results.index(r) if r in results else 0].get("expect_refusal", False)]
     non_safety_count = sum(1 for t in benchmark if not t.get("expect_refusal", False))
     non_safety_pass = sum(1 for r in results if r["status"] == "PASS" and r.get("match_type") != "correct_refusal")
     
@@ -420,7 +418,7 @@ def run_accuracy_eval():
     print(f"  Correct Refusals:      {totals['refusal_correct']}/{sum(1 for t in benchmark if t.get('expect_refusal'))}")
     print(f"  Avg Latency:           {avg_latency}s")
     
-    print(f"\n  Match Breakdown:")
+    print("\n  Match Breakdown:")
     print(f"    Exact:        {totals['exact_match']}")
     print(f"    Approximate:  {totals['approximate_match']}")
     print(f"    Value Match:  {totals['value_match']}")
@@ -429,11 +427,11 @@ def run_accuracy_eval():
     print(f"    Lenient:      {totals['lenient_match']}")
     
     if failure_categories:
-        print(f"\n  Failure Categories:")
+        print("\n  Failure Categories:")
         for cat, count in sorted(failure_categories.items(), key=lambda x: -x[1]):
             print(f"    {cat}: {count}")
     
-    print(f"\n  Per-Tier Results:")
+    print("\n  Per-Tier Results:")
     for tier in ["simple_select", "single_join", "aggregation", "multi_hop", "window_function", "simulation", "safety"]:
         if tier in tier_summary:
             t = tier_summary[tier]

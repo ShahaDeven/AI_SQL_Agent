@@ -303,8 +303,6 @@ def refine_question(original_question: str, clarification_type: str, selected_op
     Returns:
         A refined, more specific question
     """
-    question_lower = original_question.lower().strip()
-    
     # Mapping of how to refine questions based on selection
     refinements = {
         "revenue_no_level": {
@@ -312,7 +310,7 @@ def refine_question(original_question: str, clarification_type: str, selected_op
             "By Nation": f"{original_question} grouped by nation",
             "By Customer": f"{original_question} grouped by customer",
             "By Supplier": f"{original_question} grouped by supplier",
-            "Total Overall": f"What is the total overall revenue?",
+            "Total Overall": "What is the total overall revenue?",
         },
         "top_customers_no_metric": {
             "Total Revenue": f"{original_question} ranked by total revenue",

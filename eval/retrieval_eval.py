@@ -19,12 +19,10 @@ import os
 import sys
 import json
 import re
-import time
-
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, PROJECT_ROOT)
 
-from src.retriever import get_few_shot_examples, _load_documents
+from src.retriever import get_few_shot_examples
 
 # ---------------------------------------------------------------------------
 # CONFIG
@@ -270,20 +268,20 @@ def run_retrieval_eval():
     o = summary["overall"]
     print(f"  Queries Evaluated:    {len(eval_queries)}")
     print(f"  Retrieval k:          {K}")
-    print(f"\n  Overall Averages:")
+    print("\n  Overall Averages:")
     print(f"    Table Precision@{K}:  {o['avg_table_precision']}")
     print(f"    Table Recall@{K}:     {o['avg_table_recall']}")
     print(f"    Column Precision@{K}: {o['avg_column_precision']}")
     print(f"    Column Recall@{K}:    {o['avg_column_recall']}")
     print(f"    MRR:                {o['avg_mrr']}")
     
-    print(f"\n  Per-Tier Table Recall:")
+    print("\n  Per-Tier Table Recall:")
     for tier in ["simple_select", "single_join", "aggregation", "multi_hop", "window_function", "simulation"]:
         if tier in summary["per_tier"]:
             t = summary["per_tier"][tier]
             print(f"    {tier:20s}: P={t['avg_table_precision']:.2f} R={t['avg_table_recall']:.2f} MRR={t['avg_mrr']:.2f} (n={t['count']})")
     
-    print(f"\n  Worst Table Recall Queries:")
+    print("\n  Worst Table Recall Queries:")
     for wq in worst_recall[:5]:
         print(f"    {wq.get('id', 'N/A'):12s}: recall={wq.get('table_recall', 0):.2f}  missing={wq.get('table_misses', [])}")
     

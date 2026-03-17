@@ -1,7 +1,6 @@
 import json
 import shutil
 import os
-import sys
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings

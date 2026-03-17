@@ -22,7 +22,7 @@ import pandas as pd
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, PROJECT_ROOT)
 
-from src.agent_graph import check_sql_safety, run_query, get_schema, get_cached_sql, save_to_cache, CACHE_FILE
+from src.agent_graph import check_sql_safety, run_query, get_schema, get_cached_sql, save_to_cache
 from src.retriever import get_few_shot_examples, _load_documents
 
 

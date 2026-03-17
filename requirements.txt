@@ -1,6 +1,7 @@
-duckdb
-python-dotenv
-sqlparse
+duckdb==1.4.3
+python-dotenv==1.0.1
+sqlparse==0.4.4
+pandas==2.2.3
 langchain==0.2.11
 langchain-community==0.2.10
 langchain-core==0.2.43
@@ -9,7 +10,7 @@ langchain-chroma==0.2.2
 langchain-huggingface==0.0.3
 langchain-anthropic==0.1.23
 langchain-openai==0.1.25
-sentence-transformers
-streamlit
+sentence-transformers==3.2.1
+streamlit==1.29.0
 pytest
 onnxruntime==1.18.1

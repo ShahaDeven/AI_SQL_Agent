@@ -1,6 +1,14 @@
 import os
 import warnings
 import logging
+import re
+import streamlit as st
+import streamlit.components.v1 as components
+import duckdb
+import pandas as pd
+import time
+import src.agent_graph as agent_graph_module
+from src.clarifier import check_needs_clarification, refine_question
 
 # ===== SUPPRESS ALL WARNINGS/TELEMETRY BEFORE OTHER IMPORTS =====
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -22,15 +30,6 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 warnings.filterwarnings('ignore', module='tensorflow')
 warnings.filterwarnings('ignore', module='chromadb')
 warnings.filterwarnings('ignore', message='.*torch.classes.*')
-
-import streamlit as st
-import streamlit.components.v1 as components
-import duckdb
-import pandas as pd
-import time
-from src.agent_graph import agent_workflow, DB_PATH
-import src.agent_graph as agent_graph_module
-from src.clarifier import check_needs_clarification, refine_question
 
 st.set_page_config(page_title="AI SQL Agent", page_icon="🤖", layout="wide")
 
@@ -59,7 +58,7 @@ def get_metrics():
     """Always get the current metrics object from the agent module."""
     return agent_module.metrics
 
-DB_PATH = agent_module.DB_PATH 
+DB_PATH = agent_module.DB_PATH
 
 def get_schema_for_ui():
     """
@@ -100,9 +99,6 @@ def visualize_simulation(df):
     if scenario_col:
         # --- SENSITIVITY ANALYSIS VIEW ---
         st.caption("📊 Sensitivity Analysis — Multiple Scenarios")
-        
-        # Find the numeric columns for charting
-        numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
         
         # Show the data table with styling
         st.dataframe(df, hide_index=True, width=1200)
@@ -265,8 +261,6 @@ def execute_query(prompt: str):
 # =============================================
 # DYNAMIC SCENARIO CONTEXT TRACKER
 # =============================================
-import re
-
 KNOWN_REGIONS = {"AFRICA", "AMERICA", "ASIA", "EUROPE", "MIDDLE EAST"}
 KNOWN_SEGMENTS = {"AUTOMOBILE", "BUILDING", "FURNITURE", "HOUSEHOLD", "MACHINERY"}
 KNOWN_NATIONS = {
@@ -393,7 +387,7 @@ with st.sidebar:
 
         if ctx:
             st.caption(f"📌 Adapted to your context: **{scope_label}** | Price: {price_pct}% | Discount: {disc_pct}%")
-            if st.button("🔄 Reset to defaults", key="sc_reset", width='stretch'):
+            if st.button("🔄 Reset to defaults", key="sc_reset"):
                 st.session_state["_scenario_context"] = {}
                 st.rerun()
             st.divider()
@@ -408,25 +402,25 @@ with st.sidebar:
             scope_filter = f" for the {segment} segment"
 
         st.subheader("💰 Pricing Scenarios")
-        if st.button(f"📈 Price +{price_pct}%, show by region", key="sc_price_up", width='stretch'):
+        if st.button(f"📈 Price +{price_pct}%, show by region", key="sc_price_up"):
             st.session_state["_scenario_prompt"] = f"What if we increased the price by {price_pct}%{scope_filter}? Show the impact on revenue by region."
-        if st.button(f"📉 Price -{price_pct}%, show by region", key="sc_price_down", width='stretch'):
+        if st.button(f"📉 Price -{price_pct}%, show by region", key="sc_price_down"):
             st.session_state["_scenario_prompt"] = f"What if we decreased the price by {price_pct}%{scope_filter}? Show the impact on revenue by region."
 
         st.subheader("🏷️ Discount Scenarios")
-        if st.button(f"🏷️ Discount +{disc_pct}%, total impact", key="sc_disc_up", width='stretch'):
+        if st.button(f"🏷️ Discount +{disc_pct}%, total impact", key="sc_disc_up"):
             st.session_state["_scenario_prompt"] = f"What if we increased the discount by {disc_pct}%? How would that affect total revenue?"
-        if st.button(f"🏷️ Discount +{disc_pct}%{scope_filter} only", key="sc_disc_scoped", width='stretch'):
+        if st.button(f"🏷️ Discount +{disc_pct}%{scope_filter} only", key="sc_disc_scoped"):
             st.session_state["_scenario_prompt"] = f"What if we increased the discount by {disc_pct}%{scope_filter} only? Show revenue by region comparing original vs simulated."
 
         st.subheader("🔀 Multi-Variable")
-        if st.button(f"📈 Price +{price_pct}% AND Discount -{max(disc_pct // 3, 1)}%", key="sc_multi", width='stretch'):
+        if st.button(f"📈 Price +{price_pct}% AND Discount -{max(disc_pct // 3, 1)}%", key="sc_multi"):
             st.session_state["_scenario_prompt"] = f"What if we increased the price by {price_pct}% and reduced the discount by {max(disc_pct // 3, 1)}%{scope_filter}? Show revenue by region."
 
         st.subheader("📊 Sensitivity Analysis")
-        if st.button("📊 Revenue sensitivity to discount", key="sc_sens_disc", width='stretch'):
+        if st.button("📊 Revenue sensitivity to discount", key="sc_sens_disc"):
             st.session_state["_scenario_prompt"] = f"How sensitive is total revenue to discount changes{scope_filter}? Test discount increases of 5%, 10%, 15%, and 20%."
-        if st.button("📊 Revenue sensitivity to price", key="sc_sens_price", width='stretch'):
+        if st.button("📊 Revenue sensitivity to price", key="sc_sens_price"):
             st.session_state["_scenario_prompt"] = f"How sensitive is total revenue to price changes{scope_filter}? Test price increases of 5%, 10%, 15%, and 20%."
 
         # --- Scenario History & Comparison ---
@@ -517,14 +511,14 @@ with st.sidebar:
                         st.warning("Could not extract comparable metrics from selected scenarios.")
             
             # Clear history button
-            if st.button("🗑️ Clear scenario history", key="sc_clear_history", width='stretch'):
+            if st.button("🗑️ Clear scenario history", key="sc_clear_history"):
                 st.session_state["_scenario_history"] = []
                 st.rerun()
 
     elif sidebar_tab == "📊 Metrics":
         st.header("📊 Agent Metrics")
         
-        if st.button("🔄 Refresh Metrics", width='stretch'):
+        if st.button("🔄 Refresh Metrics"):
             st.rerun()
 
         metrics = get_metrics()
@@ -649,9 +643,8 @@ if st.session_state.pending_clarification:
         
         for i, option in enumerate(clarification.options):
             if cols[i].button(
-                option, 
-                key=f"clarify_{i}", 
-                width='stretch'
+                option,
+                key=f"clarify_{i}"
             ):
                 # User selected an option - refine the question
                 original_q = st.session_state.original_question

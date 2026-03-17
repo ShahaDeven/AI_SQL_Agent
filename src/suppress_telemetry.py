@@ -10,7 +10,6 @@ Usage:
 """
 
 import os
-import sys
 import warnings
 import logging
 
@@ -48,7 +47,6 @@ warnings.filterwarnings('ignore', message='.*Examining the path.*')
 def _disable_chroma_telemetry():
     """Completely disable ChromaDB telemetry by patching the client."""
     try:
-        import chromadb
         from chromadb.telemetry.product import posthog
         
         class NoOpTelemetry:
