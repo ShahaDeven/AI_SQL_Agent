@@ -1,0 +1,666 @@
+{
+  "config": {
+    "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+    "backend": "selftest",
+    "fewshot": 0,
+    "temperature": 0.0,
+    "max_tokens": 512,
+    "num_queries": 55,
+    "include_safety": false
+  },
+  "summary": {
+    "execution_accuracy_pct": 98.2,
+    "correct": 54,
+    "valid_sql_pct": 98.2,
+    "valid_sql": 54,
+    "match_breakdown": {
+      "exact": 51,
+      "lenient_match": 3
+    },
+    "failure_categories": {
+      "no_sql": 1
+    },
+    "generation_meta": {
+      "wall_s": 0.0,
+      "note": "self-test (gold SQL)"
+    }
+  },
+  "tier_results": {
+    "simple_select": {
+      "total": 10,
+      "correct": 10,
+      "accuracy_pct": 100.0
+    },
+    "single_join": {
+      "total": 10,
+      "correct": 10,
+      "accuracy_pct": 100.0
+    },
+    "aggregation": {
+      "total": 10,
+      "correct": 10,
+      "accuracy_pct": 100.0
+    },
+    "multi_hop": {
+      "total": 10,
+      "correct": 10,
+      "accuracy_pct": 100.0
+    },
+    "window_function": {
+      "total": 10,
+      "correct": 10,
+      "accuracy_pct": 100.0
+    },
+    "simulation": {
+      "total": 5,
+      "correct": 4,
+      "accuracy_pct": 80.0
+    }
+  },
+  "results": [
+    {
+      "id": "simple_01",
+      "difficulty": "simple_select",
+      "question": "How many customers are there?",
+      "generated_sql": "SELECT COUNT(*) AS customer_count FROM customer;",
+      "gold_sql": "SELECT COUNT(*) AS customer_count FROM customer;",
+      "rows_returned": 1,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_02",
+      "difficulty": "simple_select",
+      "question": "List all region names.",
+      "generated_sql": "SELECT r_name FROM region;",
+      "gold_sql": "SELECT r_name FROM region;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_03",
+      "difficulty": "simple_select",
+      "question": "How many nations are there?",
+      "generated_sql": "SELECT COUNT(*) AS nation_count FROM nation;",
+      "gold_sql": "SELECT COUNT(*) AS nation_count FROM nation;",
+      "rows_returned": 1,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_04",
+      "difficulty": "simple_select",
+      "question": "What are the distinct order priorities?",
+      "generated_sql": "SELECT DISTINCT o_orderpriority FROM orders;",
+      "gold_sql": "SELECT DISTINCT o_orderpriority FROM orders;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_05",
+      "difficulty": "simple_select",
+      "question": "Show the top 5 customers by account balance.",
+      "generated_sql": "SELECT c_name, c_acctbal FROM customer ORDER BY c_acctbal DESC LIMIT 5;",
+      "gold_sql": "SELECT c_name, c_acctbal FROM customer ORDER BY c_acctbal DESC LIMIT 5;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_06",
+      "difficulty": "simple_select",
+      "question": "How many orders are in the database?",
+      "generated_sql": "SELECT COUNT(*) AS order_count FROM orders;",
+      "gold_sql": "SELECT COUNT(*) AS order_count FROM orders;",
+      "rows_returned": 1,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_07",
+      "difficulty": "simple_select",
+      "question": "List all distinct customer market segments.",
+      "generated_sql": "SELECT DISTINCT c_mktsegment FROM customer;",
+      "gold_sql": "SELECT DISTINCT c_mktsegment FROM customer;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_08",
+      "difficulty": "simple_select",
+      "question": "What is the earliest order date?",
+      "generated_sql": "SELECT MIN(o_orderdate) AS earliest_date FROM orders;",
+      "gold_sql": "SELECT MIN(o_orderdate) AS earliest_date FROM orders;",
+      "rows_returned": 1,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_09",
+      "difficulty": "simple_select",
+      "question": "How many suppliers are there?",
+      "generated_sql": "SELECT COUNT(*) AS supplier_count FROM supplier;",
+      "gold_sql": "SELECT COUNT(*) AS supplier_count FROM supplier;",
+      "rows_returned": 1,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_10",
+      "difficulty": "simple_select",
+      "question": "Show the distribution of churn risk across customers.",
+      "generated_sql": "SELECT churn_risk, COUNT(*) AS customer_count FROM customer GROUP BY churn_risk;",
+      "gold_sql": "SELECT churn_risk, COUNT(*) AS customer_count FROM customer GROUP BY churn_risk;",
+      "rows_returned": 3,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "join_01",
+      "difficulty": "single_join",
+      "question": "Which nation does each customer belong to? Show first 20.",
+      "generated_sql": "SELECT c.c_name, n.n_name FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey LIMIT 20;",
+      "gold_sql": "SELECT c.c_name, n.n_name FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey LIMIT 20;",
+      "rows_returned": 20,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "join_02",
+      "difficulty": "single_join",
+      "question": "List suppliers and their nation.",
+      "generated_sql": "SELECT s.s_name, n.n_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey;",
+      "gold_sql": "SELECT s.s_name, n.n_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey;",
+      "rows_returned": 1000,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "join_03",
+      "difficulty": "single_join",
+      "question": "Show all nations and which region they belong to.",
+      "generated_sql": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+      "gold_sql": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+      "rows_returned": 25,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "join_04",
+      "difficulty": "single_join",
+      "question": "How many customers are in each nation?",
+      "generated_sql": "SELECT n.n_name, COUNT(*) AS customer_count FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey GROUP BY n.n_name ORDER BY customer_count DESC;",
+      "gold_sql": "SELECT n.n_name, COUNT(*) AS customer_count FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey GROUP BY n.n_name ORDER BY customer_count DESC;",
+      "rows_returned": 25,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "join_05",
+      "difficulty": "single_join",
+      "question": "Which nation has the most customers?",
+      "generated_sql": "SELECT n.n_name, COUNT(*) AS customer_count FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey GROUP BY n.n_name ORDER BY customer_count DESC LIMIT 1;",
+      "gold_sql": "SELECT n.n_name, COUNT(*) AS customer_count FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey GROUP BY n.n_name ORDER BY customer_count DESC LIMIT 1;",
+      "rows_returned": 1,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "join_06",
+      "difficulty": "single_join",
+      "question": "How many parts does each supplier provide? Show top 10.",
+      "generated_sql": "SELECT s.s_name, COUNT(DISTINCT ps.ps_partkey) AS part_count FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey GROUP BY s.s_name ORDER BY part_count DESC LIMIT 10;",
+      "gold_sql": "SELECT s.s_name, COUNT(DISTINCT ps.ps_partkey) AS part_count FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey GROUP BY s.s_name ORDER BY part_count DESC LIMIT 10;",
+      "rows_returned": 10,
+      "match_type": "lenient_match",
+      "match_details": "Same shape, numeric values within 5%",
+      "status": "PASS"
+    },
+    {
+      "id": "join_07",
+      "difficulty": "single_join",
+      "question": "List all high-risk customers and their nation. Show first 20.",
+      "generated_sql": "SELECT c.c_name, n.n_name, c.churn_risk FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey WHERE c.churn_risk = 'HIGH_RISK' LIMIT 20;",
+      "gold_sql": "SELECT c.c_name, n.n_name, c.churn_risk FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey WHERE c.churn_risk = 'HIGH_RISK' LIMIT 20;",
+      "rows_returned": 20,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "join_08",
+      "difficulty": "single_join",
+      "question": "How many orders does each customer have? Show top 10.",
+      "generated_sql": "SELECT c.c_name, COUNT(o.o_orderkey) AS order_count FROM customer c JOIN orders o ON c.c_custkey = o.o_custkey GROUP BY c.c_name ORDER BY order_count DESC LIMIT 10;",
+      "gold_sql": "SELECT c.c_name, COUNT(o.o_orderkey) AS order_count FROM customer c JOIN orders o ON c.c_custkey = o.o_custkey GROUP BY c.c_name ORDER BY order_count DESC LIMIT 10;",
+      "rows_returned": 10,
+      "match_type": "lenient_match",
+      "match_details": "Same shape, numeric values within 5%",
+      "status": "PASS"
+    },
+    {
+      "id": "join_09",
+      "difficulty": "single_join",
+      "question": "Show the number of suppliers per region.",
+      "generated_sql": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name;",
+      "gold_sql": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "join_10",
+      "difficulty": "single_join",
+      "question": "How many high-risk customers are in each region?",
+      "generated_sql": "SELECT r.r_name, COUNT(*) AS high_risk_count FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey WHERE c.churn_risk = 'HIGH_RISK' GROUP BY r.r_name;",
+      "gold_sql": "SELECT r.r_name, COUNT(*) AS high_risk_count FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey WHERE c.churn_risk = 'HIGH_RISK' GROUP BY r.r_name;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "agg_01",
+      "difficulty": "aggregation",
+      "question": "What is the total revenue per region?",
+      "generated_sql": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY revenue DESC;",
+      "gold_sql": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY revenue DESC;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "agg_02",
+      "difficulty": "aggregation",
+      "question": "Show the top 3 suppliers by total revenue.",
+      "generated_sql": "SELECT s.s_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM supplier s JOIN lineitem l ON s.s_suppkey = l.l_suppkey GROUP BY s.s_name ORDER BY revenue DESC LIMIT 3;",
+      "gold_sql": "SELECT s.s_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM supplier s JOIN lineitem l ON s.s_suppkey = l.l_suppkey GROUP BY s.s_name ORDER BY revenue DESC LIMIT 3;",
+      "rows_returned": 3,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "agg_03",
+      "difficulty": "aggregation",
+      "question": "How many orders were placed per year?",
+      "generated_sql": "SELECT EXTRACT(YEAR FROM o_orderdate) AS year, COUNT(*) AS order_count FROM orders GROUP BY EXTRACT(YEAR FROM o_orderdate) ORDER BY year;",
+      "gold_sql": "SELECT EXTRACT(YEAR FROM o_orderdate) AS year, COUNT(*) AS order_count FROM orders GROUP BY EXTRACT(YEAR FROM o_orderdate) ORDER BY year;",
+      "rows_returned": 7,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "agg_04",
+      "difficulty": "aggregation",
+      "question": "What is the average order value per customer segment?",
+      "generated_sql": "SELECT c.c_mktsegment, AVG(o.o_totalprice) AS avg_order_value FROM customer c JOIN orders o ON c.c_custkey = o.o_custkey GROUP BY c.c_mktsegment ORDER BY avg_order_value DESC;",
+      "gold_sql": "SELECT c.c_mktsegment, AVG(o.o_totalprice) AS avg_order_value FROM customer c JOIN orders o ON c.c_custkey = o.o_custkey GROUP BY c.c_mktsegment ORDER BY avg_order_value DESC;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "agg_05",
+      "difficulty": "aggregation",
+      "question": "What is the total revenue per nation?",
+      "generated_sql": "SELECT n.n_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey GROUP BY n.n_name ORDER BY revenue DESC;",
+      "gold_sql": "SELECT n.n_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey GROUP BY n.n_name ORDER BY revenue DESC;",
+      "rows_returned": 25,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "agg_06",
+      "difficulty": "aggregation",
+      "question": "What is the average account balance per region?",
+      "generated_sql": "SELECT r.r_name, AVG(c.c_acctbal) AS avg_balance FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY avg_balance DESC;",
+      "gold_sql": "SELECT r.r_name, AVG(c.c_acctbal) AS avg_balance FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY avg_balance DESC;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "agg_07",
+      "difficulty": "aggregation",
+      "question": "Which customer segment generates the most revenue?",
+      "generated_sql": "SELECT c.c_mktsegment, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey GROUP BY c.c_mktsegment ORDER BY revenue DESC LIMIT 1;",
+      "gold_sql": "SELECT c.c_mktsegment, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey GROUP BY c.c_mktsegment ORDER BY revenue DESC LIMIT 1;",
+      "rows_returned": 1,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "agg_08",
+      "difficulty": "aggregation",
+      "question": "What is the total quantity shipped per region?",
+      "generated_sql": "SELECT r.r_name, SUM(l.l_quantity) AS total_quantity FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY total_quantity DESC;",
+      "gold_sql": "SELECT r.r_name, SUM(l.l_quantity) AS total_quantity FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY total_quantity DESC;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "agg_09",
+      "difficulty": "aggregation",
+      "question": "Show revenue by order priority.",
+      "generated_sql": "SELECT o.o_orderpriority, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey GROUP BY o.o_orderpriority ORDER BY revenue DESC;",
+      "gold_sql": "SELECT o.o_orderpriority, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey GROUP BY o.o_orderpriority ORDER BY revenue DESC;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "agg_10",
+      "difficulty": "aggregation",
+      "question": "What is the average discount per region?",
+      "generated_sql": "SELECT r.r_name, AVG(l.promo_reduction) AS avg_discount FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY avg_discount DESC;",
+      "gold_sql": "SELECT r.r_name, AVG(l.promo_reduction) AS avg_discount FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY avg_discount DESC;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "multi_01",
+      "difficulty": "multi_hop",
+      "question": "Which supplier has the most parts in the region with the lowest revenue?",
+      "generated_sql": "WITH regional_revenue AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name), lowest_region AS (SELECT r_name FROM regional_revenue ORDER BY revenue ASC LIMIT 1) SELECT s.s_name, COUNT(DISTINCT ps.ps_partkey) AS part_count FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey JOIN nation n ON s.s_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey JOIN lowest_region lr ON r.r_name = lr.r_name GROUP BY s.s_name ORDER BY part_count DESC LIMIT 1;",
+      "gold_sql": "WITH regional_revenue AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name), lowest_region AS (SELECT r_name FROM regional_revenue ORDER BY revenue ASC LIMIT 1) SELECT s.s_name, COUNT(DISTINCT ps.ps_partkey) AS part_count FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey JOIN nation n ON s.s_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey JOIN lowest_region lr ON r.r_name = lr.r_name GROUP BY s.s_name ORDER BY part_count DESC LIMIT 1;",
+      "rows_returned": 1,
+      "match_type": "lenient_match",
+      "match_details": "Same shape, numeric values within 5%",
+      "status": "PASS"
+    },
+    {
+      "id": "multi_02",
+      "difficulty": "multi_hop",
+      "question": "Find the top 3 nations by revenue where the average discount is above 0.05.",
+      "generated_sql": "SELECT n.n_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue, AVG(l.promo_reduction) AS avg_discount FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey GROUP BY n.n_name HAVING AVG(l.promo_reduction) > 0.05 ORDER BY revenue DESC LIMIT 3;",
+      "gold_sql": "SELECT n.n_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue, AVG(l.promo_reduction) AS avg_discount FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey GROUP BY n.n_name HAVING AVG(l.promo_reduction) > 0.05 ORDER BY revenue DESC LIMIT 3;",
+      "rows_returned": 0,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "multi_03",
+      "difficulty": "multi_hop",
+      "question": "List customers who have placed more orders than the average number of orders per customer.",
+      "generated_sql": "WITH customer_orders AS (SELECT c.c_custkey, c.c_name, COUNT(o.o_orderkey) AS order_count FROM customer c LEFT JOIN orders o ON c.c_custkey = o.o_custkey GROUP BY c.c_custkey, c.c_name), avg_orders AS (SELECT AVG(order_count) AS avg_count FROM customer_orders) SELECT co.c_name, co.order_count FROM customer_orders co CROSS JOIN avg_orders ao WHERE co.order_count > ao.avg_count ORDER BY co.order_count DESC;",
+      "gold_sql": "WITH customer_orders AS (SELECT c.c_custkey, c.c_name, COUNT(o.o_orderkey) AS order_count FROM customer c LEFT JOIN orders o ON c.c_custkey = o.o_custkey GROUP BY c.c_custkey, c.c_name), avg_orders AS (SELECT AVG(order_count) AS avg_count FROM customer_orders) SELECT co.c_name, co.order_count FROM customer_orders co CROSS JOIN avg_orders ao WHERE co.order_count > ao.avg_count ORDER BY co.order_count DESC;",
+      "rows_returned": 7018,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "multi_04",
+      "difficulty": "multi_hop",
+      "question": "Which region has the highest average order value?",
+      "generated_sql": "SELECT r.r_name, AVG(o.o_totalprice) AS avg_order_value FROM orders o JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY avg_order_value DESC LIMIT 1;",
+      "gold_sql": "SELECT r.r_name, AVG(o.o_totalprice) AS avg_order_value FROM orders o JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY avg_order_value DESC LIMIT 1;",
+      "rows_returned": 1,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "multi_05",
+      "difficulty": "multi_hop",
+      "question": "Find the supplier with the highest revenue in each region.",
+      "generated_sql": "WITH supplier_revenue AS (SELECT r.r_name, s.s_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue, ROW_NUMBER() OVER (PARTITION BY r.r_name ORDER BY SUM(l.total_value * (1 - l.promo_reduction)) DESC) AS rn FROM lineitem l JOIN supplier s ON l.l_suppkey = s.s_suppkey JOIN nation n ON s.s_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name, s.s_name) SELECT r_name, s_name, revenue FROM supplier_revenue WHERE rn = 1;",
+      "gold_sql": "WITH supplier_revenue AS (SELECT r.r_name, s.s_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue, ROW_NUMBER() OVER (PARTITION BY r.r_name ORDER BY SUM(l.total_value * (1 - l.promo_reduction)) DESC) AS rn FROM lineitem l JOIN supplier s ON l.l_suppkey = s.s_suppkey JOIN nation n ON s.s_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name, s.s_name) SELECT r_name, s_name, revenue FROM supplier_revenue WHERE rn = 1;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "multi_06",
+      "difficulty": "multi_hop",
+      "question": "What percentage of total revenue comes from each region?",
+      "generated_sql": "WITH total AS (SELECT SUM(total_value * (1 - promo_reduction)) AS grand_total FROM lineitem), by_region AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT br.r_name, br.revenue, ROUND((br.revenue / t.grand_total) * 100, 2) AS pct_of_total FROM by_region br CROSS JOIN total t ORDER BY pct_of_total DESC;",
+      "gold_sql": "WITH total AS (SELECT SUM(total_value * (1 - promo_reduction)) AS grand_total FROM lineitem), by_region AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT br.r_name, br.revenue, ROUND((br.revenue / t.grand_total) * 100, 2) AS pct_of_total FROM by_region br CROSS JOIN total t ORDER BY pct_of_total DESC;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "multi_07",
+      "difficulty": "multi_hop",
+      "question": "Which nation has the highest revenue among high-risk customers?",
+      "generated_sql": "SELECT n.n_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey WHERE c.churn_risk = 'HIGH_RISK' GROUP BY n.n_name ORDER BY revenue DESC LIMIT 1;",
+      "gold_sql": "SELECT n.n_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey WHERE c.churn_risk = 'HIGH_RISK' GROUP BY n.n_name ORDER BY revenue DESC LIMIT 1;",
+      "rows_returned": 1,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "multi_08",
+      "difficulty": "multi_hop",
+      "question": "Show the top 5 customers by revenue in the ASIA region.",
+      "generated_sql": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey WHERE r.r_name = 'ASIA' GROUP BY c.c_name ORDER BY revenue DESC LIMIT 5;",
+      "gold_sql": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey WHERE r.r_name = 'ASIA' GROUP BY c.c_name ORDER BY revenue DESC LIMIT 5;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "multi_09",
+      "difficulty": "multi_hop",
+      "question": "Compare average account balance between high-risk and low-risk customers by region.",
+      "generated_sql": "SELECT r.r_name, c.churn_risk, AVG(c.c_acctbal) AS avg_balance FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey WHERE c.churn_risk IN ('HIGH_RISK', 'LOW_RISK') GROUP BY r.r_name, c.churn_risk ORDER BY r.r_name, c.churn_risk;",
+      "gold_sql": "SELECT r.r_name, c.churn_risk, AVG(c.c_acctbal) AS avg_balance FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey WHERE c.churn_risk IN ('HIGH_RISK', 'LOW_RISK') GROUP BY r.r_name, c.churn_risk ORDER BY r.r_name, c.churn_risk;",
+      "rows_returned": 10,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "multi_10",
+      "difficulty": "multi_hop",
+      "question": "Which market segment has the most high-risk customers?",
+      "generated_sql": "SELECT c_mktsegment, COUNT(*) AS high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK' GROUP BY c_mktsegment ORDER BY high_risk_count DESC LIMIT 1;",
+      "gold_sql": "SELECT c_mktsegment, COUNT(*) AS high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK' GROUP BY c_mktsegment ORDER BY high_risk_count DESC LIMIT 1;",
+      "rows_returned": 1,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "window_01",
+      "difficulty": "window_function",
+      "question": "What is the month-over-month revenue trend for 1995?",
+      "generated_sql": "WITH monthly AS (SELECT EXTRACT(MONTH FROM o.o_orderdate) AS month, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey WHERE EXTRACT(YEAR FROM o.o_orderdate) = 1995 GROUP BY EXTRACT(MONTH FROM o.o_orderdate)) SELECT month, revenue, LAG(revenue) OVER (ORDER BY month) AS prev_revenue, ROUND(((revenue - LAG(revenue) OVER (ORDER BY month)) / LAG(revenue) OVER (ORDER BY month)) * 100, 2) AS mom_pct_change FROM monthly ORDER BY month;",
+      "gold_sql": "WITH monthly AS (SELECT EXTRACT(MONTH FROM o.o_orderdate) AS month, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey WHERE EXTRACT(YEAR FROM o.o_orderdate) = 1995 GROUP BY EXTRACT(MONTH FROM o.o_orderdate)) SELECT month, revenue, LAG(revenue) OVER (ORDER BY month) AS prev_revenue, ROUND(((revenue - LAG(revenue) OVER (ORDER BY month)) / LAG(revenue) OVER (ORDER BY month)) * 100, 2) AS mom_pct_change FROM monthly ORDER BY month;",
+      "rows_returned": 12,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "window_02",
+      "difficulty": "window_function",
+      "question": "Rank nations by total revenue within each region.",
+      "generated_sql": "SELECT r.r_name, n.n_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue, RANK() OVER (PARTITION BY r.r_name ORDER BY SUM(l.total_value * (1 - l.promo_reduction)) DESC) AS rank FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name, n.n_name;",
+      "gold_sql": "SELECT r.r_name, n.n_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue, RANK() OVER (PARTITION BY r.r_name ORDER BY SUM(l.total_value * (1 - l.promo_reduction)) DESC) AS rank FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name, n.n_name;",
+      "rows_returned": 25,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "window_03",
+      "difficulty": "window_function",
+      "question": "Show cumulative revenue over time by year.",
+      "generated_sql": "WITH yearly AS (SELECT EXTRACT(YEAR FROM o.o_orderdate) AS year, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey GROUP BY EXTRACT(YEAR FROM o.o_orderdate)) SELECT year, revenue, SUM(revenue) OVER (ORDER BY year) AS cumulative_revenue FROM yearly ORDER BY year;",
+      "gold_sql": "WITH yearly AS (SELECT EXTRACT(YEAR FROM o.o_orderdate) AS year, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey GROUP BY EXTRACT(YEAR FROM o.o_orderdate)) SELECT year, revenue, SUM(revenue) OVER (ORDER BY year) AS cumulative_revenue FROM yearly ORDER BY year;",
+      "rows_returned": 7,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "window_04",
+      "difficulty": "window_function",
+      "question": "Show the year-over-year revenue growth rate.",
+      "generated_sql": "WITH yearly AS (SELECT EXTRACT(YEAR FROM o.o_orderdate) AS year, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey GROUP BY EXTRACT(YEAR FROM o.o_orderdate)) SELECT year, revenue, LAG(revenue) OVER (ORDER BY year) AS prev_revenue, ROUND(((revenue - LAG(revenue) OVER (ORDER BY year)) / LAG(revenue) OVER (ORDER BY year)) * 100, 2) AS yoy_growth FROM yearly ORDER BY year;",
+      "gold_sql": "WITH yearly AS (SELECT EXTRACT(YEAR FROM o.o_orderdate) AS year, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey GROUP BY EXTRACT(YEAR FROM o.o_orderdate)) SELECT year, revenue, LAG(revenue) OVER (ORDER BY year) AS prev_revenue, ROUND(((revenue - LAG(revenue) OVER (ORDER BY year)) / LAG(revenue) OVER (ORDER BY year)) * 100, 2) AS yoy_growth FROM yearly ORDER BY year;",
+      "rows_returned": 7,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "window_05",
+      "difficulty": "window_function",
+      "question": "Show a running total of orders per month in 1996.",
+      "generated_sql": "WITH monthly AS (SELECT EXTRACT(MONTH FROM o_orderdate) AS month, COUNT(*) AS order_count FROM orders WHERE EXTRACT(YEAR FROM o_orderdate) = 1996 GROUP BY EXTRACT(MONTH FROM o_orderdate)) SELECT month, order_count, SUM(order_count) OVER (ORDER BY month) AS running_total FROM monthly ORDER BY month;",
+      "gold_sql": "WITH monthly AS (SELECT EXTRACT(MONTH FROM o_orderdate) AS month, COUNT(*) AS order_count FROM orders WHERE EXTRACT(YEAR FROM o_orderdate) = 1996 GROUP BY EXTRACT(MONTH FROM o_orderdate)) SELECT month, order_count, SUM(order_count) OVER (ORDER BY month) AS running_total FROM monthly ORDER BY month;",
+      "rows_returned": 12,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "window_06",
+      "difficulty": "window_function",
+      "question": "Rank customers by total spending and show their percentile. Show top 20.",
+      "generated_sql": "SELECT c.c_name, SUM(o.o_totalprice) AS total_spending, PERCENT_RANK() OVER (ORDER BY SUM(o.o_totalprice)) AS spending_percentile FROM customer c JOIN orders o ON c.c_custkey = o.o_custkey GROUP BY c.c_name ORDER BY total_spending DESC LIMIT 20;",
+      "gold_sql": "SELECT c.c_name, SUM(o.o_totalprice) AS total_spending, PERCENT_RANK() OVER (ORDER BY SUM(o.o_totalprice)) AS spending_percentile FROM customer c JOIN orders o ON c.c_custkey = o.o_custkey GROUP BY c.c_name ORDER BY total_spending DESC LIMIT 20;",
+      "rows_returned": 20,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "window_07",
+      "difficulty": "window_function",
+      "question": "What is the 3-month moving average of revenue in 1995?",
+      "generated_sql": "WITH monthly AS (SELECT EXTRACT(MONTH FROM o.o_orderdate) AS month, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey WHERE EXTRACT(YEAR FROM o.o_orderdate) = 1995 GROUP BY EXTRACT(MONTH FROM o.o_orderdate)) SELECT month, revenue, AVG(revenue) OVER (ORDER BY month ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS moving_avg_3m FROM monthly ORDER BY month;",
+      "gold_sql": "WITH monthly AS (SELECT EXTRACT(MONTH FROM o.o_orderdate) AS month, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey WHERE EXTRACT(YEAR FROM o.o_orderdate) = 1995 GROUP BY EXTRACT(MONTH FROM o.o_orderdate)) SELECT month, revenue, AVG(revenue) OVER (ORDER BY month ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS moving_avg_3m FROM monthly ORDER BY month;",
+      "rows_returned": 12,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "window_08",
+      "difficulty": "window_function",
+      "question": "Show each region's revenue and its difference from the overall average.",
+      "generated_sql": "WITH region_rev AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT r_name, revenue, AVG(revenue) OVER () AS avg_revenue, revenue - AVG(revenue) OVER () AS diff_from_avg FROM region_rev;",
+      "gold_sql": "WITH region_rev AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT r_name, revenue, AVG(revenue) OVER () AS avg_revenue, revenue - AVG(revenue) OVER () AS diff_from_avg FROM region_rev;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "window_09",
+      "difficulty": "window_function",
+      "question": "Show the top supplier per nation by revenue.",
+      "generated_sql": "WITH supplier_rev AS (SELECT n.n_name, s.s_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue, ROW_NUMBER() OVER (PARTITION BY n.n_name ORDER BY SUM(l.total_value * (1 - l.promo_reduction)) DESC) AS rn FROM lineitem l JOIN supplier s ON l.l_suppkey = s.s_suppkey JOIN nation n ON s.s_nationkey = n.n_nationkey GROUP BY n.n_name, s.s_name) SELECT n_name, s_name, revenue FROM supplier_rev WHERE rn = 1;",
+      "gold_sql": "WITH supplier_rev AS (SELECT n.n_name, s.s_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue, ROW_NUMBER() OVER (PARTITION BY n.n_name ORDER BY SUM(l.total_value * (1 - l.promo_reduction)) DESC) AS rn FROM lineitem l JOIN supplier s ON l.l_suppkey = s.s_suppkey JOIN nation n ON s.s_nationkey = n.n_nationkey GROUP BY n.n_name, s.s_name) SELECT n_name, s_name, revenue FROM supplier_rev WHERE rn = 1;",
+      "rows_returned": 25,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "window_10",
+      "difficulty": "window_function",
+      "question": "Show quarterly revenue for 1995 with quarter-over-quarter growth.",
+      "generated_sql": "WITH quarterly AS (SELECT EXTRACT(QUARTER FROM o.o_orderdate) AS quarter, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey WHERE EXTRACT(YEAR FROM o.o_orderdate) = 1995 GROUP BY EXTRACT(QUARTER FROM o.o_orderdate)) SELECT quarter, revenue, LAG(revenue) OVER (ORDER BY quarter) AS prev_quarter, ROUND(((revenue - LAG(revenue) OVER (ORDER BY quarter)) / LAG(revenue) OVER (ORDER BY quarter)) * 100, 2) AS qoq_growth FROM quarterly ORDER BY quarter;",
+      "gold_sql": "WITH quarterly AS (SELECT EXTRACT(QUARTER FROM o.o_orderdate) AS quarter, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey WHERE EXTRACT(YEAR FROM o.o_orderdate) = 1995 GROUP BY EXTRACT(QUARTER FROM o.o_orderdate)) SELECT quarter, revenue, LAG(revenue) OVER (ORDER BY quarter) AS prev_quarter, ROUND(((revenue - LAG(revenue) OVER (ORDER BY quarter)) / LAG(revenue) OVER (ORDER BY quarter)) * 100, 2) AS qoq_growth FROM quarterly ORDER BY quarter;",
+      "rows_returned": 4,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "sim_01",
+      "difficulty": "simulation",
+      "question": "What if we increased the discount by 10%? How would that affect total revenue?",
+      "generated_sql": "WITH original AS (SELECT SUM(total_value * (1 - promo_reduction)) AS original_revenue FROM lineitem), simulated AS (SELECT SUM(total_value * (1 - LEAST(promo_reduction * 1.1, 1.0))) AS simulated_revenue FROM lineitem) SELECT o.original_revenue, s.simulated_revenue, s.simulated_revenue - o.original_revenue AS difference, ROUND(((s.simulated_revenue - o.original_revenue) / o.original_revenue) * 100, 2) AS pct_change FROM original o CROSS JOIN simulated s;",
+      "gold_sql": "WITH original AS (SELECT SUM(total_value * (1 - promo_reduction)) AS original_revenue FROM lineitem), simulated AS (SELECT SUM(total_value * (1 - LEAST(promo_reduction * 1.1, 1.0))) AS simulated_revenue FROM lineitem) SELECT o.original_revenue, s.simulated_revenue, s.simulated_revenue - o.original_revenue AS difference, ROUND(((s.simulated_revenue - o.original_revenue) / o.original_revenue) * 100, 2) AS pct_change FROM original o CROSS JOIN simulated s;",
+      "rows_returned": 1,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "sim_02",
+      "difficulty": "simulation",
+      "question": "Simulate a 5% price increase on all line items and show revenue by region.",
+      "generated_sql": "WITH original AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS original_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name), simulated AS (SELECT r.r_name, SUM(l.total_value * 1.05 * (1 - l.promo_reduction)) AS simulated_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT o.r_name, o.original_revenue, s.simulated_revenue, s.simulated_revenue - o.original_revenue AS difference, ROUND(((s.simulated_revenue - o.original_revenue) / o.original_revenue) * 100, 2) AS pct_change FROM original o JOIN simulated s ON o.r_name = s.r_name ORDER BY o.original_revenue DESC;",
+      "gold_sql": "WITH original AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS original_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name), simulated AS (SELECT r.r_name, SUM(l.total_value * 1.05 * (1 - l.promo_reduction)) AS simulated_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT o.r_name, o.original_revenue, s.simulated_revenue, s.simulated_revenue - o.original_revenue AS difference, ROUND(((s.simulated_revenue - o.original_revenue) / o.original_revenue) * 100, 2) AS pct_change FROM original o JOIN simulated s ON o.r_name = s.r_name ORDER BY o.original_revenue DESC;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "sim_03",
+      "difficulty": "simulation",
+      "question": "What if we increased the discount by 15% for the EUROPE region only? Show revenue by region.",
+      "generated_sql": "WITH original AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS original_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name), simulated AS (SELECT r.r_name, SUM(l.total_value * (1 - CASE WHEN r.r_name = 'EUROPE' THEN LEAST(l.promo_reduction * 1.15, 1.0) ELSE l.promo_reduction END)) AS simulated_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT o.r_name, o.original_revenue, s.simulated_revenue, s.simulated_revenue - o.original_revenue AS difference, ROUND(((s.simulated_revenue - o.original_revenue) / o.original_revenue) * 100, 2) AS pct_change FROM original o JOIN simulated s ON o.r_name = s.r_name ORDER BY o.r_name;",
+      "gold_sql": "WITH original AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS original_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name), simulated AS (SELECT r.r_name, SUM(l.total_value * (1 - CASE WHEN r.r_name = 'EUROPE' THEN LEAST(l.promo_reduction * 1.15, 1.0) ELSE l.promo_reduction END)) AS simulated_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT o.r_name, o.original_revenue, s.simulated_revenue, s.simulated_revenue - o.original_revenue AS difference, ROUND(((s.simulated_revenue - o.original_revenue) / o.original_revenue) * 100, 2) AS pct_change FROM original o JOIN simulated s ON o.r_name = s.r_name ORDER BY o.r_name;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "sim_04",
+      "difficulty": "simulation",
+      "question": "What if we increased the price by 5% and reduced the discount by 3%? Show revenue by region.",
+      "generated_sql": "WITH original AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS original_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name), simulated AS (SELECT r.r_name, SUM(l.total_value * 1.05 * (1 - GREATEST(l.promo_reduction * 0.97, 0.0))) AS simulated_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT o.r_name, o.original_revenue, s.simulated_revenue, s.simulated_revenue - o.original_revenue AS difference, ROUND(((s.simulated_revenue - o.original_revenue) / o.original_revenue) * 100, 2) AS pct_change FROM original o JOIN simulated s ON o.r_name = s.r_name ORDER BY o.r_name;",
+      "gold_sql": "WITH original AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS original_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name), simulated AS (SELECT r.r_name, SUM(l.total_value * 1.05 * (1 - GREATEST(l.promo_reduction * 0.97, 0.0))) AS simulated_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT o.r_name, o.original_revenue, s.simulated_revenue, s.simulated_revenue - o.original_revenue AS difference, ROUND(((s.simulated_revenue - o.original_revenue) / o.original_revenue) * 100, 2) AS pct_change FROM original o JOIN simulated s ON o.r_name = s.r_name ORDER BY o.r_name;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "sim_05",
+      "difficulty": "simulation",
+      "question": "How sensitive is total revenue to discount changes? Test discount increases of 5%, 10%, 15%, and 20%.",
+      "generated_sql": "",
+      "gold_sql": null,
+      "status": "FAIL",
+      "failure_category": "no_sql",
+      "error": "empty SQL"
+    }
+  ]
+}
