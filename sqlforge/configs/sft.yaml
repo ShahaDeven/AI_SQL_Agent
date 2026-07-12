@@ -1,0 +1,45 @@
+# SQLForge SFT — bf16 LoRA on Qwen2.5-Coder-7B-Instruct (A40 48GB).
+# No 4-bit quantization: 48GB comfortably fits the bf16 base + LoRA, avoiding
+# quantization quality loss. Paths are relative to the repo root on the pod.
+
+model_name: Qwen/Qwen2.5-Coder-7B-Instruct
+train_file: sqlforge/data/datasets/train.jsonl
+val_file: sqlforge/data/datasets/val.jsonl
+output_dir: /workspace/sqlforge-sft-7b     # on the persistent volume
+
+# --- LoRA (bf16, no bitsandbytes) ---
+lora_r: 32
+lora_alpha: 64
+lora_dropout: 0.05
+target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+# --- sequence / batching ---
+max_seq_len: 2048                # our system prompt + question + SQL is ~1.2k tokens
+per_device_train_batch_size: 8
+per_device_eval_batch_size: 8
+gradient_accumulation_steps: 2   # effective batch 16
+gradient_checkpointing: true
+use_flash_attn: false            # set true only if flash-attn is installed; sdpa is fine
+
+# --- optimizer / schedule ---
+learning_rate: 0.0002
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+num_train_epochs: 2              # watch val loss; 1-3 is the useful range
+weight_decay: 0.0
+max_grad_norm: 1.0
+optim: adamw_torch
+bf16: true
+
+# --- logging / eval / checkpoints ---
+logging_steps: 10
+eval_strategy: steps
+eval_steps: 50
+save_strategy: steps
+save_steps: 100                  # small enough that a dead pod loses <30 min
+save_total_limit: 3
+seed: 42
+
+# --- W&B ---
+wandb_project: sqlforge-sft
+run_name: qwen7b-bf16-lora-r32-ep2

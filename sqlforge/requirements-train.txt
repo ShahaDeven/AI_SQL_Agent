@@ -1,0 +1,22 @@
+# SQLForge Phase 2 — SFT training deps (bf16 LoRA via TRL + PEFT).
+#
+# IMPORTANT: install these ON TOP OF the RunPod PyTorch template's existing torch.
+# Do NOT `pip install torch` and do NOT let anything upgrade it — a too-new torch vs
+# the pod's CUDA-12.8 driver is exactly what broke Phase 0. These pins do not force a
+# torch upgrade (they only require torch>=2.3, already satisfied by the template).
+#
+#   python -m venv .venv-train && source .venv-train/bin/activate
+#   pip install -r sqlforge/requirements-train.txt
+#
+# Serving/eval deps (vllm, duckdb, ...) go in a SEPARATE venv — vllm's torch pin
+# conflicts with this training stack.
+
+transformers==4.46.3
+trl==0.12.2
+peft==0.13.2
+accelerate==1.1.1
+datasets==3.1.0
+wandb
+sentencepiece
+protobuf
+pyyaml

@@ -188,22 +188,36 @@ def select_fewshot(question: str, examples: list, k: int, benchmark_questions: s
 # ---------------------------------------------------------------------------
 # Generation backends
 # ---------------------------------------------------------------------------
-def generate_vllm(conversations, model_id, temperature, max_tokens, max_model_len, gpu_mem):
-    """In-process, batched vLLM generation. Returns (completions, meta)."""
+def generate_vllm(conversations, model_id, temperature, max_tokens, max_model_len, gpu_mem,
+                  adapter=None, max_lora_rank=32):
+    """In-process, batched vLLM generation. Returns (completions, meta).
+
+    If `adapter` is a path to a trained LoRA adapter dir, it is applied on top of the
+    base `model_id` — this is how we evaluate the SFT model on the 55-query suite.
+    """
     from vllm import LLM, SamplingParams
 
-    print(f"Loading vLLM model: {model_id} ...")
-    llm = LLM(
+    print(f"Loading vLLM model: {model_id}" + (f"  + LoRA adapter: {adapter}" if adapter else " ..."))
+    llm_kwargs = dict(
         model=model_id,
         dtype="bfloat16",
         max_model_len=max_model_len,
         gpu_memory_utilization=gpu_mem,
         trust_remote_code=True,
     )
+    if adapter:
+        llm_kwargs["enable_lora"] = True
+        llm_kwargs["max_lora_rank"] = max_lora_rank  # must be >= the adapter's LoRA r
+    llm = LLM(**llm_kwargs)
     sp = SamplingParams(temperature=temperature, max_tokens=max_tokens, seed=0)
 
+    lora_request = None
+    if adapter:
+        from vllm.lora.request import LoRARequest
+        lora_request = LoRARequest("sqlforge-sft", 1, adapter)
+
     t0 = time.time()
-    outputs = llm.chat(conversations, sp)
+    outputs = llm.chat(conversations, sp, lora_request=lora_request)
     elapsed = time.time() - t0
 
     completions = [o.outputs[0].text for o in outputs]
@@ -258,6 +272,11 @@ def main():
     ap.add_argument("--limit", type=int, default=0, help="Only run first N queries (smoke test).")
     ap.add_argument("--db", default=DEMO_DB_PATH)
     ap.add_argument("--benchmark", default=BENCHMARK_PATH)
+    # LoRA adapter (evaluate the SFT model): base --model + trained adapter dir
+    ap.add_argument("--adapter", default=None,
+                    help="Path to a trained LoRA adapter dir to apply on top of --model (SFT eval).")
+    ap.add_argument("--max-lora-rank", type=int, default=32,
+                    help="Must be >= the adapter's LoRA r (sft.yaml lora_r, default 32).")
     # openai backend options
     ap.add_argument("--base-url", default="http://localhost:8000/v1")
     ap.add_argument("--api-key", default=os.getenv("OPENAI_API_KEY", "EMPTY"))
@@ -306,8 +325,10 @@ def main():
         ])
 
     print("=" * 72)
-    print("PHASE 0 — BASE-MODEL BASELINE")
+    print("SFT-MODEL EVAL" if args.adapter else "PHASE 0 — BASE-MODEL BASELINE")
     print(f"  Model:      {args.model}")
+    if args.adapter:
+        print(f"  Adapter:    {args.adapter}")
     print(f"  Backend:    {args.backend}")
     print(f"  Queries:    {len(items)}  ({'incl. safety' if args.include_safety else '55-query suite, safety excluded'})")
     print(f"  Few-shot:   {args.fewshot}")
@@ -320,6 +341,7 @@ def main():
         completions, meta = generate_vllm(
             conversations, args.model, args.temperature,
             args.max_tokens, args.max_model_len, args.gpu_mem,
+            adapter=args.adapter, max_lora_rank=args.max_lora_rank,
         )
     elif args.backend == "openai":
         completions, meta = generate_openai(
@@ -462,9 +484,9 @@ def main():
     }
 
     print("\n" + "=" * 72)
-    print("PHASE 0 SUMMARY")
+    print("SFT-MODEL EVAL SUMMARY" if args.adapter else "PHASE 0 SUMMARY")
     print("=" * 72)
-    print(f"  Model:                 {args.model}")
+    print(f"  Model:                 {args.model}" + (f"  + adapter" if args.adapter else ""))
     print(f"  Execution Accuracy:    {exec_acc}%   ({n_correct}/{n})")
     print(f"  Valid SQL:             {valid_pct}%   ({n_valid_sql}/{n})")
     if "tokens_per_s" in meta:
@@ -483,15 +505,20 @@ def main():
         for k, v in sorted(fail_categories.items(), key=lambda x: -x[1]):
             print(f"    {k:18s}: {v}")
 
-    # --- Verdict (the whole point of Phase 0) ---
+    # --- Verdict ---
     print("\n  " + "-" * 68)
-    if args.backend != "selftest":
-        if exec_acc >= 85.0:
-            print(f"  VERDICT: {exec_acc}% >= 85% → LOW HEADROOM on this model.")
-            print("           If this is the 7B: pivot the headline gains to the 1.5B")
-            print("           model and make synthetic training data harder (spec §9).")
-        else:
-            print(f"  VERDICT: {exec_acc}% < 85% → HEADROOM EXISTS. Fine-tuning story holds.")
+    if args.backend == "selftest":
+        pass
+    elif args.adapter:
+        print(f"  SFT MODEL: {exec_acc}% on the 55-query suite.")
+        print("           Reference: base 7B 54.5% (zero-shot) / 61.8% (few-shot); Claude 91.7%.")
+        print(f"           Delta vs base zero-shot: {exec_acc - 54.5:+.1f} pp.")
+    elif exec_acc >= 85.0:
+        print(f"  VERDICT: {exec_acc}% >= 85% → LOW HEADROOM on this model.")
+        print("           If this is the 7B: pivot the headline gains to the 1.5B")
+        print("           model and make synthetic training data harder (spec §9).")
+    else:
+        print(f"  VERDICT: {exec_acc}% < 85% → HEADROOM EXISTS. Fine-tuning story holds.")
     print("  " + "-" * 68)
     print("=" * 72)
 
@@ -502,7 +529,8 @@ def main():
     else:
         safe_model = args.model.replace("/", "_")
         tag = f"fs{args.fewshot}" if args.fewshot else "zeroshot"
-        out_path = os.path.join(RESULTS_DIR, f"baseline_{safe_model}_{tag}.json")
+        prefix = "sft" if args.adapter else "baseline"
+        out_path = os.path.join(RESULTS_DIR, f"{prefix}_{safe_model}_{tag}.json")
     with open(out_path, "w") as f:
         json.dump(report, f, indent=2, default=str)
     print(f"\nFull report saved to: {out_path}")
