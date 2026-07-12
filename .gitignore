@@ -21,6 +21,9 @@ data/supply_chain.db
 data/chroma_db/
 data/sql_agent_demo.db
 
+# SQLForge fine-tuning: generated datasets, label cache, reject logs
+sqlforge/data/datasets/
+
 *.log
 npm-debug.log*
 

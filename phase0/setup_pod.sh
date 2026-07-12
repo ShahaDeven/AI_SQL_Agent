@@ -16,9 +16,19 @@ export HF_HOME=${HF_HOME:-/workspace/hf_cache}
 mkdir -p "$HF_HOME"
 echo "HF_HOME=$HF_HOME"
 
-echo ">>> Installing Phase 0 deps (vllm pulls a compatible torch)..."
+echo ">>> Installing Phase 0 deps..."
+# IMPORTANT: pin vLLM. The latest vLLM ships a torch built against a CUDA newer
+# than many RunPod host drivers support (e.g. driver caps at CUDA 12.8 -> "12080"),
+# which fails with "NVIDIA driver on your system is too old". vllm==0.6.6.post1
+# pulls torch 2.5.1 (cu124), which runs on a 12.8 driver and supports the A5000.
 pip install --upgrade pip
-pip install "vllm>=0.6.3" duckdb pandas
+pip install "vllm==0.6.6.post1" "transformers==4.47.1" duckdb pandas
+# transformers is pinned too: RunPod base images ship a bleeding-edge transformers
+# whose tokenizer API breaks vllm 0.6.6 ("Qwen2Tokenizer has no attribute
+# all_special_tokens_extended"). 4.47.1 matches this vllm release.
+
+echo ">>> Verifying torch sees the GPU..."
+python -c "import torch; assert torch.cuda.is_available(), 'CUDA not available to torch'; print('torch', torch.__version__, '| cuda', torch.version.cuda, '| GPU', torch.cuda.get_device_name(0))"
 
 echo ">>> Verifying GPU is visible..."
 nvidia-smi || { echo "!! nvidia-smi failed — no GPU visible"; exit 1; }

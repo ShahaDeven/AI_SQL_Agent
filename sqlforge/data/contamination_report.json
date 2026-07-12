@@ -1,0 +1,121 @@
+{
+  "n_train": 2436,
+  "thresholds": {
+    "question_4gram_jaccard": 0.8,
+    "sql_5gram_jaccard": 0.7,
+    "pair_question_min": 0.6
+  },
+  "contaminated_count": 0,
+  "benign_canonical_sql_count": 57,
+  "question_overlap": {
+    "max": 0.667,
+    "p99": 0.333,
+    "p95": 0.25
+  },
+  "sql_overlap": {
+    "max": 1.0,
+    "p99": 0.778,
+    "p95": 0.628
+  },
+  "note": "SQL-only overlap on simple_select/single_join is expected: trivial queries have one canonical form. Contamination requires question+SQL duplication, of which there is none.",
+  "contaminated": [],
+  "benign_canonical_sql_by_tier": {
+    "simple_select": 4,
+    "single_join": 18,
+    "aggregation": 33,
+    "multi_hop": 1,
+    "window_function": 1
+  },
+  "top_question_overlap": [
+    {
+      "tier": "simple_select",
+      "question": "What is the average account balance per customer?",
+      "q_sim": 0.667,
+      "q_match": "agg_06",
+      "sql_sim": 0.0,
+      "ast_sim": 0.8,
+      "sql_match": "simple_08"
+    },
+    {
+      "tier": "single_join",
+      "question": "How many customers are in each region?",
+      "q_sim": 0.6,
+      "q_match": "join_04",
+      "sql_sim": 0.512,
+      "ast_sim": 0.857,
+      "sql_match": "agg_06"
+    },
+    {
+      "tier": "single_join",
+      "question": "How many orders does each customer have?",
+      "q_sim": 0.571,
+      "q_match": "join_08",
+      "sql_sim": 0.394,
+      "ast_sim": 0.506,
+      "sql_match": "multi_03"
+    },
+    {
+      "tier": "single_join",
+      "question": "How many parts does each supplier provide?",
+      "q_sim": 0.571,
+      "q_match": "join_06",
+      "sql_sim": 0.8,
+      "ast_sim": 0.923,
+      "sql_match": "join_06"
+    },
+    {
+      "tier": "simple_select",
+      "question": "How many suppliers are there in total?",
+      "q_sim": 0.5,
+      "q_match": "simple_09",
+      "sql_sim": 0.0,
+      "ast_sim": 1.0,
+      "sql_match": "simple_09"
+    },
+    {
+      "tier": "single_join",
+      "question": "What is the total revenue per order status?",
+      "q_sim": 0.5,
+      "q_match": "agg_05",
+      "sql_sim": 0.366,
+      "ast_sim": 1.0,
+      "sql_match": "agg_09"
+    },
+    {
+      "tier": "single_join",
+      "question": "How many customers are in each churn risk category?",
+      "q_sim": 0.429,
+      "q_match": "join_04",
+      "sql_sim": 1.0,
+      "ast_sim": 1.0,
+      "sql_match": "simple_10"
+    },
+    {
+      "tier": "single_join",
+      "question": "What is the total revenue per order priority level?",
+      "q_sim": 0.429,
+      "q_match": "agg_05",
+      "sql_sim": 0.6,
+      "ast_sim": 0.977,
+      "sql_match": "agg_09"
+    },
+    {
+      "tier": "aggregation",
+      "question": "What is the average account balance by region?",
+      "q_sim": 0.429,
+      "q_match": "agg_06",
+      "sql_sim": 0.522,
+      "ast_sim": 0.94,
+      "sql_match": "agg_06"
+    },
+    {
+      "tier": "aggregation",
+      "question": "Which market segment has the most customers?",
+      "q_sim": 0.429,
+      "q_match": "multi_10",
+      "sql_sim": 0.139,
+      "ast_sim": 0.657,
+      "sql_match": "join_05"
+    }
+  ]
+}
