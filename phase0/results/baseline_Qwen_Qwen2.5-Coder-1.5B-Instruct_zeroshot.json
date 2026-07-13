@@ -1,0 +1,647 @@
+{
+  "config": {
+    "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+    "backend": "vllm",
+    "fewshot": 0,
+    "temperature": 0.0,
+    "max_tokens": 512,
+    "num_queries": 55,
+    "include_safety": false
+  },
+  "summary": {
+    "execution_accuracy_pct": 32.7,
+    "correct": 18,
+    "valid_sql_pct": 43.6,
+    "valid_sql": 24,
+    "match_breakdown": {
+      "value_match": 7,
+      "exact": 8,
+      "lenient_match": 1,
+      "subset_match": 1,
+      "execution_only": 1
+    },
+    "failure_categories": {
+      "wrong_result": 6,
+      "wrong_columns": 30,
+      "syntax_error": 1
+    },
+    "generation_meta": {
+      "wall_s": 5.86,
+      "gen_tokens": 5081,
+      "tokens_per_s": 866.4
+    }
+  },
+  "tier_results": {
+    "simple_select": {
+      "total": 10,
+      "correct": 10,
+      "accuracy_pct": 100.0
+    },
+    "single_join": {
+      "total": 10,
+      "correct": 4,
+      "accuracy_pct": 40.0
+    },
+    "aggregation": {
+      "total": 10,
+      "correct": 2,
+      "accuracy_pct": 20.0
+    },
+    "multi_hop": {
+      "total": 10,
+      "correct": 1,
+      "accuracy_pct": 10.0
+    },
+    "window_function": {
+      "total": 10,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    "simulation": {
+      "total": 5,
+      "correct": 1,
+      "accuracy_pct": 20.0
+    }
+  },
+  "results": [
+    {
+      "id": "simple_01",
+      "difficulty": "simple_select",
+      "question": "How many customers are there?",
+      "generated_sql": "SELECT count(*) FROM customer",
+      "gold_sql": "SELECT COUNT(*) AS customer_count FROM customer;",
+      "rows_returned": 1,
+      "match_type": "value_match",
+      "match_details": "Same values, different column names",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_02",
+      "difficulty": "simple_select",
+      "question": "List all region names.",
+      "generated_sql": "SELECT r_name FROM region",
+      "gold_sql": "SELECT r_name FROM region;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_03",
+      "difficulty": "simple_select",
+      "question": "How many nations are there?",
+      "generated_sql": "SELECT count(DISTINCT n_name) FROM nation",
+      "gold_sql": "SELECT COUNT(*) AS nation_count FROM nation;",
+      "rows_returned": 1,
+      "match_type": "value_match",
+      "match_details": "Same values, different column names",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_04",
+      "difficulty": "simple_select",
+      "question": "What are the distinct order priorities?",
+      "generated_sql": "SELECT DISTINCT o_orderpriority FROM orders",
+      "gold_sql": "SELECT DISTINCT o_orderpriority FROM orders;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_05",
+      "difficulty": "simple_select",
+      "question": "Show the top 5 customers by account balance.",
+      "generated_sql": "SELECT c_name, c_acctbal FROM customer ORDER BY c_acctbal DESC LIMIT 5",
+      "gold_sql": "SELECT c_name, c_acctbal FROM customer ORDER BY c_acctbal DESC LIMIT 5;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_06",
+      "difficulty": "simple_select",
+      "question": "How many orders are in the database?",
+      "generated_sql": "SELECT count(*) FROM orders",
+      "gold_sql": "SELECT COUNT(*) AS order_count FROM orders;",
+      "rows_returned": 1,
+      "match_type": "value_match",
+      "match_details": "Same values, different column names",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_07",
+      "difficulty": "simple_select",
+      "question": "List all distinct customer market segments.",
+      "generated_sql": "SELECT DISTINCT c_mktsegment FROM customer",
+      "gold_sql": "SELECT DISTINCT c_mktsegment FROM customer;",
+      "rows_returned": 5,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_08",
+      "difficulty": "simple_select",
+      "question": "What is the earliest order date?",
+      "generated_sql": "SELECT min(o_orderdate) FROM orders",
+      "gold_sql": "SELECT MIN(o_orderdate) AS earliest_date FROM orders;",
+      "rows_returned": 1,
+      "match_type": "value_match",
+      "match_details": "Same values, different column names",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_09",
+      "difficulty": "simple_select",
+      "question": "How many suppliers are there?",
+      "generated_sql": "SELECT count(*) FROM supplier",
+      "gold_sql": "SELECT COUNT(*) AS supplier_count FROM supplier;",
+      "rows_returned": 1,
+      "match_type": "value_match",
+      "match_details": "Same values, different column names",
+      "status": "PASS"
+    },
+    {
+      "id": "simple_10",
+      "difficulty": "simple_select",
+      "question": "Show the distribution of churn risk across customers.",
+      "generated_sql": "SELECT churn_risk, COUNT(*) FROM customer GROUP BY churn_risk",
+      "gold_sql": "SELECT churn_risk, COUNT(*) AS customer_count FROM customer GROUP BY churn_risk;",
+      "rows_returned": 3,
+      "match_type": "value_match",
+      "match_details": "Same values, different column names",
+      "status": "PASS"
+    },
+    {
+      "id": "join_01",
+      "difficulty": "single_join",
+      "question": "Which nation does each customer belong to? Show first 20.",
+      "generated_sql": "SELECT n_name FROM nation WHERE n_nationkey IN (SELECT c_nationkey FROM customer) LIMIT 20",
+      "gold_sql": "SELECT c.c_name, n.n_name FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey LIMIT 20;",
+      "rows_returned": 20,
+      "match_type": "mismatch",
+      "match_details": "Mismatch: gold has 20 rows x 2 cols (['c_name', 'n_name']), agent has 20 rows x 1 cols (['n_name'])",
+      "status": "FAIL",
+      "failure_category": "wrong_result"
+    },
+    {
+      "id": "join_02",
+      "difficulty": "single_join",
+      "question": "List suppliers and their nation.",
+      "generated_sql": "SELECT s_name, n_name FROM supplier JOIN nation ON s_nationkey = n_nationkey",
+      "gold_sql": "SELECT s.s_name, n.n_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey;",
+      "rows_returned": 1000,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "join_03",
+      "difficulty": "single_join",
+      "question": "Show all nations and which region they belong to.",
+      "generated_sql": "SELECT n_name, r_name FROM nation JOIN region ON n_regionkey = r_regionkey",
+      "gold_sql": "SELECT n.n_name, r.r_name FROM nation n JOIN region r ON n.n_regionkey = r.r_regionkey;",
+      "rows_returned": 25,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "join_04",
+      "difficulty": "single_join",
+      "question": "How many customers are in each nation?",
+      "generated_sql": "SELECT n_name, COUNT(*) FROM nation AS n JOIN customer AS c ON n.n_nationkey = c.c_nationkey GROUP BY n_name",
+      "gold_sql": "SELECT n.n_name, COUNT(*) AS customer_count FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey GROUP BY n.n_name ORDER BY customer_count DESC;",
+      "rows_returned": 25,
+      "match_type": "value_match",
+      "match_details": "Same values, different column names",
+      "status": "PASS"
+    },
+    {
+      "id": "join_05",
+      "difficulty": "single_join",
+      "question": "Which nation has the most customers?",
+      "generated_sql": "SELECT n_name FROM nation ORDER BY count(*) DESC LIMIT 1",
+      "gold_sql": "SELECT n.n_name, COUNT(*) AS customer_count FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey GROUP BY n.n_name ORDER BY customer_count DESC LIMIT 1;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: column \"n_name\" must appear in the GROUP BY clause or must be part of an aggregate function.\nEither add it to the GROUP BY list, or use \"ANY_VALUE(n_name)\" if the exact value of \"n_name\" is not important.\n\nLINE 1: SELECT n_name FROM nation ORDER BY count(*) DESC LIMIT 1\n               ^"
+    },
+    {
+      "id": "join_06",
+      "difficulty": "single_join",
+      "question": "How many parts does each supplier provide? Show top 10.",
+      "generated_sql": "SELECT s_name, COUNT(p_partkey) FROM partsupp GROUP BY s_name ORDER BY COUNT(p_partkey) DESC LIMIT 10",
+      "gold_sql": "SELECT s.s_name, COUNT(DISTINCT ps.ps_partkey) AS part_count FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey GROUP BY s.s_name ORDER BY part_count DESC LIMIT 10;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"s_name\" not found in FROM clause!\nCandidate bindings: \"ps_comment\", \"ps_partkey\", \"ps_suppkey\", \"ps_availqty\"\n\nLINE 1: SELECT s_name, COUNT(p_partkey) FROM partsupp GROUP BY s_name ORDER BY COUNT(p_partkey) DESC LIMIT 10\n                                                               ^"
+    },
+    {
+      "id": "join_07",
+      "difficulty": "single_join",
+      "question": "List all high-risk customers and their nation. Show first 20.",
+      "generated_sql": "SELECT c_name, n_name FROM customer WHERE churn_risk = 'high' LIMIT 20",
+      "gold_sql": "SELECT c.c_name, n.n_name, c.churn_risk FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey WHERE c.churn_risk = 'HIGH_RISK' LIMIT 20;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"n_name\" not found in FROM clause!\nCandidate bindings: \"c_name\", \"c_address\", \"c_comment\", \"c_nationkey\", \"c_mktsegment\"\n\nLINE 1: SELECT c_name, n_name FROM customer WHERE churn_risk = 'high' LIMIT 20\n                       ^"
+    },
+    {
+      "id": "join_08",
+      "difficulty": "single_join",
+      "question": "How many orders does each customer have? Show top 10.",
+      "generated_sql": "SELECT c_name, COUNT(o_orderkey) AS order_count\nFROM customer\nJOIN orders ON customer.c_custkey = orders.o_custkey\nGROUP BY c_name\nORDER BY order_count DESC\nLIMIT 10;",
+      "gold_sql": "SELECT c.c_name, COUNT(o.o_orderkey) AS order_count FROM customer c JOIN orders o ON c.c_custkey = o.o_custkey GROUP BY c.c_name ORDER BY order_count DESC LIMIT 10;",
+      "rows_returned": 10,
+      "match_type": "lenient_match",
+      "match_details": "Same shape, numeric values within 5%",
+      "status": "PASS"
+    },
+    {
+      "id": "join_09",
+      "difficulty": "single_join",
+      "question": "Show the number of suppliers per region.",
+      "generated_sql": "SELECT r_name, COUNT(s_suppkey) AS num_suppliers\nFROM region AS r\nJOIN supplier AS s ON r.r_regionkey = s.s_regionkey\nGROUP BY r_name;",
+      "gold_sql": "SELECT r.r_name, COUNT(*) AS supplier_count FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Table \"s\" does not have a column named \"s_regionkey\"\n\nCandidate bindings: : \"s_nationkey\"\n\nLINE 3: JOIN supplier AS s ON r.r_regionkey = s.s_regionkey\n                                              ^"
+    },
+    {
+      "id": "join_10",
+      "difficulty": "single_join",
+      "question": "How many high-risk customers are in each region?",
+      "generated_sql": "WITH high_risk_customers AS (\n    SELECT c_nationkey, c_custkey, churn_risk\n    FROM customer\n    WHERE churn_risk = 'high'\n), region_counts AS (\n    SELECT r_name, COUNT(c_custkey) AS customer_count\n    FROM high_risk_customers\n    JOIN nation ON high_risk_customers.c_nationkey = nation.n_nationkey\n    GROUP BY r_name\n)\nSELECT r_name, customer_count\nFROM region_counts",
+      "gold_sql": "SELECT r.r_name, COUNT(*) AS high_risk_count FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey WHERE c.churn_risk = 'HIGH_RISK' GROUP BY r.r_name;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"r_name\" not found in FROM clause!\nCandidate bindings: \"n_name\", \"c_nationkey\", \"n_comment\", \"n_nationkey\", \"n_regionkey\"\n\nLINE 9:     GROUP BY r_name\n                     ^"
+    },
+    {
+      "id": "agg_01",
+      "difficulty": "aggregation",
+      "question": "What is the total revenue per region?",
+      "generated_sql": "WITH regional_revenue AS (\n    SELECT r_name, sum(total_value * (1 - promo_reduction)) as revenue\n    FROM region r\n    JOIN orders o ON r.r_regionkey = o.o_regionkey\n    JOIN lineitem l ON o.o_orderkey = l.l_orderkey\n    GROUP BY r_name\n)\nSELECT r_name, revenue\nFROM regional_revenue",
+      "gold_sql": "SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY revenue DESC;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Table \"o\" does not have a column named \"o_regionkey\"\n\nCandidate bindings: : \"o_orderkey\"\n\nLINE 4:     JOIN orders o ON r.r_regionkey = o.o_regionkey\n                                             ^"
+    },
+    {
+      "id": "agg_02",
+      "difficulty": "aggregation",
+      "question": "Show the top 3 suppliers by total revenue.",
+      "generated_sql": "WITH total_revenue AS (\n    SELECT s_name, SUM(total_value * (1 - promo_reduction)) AS revenue\n    FROM supplier\n    JOIN partsupp ON supplier.s_suppkey = partsupp.ps_suppkey\n    JOIN lineitem ON partsupp.ps_partkey = lineitem.l_partkey\n    GROUP BY s_name\n)\nSELECT s_name, revenue\nFROM total_revenue\nORDER BY revenue DESC\nLIMIT 3",
+      "gold_sql": "SELECT s.s_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM supplier s JOIN lineitem l ON s.s_suppkey = l.l_suppkey GROUP BY s.s_name ORDER BY revenue DESC LIMIT 3;",
+      "rows_returned": 3,
+      "match_type": "mismatch",
+      "match_details": "Mismatch: gold has 3 rows x 2 cols (['s_name', 'revenue']), agent has 3 rows x 2 cols (['s_name', 'revenue'])",
+      "status": "FAIL",
+      "failure_category": "wrong_result"
+    },
+    {
+      "id": "agg_03",
+      "difficulty": "aggregation",
+      "question": "How many orders were placed per year?",
+      "generated_sql": "SELECT EXTRACT(YEAR FROM o_orderdate) AS year, COUNT(*) AS order_count FROM orders GROUP BY year",
+      "gold_sql": "SELECT EXTRACT(YEAR FROM o_orderdate) AS year, COUNT(*) AS order_count FROM orders GROUP BY EXTRACT(YEAR FROM o_orderdate) ORDER BY year;",
+      "rows_returned": 7,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "agg_04",
+      "difficulty": "aggregation",
+      "question": "What is the average order value per customer segment?",
+      "generated_sql": "SELECT c_mktsegment, AVG(total_value * (1 - promo_reduction)) AS avg_order_value\nFROM customer\nJOIN orders ON customer.c_custkey = orders.o_custkey\nGROUP BY c_mktsegment",
+      "gold_sql": "SELECT c.c_mktsegment, AVG(o.o_totalprice) AS avg_order_value FROM customer c JOIN orders o ON c.c_custkey = o.o_custkey GROUP BY c.c_mktsegment ORDER BY avg_order_value DESC;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"total_value\" not found in FROM clause!\nCandidate bindings: \"o_totalprice\", \"o_orderdate\", \"o_orderstatus\", \"c_acctbal\", \"o_comment\"\n\nLINE 1: SELECT c_mktsegment, AVG(total_value * (1 - promo_reduction)) AS avg_order_value\n                                 ^"
+    },
+    {
+      "id": "agg_05",
+      "difficulty": "aggregation",
+      "question": "What is the total revenue per nation?",
+      "generated_sql": "WITH regional_revenue AS (\n    SELECT n_name, SUM(total_value * (1 - promo_reduction)) AS revenue\n    FROM nation\n    JOIN supplier ON nation.n_nationkey = supplier.s_nationkey\n    JOIN partsupp ON supplier.s_suppkey = partsupp.ps_suppkey\n    JOIN lineitem ON partsupp.ps_partkey = lineitem.l_partkey\n    JOIN orders ON lineitem.l_orderkey = orders.o_orderkey\n    GROUP BY n_name\n)\nSELECT r_name, revenue\nFROM regional_revenue",
+      "gold_sql": "SELECT n.n_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey GROUP BY n.n_name ORDER BY revenue DESC;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"r_name\" not found in FROM clause!\nCandidate bindings: \"n_name\", \"revenue\"\n\nLINE 10: SELECT r_name, revenue\n                ^"
+    },
+    {
+      "id": "agg_06",
+      "difficulty": "aggregation",
+      "question": "What is the average account balance per region?",
+      "generated_sql": "SELECT r_name, AVG(c_acctbal) FROM customer AS c JOIN nation AS n ON c.c_nationkey = n.n_nationkey GROUP BY r_name",
+      "gold_sql": "SELECT r.r_name, AVG(c.c_acctbal) AS avg_balance FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY avg_balance DESC;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"r_name\" not found in FROM clause!\nCandidate bindings: \"c_name\", \"n_name\", \"c_nationkey\", \"n_comment\", \"c_address\"\n\nLINE 1: ... c JOIN nation AS n ON c.c_nationkey = n.n_nationkey GROUP BY r_name\n                                                                         ^"
+    },
+    {
+      "id": "agg_07",
+      "difficulty": "aggregation",
+      "question": "Which customer segment generates the most revenue?",
+      "generated_sql": "SELECT c_mktsegment, SUM(total_value * (1 - promo_reduction)) AS revenue\nFROM customer\nJOIN orders ON customer.c_custkey = orders.o_custkey\nJOIN lineitem ON orders.o_orderkey = lineitem.l_orderkey\nGROUP BY c_mktsegment\nORDER BY revenue DESC\nLIMIT 1",
+      "gold_sql": "SELECT c.c_mktsegment, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey GROUP BY c.c_mktsegment ORDER BY revenue DESC LIMIT 1;",
+      "rows_returned": 1,
+      "match_type": "exact",
+      "match_details": "Exact match",
+      "status": "PASS"
+    },
+    {
+      "id": "agg_08",
+      "difficulty": "aggregation",
+      "question": "What is the total quantity shipped per region?",
+      "generated_sql": "WITH shipped_per_region AS (\n    SELECT r_name, SUM(l_quantity) AS total_quantity\n    FROM region AS r\n    JOIN orders AS o ON r.r_regionkey = o.o_regionkey\n    JOIN lineitem AS l ON o.o_orderkey = l.l_orderkey\n    GROUP BY r_name\n)\nSELECT r_name, total_quantity\nFROM shipped_per_region",
+      "gold_sql": "SELECT r.r_name, SUM(l.l_quantity) AS total_quantity FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY total_quantity DESC;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Table \"o\" does not have a column named \"o_regionkey\"\n\nCandidate bindings: : \"o_orderkey\"\n\nLINE 4:     JOIN orders AS o ON r.r_regionkey = o.o_regionkey\n                                                ^"
+    },
+    {
+      "id": "agg_09",
+      "difficulty": "aggregation",
+      "question": "Show revenue by order priority.",
+      "generated_sql": "SELECT o_orderpriority, sum(total_value * (1 - promo_reduction)) as revenue\nFROM lineitem\nGROUP BY o_orderpriority;",
+      "gold_sql": "SELECT o.o_orderpriority, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey GROUP BY o.o_orderpriority ORDER BY revenue DESC;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"o_orderpriority\" not found in FROM clause!\nCandidate bindings: \"l_orderkey\", \"promo_reduction\", \"l_receiptdate\", \"l_partkey\", \"l_quantity\"\n\nLINE 3: GROUP BY o_orderpriority;\n                 ^"
+    },
+    {
+      "id": "agg_10",
+      "difficulty": "aggregation",
+      "question": "What is the average discount per region?",
+      "generated_sql": "SELECT r_name, AVG(l_discount) FROM region AS r JOIN orders AS o ON r.r_regionkey = o.o_regionkey JOIN lineitem AS l ON o.o_orderkey = l.l_orderkey GROUP BY r_name",
+      "gold_sql": "SELECT r.r_name, AVG(l.promo_reduction) AS avg_discount FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY avg_discount DESC;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Table \"o\" does not have a column named \"o_regionkey\"\n\nCandidate bindings: : \"o_orderkey\"\n\nLINE 1: ...ount) FROM region AS r JOIN orders AS o ON r.r_regionkey = o.o_regionkey JOIN lineitem AS l ON o.o_orderkey = l.l_orde...\n                                                                      ^"
+    },
+    {
+      "id": "multi_01",
+      "difficulty": "multi_hop",
+      "question": "Which supplier has the most parts in the region with the lowest revenue?",
+      "generated_sql": "WITH regional_revenue AS (\n    SELECT r_name, SUM(total_value * (1 - promo_reduction)) AS revenue\n    FROM orders o\n    JOIN lineitem l ON o.o_orderkey = l.l_orderkey\n    JOIN supplier s ON l.l_suppkey = s.s_suppkey\n    JOIN nation n ON s.s_nationkey = n.n_nationkey\n    JOIN region r ON n.n_regionkey = r.r_regionkey\n    GROUP BY r_name\n),\ntop_supplier AS (\n    SELECT s_name, COUNT(p_partkey) AS part_count\n    FROM partsupp ps\n    JOIN supplier s ON ps.ps_suppkey = s.s_suppkey\n    JOIN nation n ON s.s_nationkey = n.n_nationkey\n    JOIN region r ON n.n_regionkey = r.r_regionkey\n    ORDER BY part_count DESC\n    LIMIT 1\n)\nSELECT t1.s_name\nFROM top_supplier t1\nJOIN regional_revenue t2 ON t1.r_name = t2.r_name",
+      "gold_sql": "WITH regional_revenue AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name), lowest_region AS (SELECT r_name FROM regional_revenue ORDER BY revenue ASC LIMIT 1) SELECT s.s_name, COUNT(DISTINCT ps.ps_partkey) AS part_count FROM supplier s JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey JOIN nation n ON s.s_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey JOIN lowest_region lr ON r.r_name = lr.r_name GROUP BY s.s_name ORDER BY part_count DESC LIMIT 1;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"p_partkey\" not found in FROM clause!\nCandidate bindings: \"ps_partkey\", \"ps_suppkey\", \"n_nationkey\", \"s_nationkey\", \"s_suppkey\"\n\nLINE 11:     SELECT s_name, COUNT(p_partkey) AS part_count\n                                  ^"
+    },
+    {
+      "id": "multi_02",
+      "difficulty": "multi_hop",
+      "question": "Find the top 3 nations by revenue where the average discount is above 0.05.",
+      "generated_sql": "WITH regional_revenue AS (\n    SELECT n_name, AVG(l_discount) AS avg_discount\n    FROM nation\n    JOIN supplier ON n_nationkey = s_nationkey\n    JOIN lineitem ON s_suppkey = l_suppkey\n    GROUP BY n_name\n    HAVING avg_discount > 0.05\n)\nSELECT r_name, sum(revenue) AS total_revenue\nFROM region\nJOIN regional_revenue ON region.r_regionkey = regional_revenue.n_nationkey\nORDER BY total_revenue DESC\nLIMIT 3",
+      "gold_sql": "SELECT n.n_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue, AVG(l.promo_reduction) AS avg_discount FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey GROUP BY n.n_name HAVING AVG(l.promo_reduction) > 0.05 ORDER BY revenue DESC LIMIT 3;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Values list \"regional_revenue\" does not have a column named \"n_nationkey\"\n\nLINE 11: JOIN regional_revenue ON region.r_regionkey = regional_revenue.n_nationkey\n                                                       ^"
+    },
+    {
+      "id": "multi_03",
+      "difficulty": "multi_hop",
+      "question": "List customers who have placed more orders than the average number of orders per customer.",
+      "generated_sql": "WITH avg_orders AS (\n    SELECT AVG(o_ordercount) AS avg_orders\n    FROM orders\n),\ntop_customers AS (\n    SELECT c_custkey, c_name, COUNT(o_orderkey) AS order_count\n    FROM orders\n    GROUP BY c_custkey, c_name\n)\nSELECT c_custkey, c_name\nFROM top_customers\nWHERE order_count > (SELECT avg_orders FROM avg_orders);",
+      "gold_sql": "WITH customer_orders AS (SELECT c.c_custkey, c.c_name, COUNT(o.o_orderkey) AS order_count FROM customer c LEFT JOIN orders o ON c.c_custkey = o.o_custkey GROUP BY c.c_custkey, c.c_name), avg_orders AS (SELECT AVG(order_count) AS avg_count FROM customer_orders) SELECT co.c_name, co.order_count FROM customer_orders co CROSS JOIN avg_orders ao WHERE co.order_count > ao.avg_count ORDER BY co.order_count DESC;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"c_custkey\" not found in FROM clause!\nCandidate bindings: \"o_custkey\", \"o_orderkey\", \"o_totalprice\", \"o_shippriority\", \"o_orderpriority\"\n\nLINE 8:     GROUP BY c_custkey, c_name\n                     ^"
+    },
+    {
+      "id": "multi_04",
+      "difficulty": "multi_hop",
+      "question": "Which region has the highest average order value?",
+      "generated_sql": "WITH regional_revenue AS (\n    SELECT r_name, AVG(total_value * (1 - promo_reduction)) AS avg_revenue\n    FROM orders o\n    JOIN lineitem l ON o.o_orderkey = l.l_orderkey\n    JOIN supplier s ON l.l_suppkey = s.s_suppkey\n    JOIN nation n ON s.s_nationkey = n.n_nationkey\n    JOIN region r ON n.n_regionkey = r.r_regionkey\n    GROUP BY r_name\n)\nSELECT r_name\nFROM regional_revenue\nORDER BY avg_revenue DESC\nLIMIT 1",
+      "gold_sql": "SELECT r.r_name, AVG(o.o_totalprice) AS avg_order_value FROM orders o JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY avg_order_value DESC LIMIT 1;",
+      "rows_returned": 1,
+      "match_type": "subset_match",
+      "match_details": "Common columns match: {'r_name'}",
+      "status": "PASS"
+    },
+    {
+      "id": "multi_05",
+      "difficulty": "multi_hop",
+      "question": "Find the supplier with the highest revenue in each region.",
+      "generated_sql": "WITH regional_revenue AS (\n    SELECT r_name, s_suppkey, sum(total_value * (1 - promo_reduction)) AS revenue\n    FROM supplier\n    JOIN partsupp ON supplier.s_suppkey = partsupp.ps_suppkey\n    JOIN lineitem ON partsupp.ps_partkey = lineitem.l_partkey\n    JOIN orders ON lineitem.l_orderkey = orders.o_orderkey\n    JOIN customer ON orders.o_custkey = customer.c_custkey\n    JOIN nation ON customer.c_nationkey = nation.n_nationkey\n    JOIN region ON nation.n_regionkey = region.r_regionkey\n    GROUP BY r_name, s_suppkey\n)\nSELECT r_name, s_suppkey\nFROM regional_revenue\nORDER BY revenue DESC\nLIMIT 1",
+      "gold_sql": "WITH supplier_revenue AS (SELECT r.r_name, s.s_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue, ROW_NUMBER() OVER (PARTITION BY r.r_name ORDER BY SUM(l.total_value * (1 - l.promo_reduction)) DESC) AS rn FROM lineitem l JOIN supplier s ON l.l_suppkey = s.s_suppkey JOIN nation n ON s.s_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name, s.s_name) SELECT r_name, s_name, revenue FROM supplier_revenue WHERE rn = 1;",
+      "rows_returned": 1,
+      "match_type": "mismatch",
+      "match_details": "Mismatch: gold has 5 rows x 3 cols (['r_name', 's_name', 'revenue']), agent has 1 rows x 2 cols (['r_name', 's_suppkey'])",
+      "status": "FAIL",
+      "failure_category": "wrong_result"
+    },
+    {
+      "id": "multi_06",
+      "difficulty": "multi_hop",
+      "question": "What percentage of total revenue comes from each region?",
+      "generated_sql": "WITH regional_revenue AS (\n    SELECT r_name, SUM(total_value * (1 - promo_reduction)) AS revenue\n    FROM orders o\n    JOIN lineitem l ON o.o_orderkey = l.l_orderkey\n    JOIN supplier s ON l.l_suppkey = s.s_suppkey\n    JOIN nation n ON s.s_nationkey = n.n_nationkey\n    JOIN region r ON n.n_regionkey = r.r_regionkey\n    GROUP BY r_name\n)\nSELECT r_name, CAST(revenue AS REAL) * 100 / SUM(revenue) OVER () AS percentage\nFROM regional_revenue",
+      "gold_sql": "WITH total AS (SELECT SUM(total_value * (1 - promo_reduction)) AS grand_total FROM lineitem), by_region AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT br.r_name, br.revenue, ROUND((br.revenue / t.grand_total) * 100, 2) AS pct_of_total FROM by_region br CROSS JOIN total t ORDER BY pct_of_total DESC;",
+      "rows_returned": 5,
+      "match_type": "mismatch",
+      "match_details": "Mismatch: gold has 5 rows x 3 cols (['r_name', 'revenue', 'pct_of_total']), agent has 5 rows x 2 cols (['r_name', 'percentage'])",
+      "status": "FAIL",
+      "failure_category": "wrong_result"
+    },
+    {
+      "id": "multi_07",
+      "difficulty": "multi_hop",
+      "question": "Which nation has the highest revenue among high-risk customers?",
+      "generated_sql": "WITH high_risk_customers AS (\n    SELECT c_custkey\n    FROM customer\n    WHERE churn_risk = 'high'\n),\nrevenue_by_customer AS (\n    SELECT c.custkey, c.nationkey, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue\n    FROM customer c\n    JOIN orders o ON c.custkey = o.custkey\n    JOIN lineitem l ON o.o_orderkey = l.l_orderkey\n    WHERE c.churn_risk = 'high'\n    GROUP BY c.custkey, c.nationkey\n),\nhighest_revenue_nation AS (\n    SELECT n.nationkey, n.n_name, MAX(revenue) AS max_revenue\n    FROM revenue_by_customer r\n    JOIN nation n ON r.nationkey = n.n_nationkey\n    GROUP BY n.nationkey, n.n_name\n)\nSELECT n.n_name\nFROM highest_revenue_nation hrn\nJOIN nation n ON hrn.nationkey = n.n_nationkey\nORDER BY hrn.max_revenue DESC\nLIMIT 1",
+      "gold_sql": "SELECT n.n_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey WHERE c.churn_risk = 'HIGH_RISK' GROUP BY n.n_name ORDER BY revenue DESC LIMIT 1;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Table \"c\" does not have a column named \"custkey\"\n\nCandidate bindings: : \"c_custkey\"\n\nLINE 9:     JOIN orders o ON c.custkey = o.custkey\n                             ^"
+    },
+    {
+      "id": "multi_08",
+      "difficulty": "multi_hop",
+      "question": "Show the top 5 customers by revenue in the ASIA region.",
+      "generated_sql": "WITH regional_revenue AS (\n    SELECT c_name, SUM(total_value * (1 - promo_reduction)) AS revenue\n    FROM customer c\n    JOIN orders o ON c.c_custkey = o.o_custkey\n    JOIN lineitem l ON o.o_orderkey = l.l_orderkey\n    JOIN nation n ON c.c_nationkey = n.n_nationkey\n    WHERE n.n_regionkey = 2\n    GROUP BY c_name\n)\nSELECT r_name, revenue\nFROM regional_revenue\nORDER BY revenue DESC\nLIMIT 5",
+      "gold_sql": "SELECT c.c_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey WHERE r.r_name = 'ASIA' GROUP BY c.c_name ORDER BY revenue DESC LIMIT 5;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"r_name\" not found in FROM clause!\nCandidate bindings: \"c_name\", \"revenue\"\n\nLINE 10: SELECT r_name, revenue\n                ^"
+    },
+    {
+      "id": "multi_09",
+      "difficulty": "multi_hop",
+      "question": "Compare average account balance between high-risk and low-risk customers by region.",
+      "generated_sql": "WITH high_low_risk AS (\n    SELECT c_acctbal, c_nationkey, churn_risk\n    FROM customer\n    WHERE churn_risk IN ('high', 'low')\n), region_avg AS (\n    SELECT r_name, AVG(c_acctbal) AS avg_acctbal\n    FROM high_low_risk\n    JOIN nation ON high_low_risk.c_nationkey = nation.n_nationkey\n    GROUP BY r_name\n)\nSELECT r_name, avg_acctbal\nFROM region_avg",
+      "gold_sql": "SELECT r.r_name, c.churn_risk, AVG(c.c_acctbal) AS avg_balance FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey WHERE c.churn_risk IN ('HIGH_RISK', 'LOW_RISK') GROUP BY r.r_name, c.churn_risk ORDER BY r.r_name, c.churn_risk;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"r_name\" not found in FROM clause!\nCandidate bindings: \"n_name\", \"c_nationkey\", \"n_comment\", \"n_nationkey\", \"n_regionkey\"\n\nLINE 9:     GROUP BY r_name\n                     ^"
+    },
+    {
+      "id": "multi_10",
+      "difficulty": "multi_hop",
+      "question": "Which market segment has the most high-risk customers?",
+      "generated_sql": "SELECT c_mktsegment, COUNT(*) FROM customer WHERE churn_risk = 'high' GROUP BY c_mktsegment ORDER BY COUNT(*) DESC LIMIT 1",
+      "gold_sql": "SELECT c_mktsegment, COUNT(*) AS high_risk_count FROM customer WHERE churn_risk = 'HIGH_RISK' GROUP BY c_mktsegment ORDER BY high_risk_count DESC LIMIT 1;",
+      "rows_returned": 0,
+      "match_type": "mismatch",
+      "match_details": "Mismatch: gold has 1 rows x 2 cols (['c_mktsegment', 'high_risk_count']), agent has 0 rows x 2 cols (['c_mktsegment', 'count_star()'])",
+      "status": "FAIL",
+      "failure_category": "wrong_result"
+    },
+    {
+      "id": "window_01",
+      "difficulty": "window_function",
+      "question": "What is the month-over-month revenue trend for 1995?",
+      "generated_sql": "WITH monthly_revenue AS (\n    SELECT \n        YEAR(o_orderdate) AS year,\n        MONTH(o_orderdate) AS month,\n        SUM(total_value * (1 - promo_reduction)) AS revenue\n    FROM \n        orders\n    WHERE \n        YEAR(o_orderdate) = 1995\n    GROUP BY \n        YEAR(o_orderdate), MONTH(o_orderdate)\n)\nSELECT \n    year, \n    month, \n    revenue, \n    LAG(revenue) OVER (ORDER BY year, month) AS previous_revenue\nFROM \n    monthly_revenue\nORDER BY \n    year, \n    month;",
+      "gold_sql": "WITH monthly AS (SELECT EXTRACT(MONTH FROM o.o_orderdate) AS month, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey WHERE EXTRACT(YEAR FROM o.o_orderdate) = 1995 GROUP BY EXTRACT(MONTH FROM o.o_orderdate)) SELECT month, revenue, LAG(revenue) OVER (ORDER BY month) AS prev_revenue, ROUND(((revenue - LAG(revenue) OVER (ORDER BY month)) / LAG(revenue) OVER (ORDER BY month)) * 100, 2) AS mom_pct_change FROM monthly ORDER BY month;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"total_value\" not found in FROM clause!\nCandidate bindings: \"o_totalprice\", \"o_orderdate\", \"o_orderstatus\", \"o_comment\", \"o_orderkey\"\n\nLINE 5:         SUM(total_value * (1 - promo_reduction)) AS revenue\n                    ^"
+    },
+    {
+      "id": "window_02",
+      "difficulty": "window_function",
+      "question": "Rank nations by total revenue within each region.",
+      "generated_sql": "WITH regional_revenue AS (\n    SELECT\n        r_name,\n        SUM(total_value * (1 - promo_reduction)) AS revenue\n    FROM\n        lineitem\n    JOIN\n        orders ON lineitem.l_orderkey = orders.o_orderkey\n    JOIN\n        nation ON orders.o_nationkey = nation.n_nationkey\n    GROUP BY\n        r_name\n)\nSELECT\n    r_name,\n    SUM(revenue) AS total_revenue\nFROM\n    regional_revenue\nORDER BY\n    total_revenue DESC",
+      "gold_sql": "SELECT r.r_name, n.n_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue, RANK() OVER (PARTITION BY r.r_name ORDER BY SUM(l.total_value * (1 - l.promo_reduction)) DESC) AS rank FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name, n.n_name;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Table \"orders\" does not have a column named \"o_nationkey\"\n\nCandidate bindings: : \"o_custkey\"\n\nLINE 10:         nation ON orders.o_nationkey = nation.n_nationkey\n                           ^"
+    },
+    {
+      "id": "window_03",
+      "difficulty": "window_function",
+      "question": "Show cumulative revenue over time by year.",
+      "generated_sql": "WITH cumulative_revenue AS (\n    SELECT \n        YEAR(o_orderdate) AS year,\n        SUM(total_value * (1 - promo_reduction)) AS revenue\n    FROM \n        orders\n    GROUP BY \n        YEAR(o_orderdate)\n)\nSELECT \n    year,\n    revenue\nFROM \n    cumulative_revenue\nORDER BY \n    year;",
+      "gold_sql": "WITH yearly AS (SELECT EXTRACT(YEAR FROM o.o_orderdate) AS year, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey GROUP BY EXTRACT(YEAR FROM o.o_orderdate)) SELECT year, revenue, SUM(revenue) OVER (ORDER BY year) AS cumulative_revenue FROM yearly ORDER BY year;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"total_value\" not found in FROM clause!\nCandidate bindings: \"o_totalprice\", \"o_orderdate\", \"o_orderstatus\", \"o_comment\", \"o_orderkey\"\n\nLINE 4:         SUM(total_value * (1 - promo_reduction)) AS revenue\n                    ^"
+    },
+    {
+      "id": "window_04",
+      "difficulty": "window_function",
+      "question": "Show the year-over-year revenue growth rate.",
+      "generated_sql": "WITH yearly_revenue AS (\n    SELECT \n        YEAR(o_orderdate) AS year,\n        SUM(total_value * (1 - promo_reduction)) AS revenue\n    FROM \n        orders\n    GROUP BY \n        YEAR(o_orderdate)\n),\nyearly_revenue_growth AS (\n    SELECT \n        year,\n        revenue,\n        LAG(revenue) OVER (ORDER BY year) AS last_year_revenue\n    FROM \n        yearly_revenue\n)\nSELECT \n    year,\n    revenue,\n    (revenue - last_year_revenue) / last_year_revenue * 100 AS growth_rate\nFROM \n    yearly_revenue_growth\nORDER BY \n    year;",
+      "gold_sql": "WITH yearly AS (SELECT EXTRACT(YEAR FROM o.o_orderdate) AS year, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey GROUP BY EXTRACT(YEAR FROM o.o_orderdate)) SELECT year, revenue, LAG(revenue) OVER (ORDER BY year) AS prev_revenue, ROUND(((revenue - LAG(revenue) OVER (ORDER BY year)) / LAG(revenue) OVER (ORDER BY year)) * 100, 2) AS yoy_growth FROM yearly ORDER BY year;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"total_value\" not found in FROM clause!\nCandidate bindings: \"o_totalprice\", \"o_orderdate\", \"o_orderstatus\", \"o_comment\", \"o_orderkey\"\n\nLINE 4:         SUM(total_value * (1 - promo_reduction)) AS revenue\n                    ^"
+    },
+    {
+      "id": "window_05",
+      "difficulty": "window_function",
+      "question": "Show a running total of orders per month in 1996.",
+      "generated_sql": "WITH monthly_orders AS (\n    SELECT \n        o_orderdate AS order_date,\n        o_orderkey AS order_key,\n        SUM(total_value * (1 - promo_reduction)) AS revenue\n    FROM \n        orders\n    WHERE \n        o_orderdate >= '1996-01-01' AND o_orderdate < '1997-01-01'\n    GROUP BY \n        DATE_TRUNC('month', o_orderdate)\n)\nSELECT \n    order_date,\n    order_key,\n    revenue,\n    SUM(revenue) OVER (ORDER BY order_date) AS running_total\nFROM \n    monthly_orders",
+      "gold_sql": "WITH monthly AS (SELECT EXTRACT(MONTH FROM o_orderdate) AS month, COUNT(*) AS order_count FROM orders WHERE EXTRACT(YEAR FROM o_orderdate) = 1996 GROUP BY EXTRACT(MONTH FROM o_orderdate)) SELECT month, order_count, SUM(order_count) OVER (ORDER BY month) AS running_total FROM monthly ORDER BY month;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"total_value\" not found in FROM clause!\nCandidate bindings: \"o_totalprice\", \"o_orderdate\", \"o_orderstatus\", \"o_comment\", \"o_orderkey\"\n\nLINE 5:         SUM(total_value * (1 - promo_reduction)) AS revenue\n                    ^"
+    },
+    {
+      "id": "window_06",
+      "difficulty": "window_function",
+      "question": "Rank customers by total spending and show their percentile. Show top 20.",
+      "generated_sql": "WITH total_spending AS (\n    SELECT c_custkey, SUM(total_value * (1 - promo_reduction)) AS revenue\n    FROM lineitem\n    GROUP BY c_custkey\n),\nranked_customers AS (\n    SELECT c_custkey, revenue, DENSE_RANK() OVER (ORDER BY revenue DESC) AS rank\n    FROM total_spending\n)\nSELECT c_custkey, c_name, revenue, rank\nFROM ranked_customers\nWHERE rank <= 20;",
+      "gold_sql": "SELECT c.c_name, SUM(o.o_totalprice) AS total_spending, PERCENT_RANK() OVER (ORDER BY SUM(o.o_totalprice)) AS spending_percentile FROM customer c JOIN orders o ON c.c_custkey = o.o_custkey GROUP BY c.c_name ORDER BY total_spending DESC LIMIT 20;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"c_custkey\" not found in FROM clause!\nCandidate bindings: \"l_suppkey\", \"l_partkey\", \"l_discount\", \"l_quantity\", \"l_shipdate\"\n\nLINE 4:     GROUP BY c_custkey\n                     ^"
+    },
+    {
+      "id": "window_07",
+      "difficulty": "window_function",
+      "question": "What is the 3-month moving average of revenue in 1995?",
+      "generated_sql": "WITH revenue AS (\n    SELECT \n        o_orderdate AS date,\n        sum(total_value * (1 - promo_reduction)) AS revenue\n    FROM \n        orders\n    WHERE \n        o_orderdate >= '1995-01-01' AND o_orderdate < '1995-04-01'\n    GROUP BY \n        o_orderdate\n),\nmoving_average AS (\n    SELECT \n        date,\n        revenue,\n        LAG(revenue) OVER (ORDER BY date) AS prev_revenue,\n        LEAD(revenue) OVER (ORDER BY date) AS next_revenue\n    FROM \n        revenue\n)\nSELECT \n    date,\n    revenue,\n    (revenue - prev_revenue) / 2 AS moving_average\nFROM \n    moving_average\nWHERE \n    date >= '1995-01-01' AND date < '1995-04-01'",
+      "gold_sql": "WITH monthly AS (SELECT EXTRACT(MONTH FROM o.o_orderdate) AS month, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey WHERE EXTRACT(YEAR FROM o.o_orderdate) = 1995 GROUP BY EXTRACT(MONTH FROM o.o_orderdate)) SELECT month, revenue, AVG(revenue) OVER (ORDER BY month ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS moving_avg_3m FROM monthly ORDER BY month;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"total_value\" not found in FROM clause!\nCandidate bindings: \"o_totalprice\", \"o_orderdate\", \"o_orderstatus\", \"o_comment\", \"o_orderkey\"\n\nLINE 4:         sum(total_value * (1 - promo_reduction)) AS revenue\n                    ^"
+    },
+    {
+      "id": "window_08",
+      "difficulty": "window_function",
+      "question": "Show each region's revenue and its difference from the overall average.",
+      "generated_sql": "WITH regional_revenue AS (\n    SELECT r_name, SUM(total_value * (1 - promo_reduction)) AS revenue\n    FROM orders o\n    JOIN lineitem l ON o.o_orderkey = l.l_orderkey\n    JOIN supplier s ON l.l_suppkey = s.s_suppkey\n    JOIN nation n ON s.s_nationkey = n.n_nationkey\n    JOIN region r ON n.n_regionkey = r.r_regionkey\n    GROUP BY r_name\n),\noverall_average AS (\n    SELECT AVG(revenue) AS avg_revenue\n    FROM regional_revenue\n)\nSELECT r_name, revenue, revenue - avg_revenue AS revenue_difference\nFROM regional_revenue\nJOIN overall_average ON regional_revenue.r_name = overall_average.r_name",
+      "gold_sql": "WITH region_rev AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT r_name, revenue, AVG(revenue) OVER () AS avg_revenue, revenue - AVG(revenue) OVER () AS diff_from_avg FROM region_rev;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Values list \"overall_average\" does not have a column named \"r_name\"\n\nLINE 16: JOIN overall_average ON regional_revenue.r_name = overall_average.r_name\n                                                           ^"
+    },
+    {
+      "id": "window_09",
+      "difficulty": "window_function",
+      "question": "Show the top supplier per nation by revenue.",
+      "generated_sql": "WITH regional_revenue AS (\n    SELECT\n        n_name,\n        s_suppkey,\n        SUM(total_value * (1 - promo_reduction)) AS revenue\n    FROM\n        supplier\n    JOIN\n        nation ON supplier.s_nationkey = nation.n_nationkey\n    GROUP BY\n        n_name, s_suppkey\n)\nSELECT\n    r_name,\n    s_suppkey\nFROM\n    regional_revenue\nORDER BY\n    revenue DESC\nLIMIT 10",
+      "gold_sql": "WITH supplier_rev AS (SELECT n.n_name, s.s_name, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue, ROW_NUMBER() OVER (PARTITION BY n.n_name ORDER BY SUM(l.total_value * (1 - l.promo_reduction)) DESC) AS rn FROM lineitem l JOIN supplier s ON l.l_suppkey = s.s_suppkey JOIN nation n ON s.s_nationkey = n.n_nationkey GROUP BY n.n_name, s.s_name) SELECT n_name, s_name, revenue FROM supplier_rev WHERE rn = 1;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"total_value\" not found in FROM clause!\nCandidate bindings: \"s_acctbal\"\n\nLINE 5:         SUM(total_value * (1 - promo_reduction)) AS revenue\n                    ^"
+    },
+    {
+      "id": "window_10",
+      "difficulty": "window_function",
+      "question": "Show quarterly revenue for 1995 with quarter-over-quarter growth.",
+      "generated_sql": "WITH quarterly_revenue AS (\n    SELECT \n        YEAR(o_orderdate) AS year,\n        QUARTER(o_orderdate) AS quarter,\n        SUM(total_value * (1 - promo_reduction)) AS revenue\n    FROM \n        orders\n    WHERE \n        YEAR(o_orderdate) = 1995\n    GROUP BY \n        YEAR(o_orderdate), QUARTER(o_orderdate)\n),\nquarter_over_quarter_growth AS (\n    SELECT \n        year,\n        quarter,\n        revenue,\n        LAG(revenue) OVER (PARTITION BY year ORDER BY quarter) AS last_quarter_revenue,\n        (revenue - LAG(revenue) OVER (PARTITION BY year ORDER BY quarter)) / LAG(revenue) OVER (PARTITION BY year ORDER BY quarter) * 100 AS growth_percentage\n    FROM \n        quarterly_revenue\n)\nSELECT \n    year,\n    quarter,\n    revenue,\n    growth_percentage\nFROM \n    quarter_over_quarter_growth\nORDER BY \n    year, quarter;",
+      "gold_sql": "WITH quarterly AS (SELECT EXTRACT(QUARTER FROM o.o_orderdate) AS quarter, SUM(l.total_value * (1 - l.promo_reduction)) AS revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey WHERE EXTRACT(YEAR FROM o.o_orderdate) = 1995 GROUP BY EXTRACT(QUARTER FROM o.o_orderdate)) SELECT quarter, revenue, LAG(revenue) OVER (ORDER BY quarter) AS prev_quarter, ROUND(((revenue - LAG(revenue) OVER (ORDER BY quarter)) / LAG(revenue) OVER (ORDER BY quarter)) * 100, 2) AS qoq_growth FROM quarterly ORDER BY quarter;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Referenced column \"total_value\" not found in FROM clause!\nCandidate bindings: \"o_totalprice\", \"o_orderdate\", \"o_orderstatus\", \"o_comment\", \"o_orderkey\"\n\nLINE 5:         SUM(total_value * (1 - promo_reduction)) AS revenue\n                    ^"
+    },
+    {
+      "id": "sim_01",
+      "difficulty": "simulation",
+      "question": "What if we increased the discount by 10%? How would that affect total revenue?",
+      "generated_sql": "WITH increased_discount AS (\n    SELECT \n        o_orderkey,\n        o_orderdate,\n        o_totalprice,\n        o_orderpriority,\n        o_clerk,\n        o_shippriority,\n        o_comment,\n        l_orderkey,\n        l_partkey,\n        l_suppkey,\n        l_linenumber,\n        l_quantity,\n        l_extendedprice,\n        l_discount,\n        l_tax,\n        l_returnflag,\n        l_linestatus,\n        l_shipdate,\n        l_commitdate,\n        l_receiptdate,\n        l_shipinstruct,\n        l_shipmode,\n        l_comment,\n        promo_reduction,\n        total_value,\n        (total_value * (1 - promo_reduction)) AS revenue\n    FROM \n        orders\n    JOIN \n        lineitem ON orders.o_orderkey = lineitem.l_orderkey\n    WHERE \n        o_orderpriority = '1'\n)\nSELECT \n    r_name,\n    SUM(revenue) AS original_value,\n    SUM(revenue * 1.1) AS simulated_value,\n    SUM(revenue * 1.1) - SUM(revenue) AS difference,\n    ROUND(((SUM(revenue * 1.1) - SUM(revenue)) / SUM(revenue)) * 100, 2) AS pct_change\nFROM \n    increased_discount\nJOIN \n    region ON increased_discount.o_orderdate BETWEEN region.r_fromdate AND region.r_todate\nGROUP BY \n    r_name;",
+      "gold_sql": "WITH original AS (SELECT SUM(total_value * (1 - promo_reduction)) AS original_revenue FROM lineitem), simulated AS (SELECT SUM(total_value * (1 - LEAST(promo_reduction * 1.1, 1.0))) AS simulated_revenue FROM lineitem) SELECT o.original_revenue, s.simulated_revenue, s.simulated_revenue - o.original_revenue AS difference, ROUND(((s.simulated_revenue - o.original_revenue) / o.original_revenue) * 100, 2) AS pct_change FROM original o CROSS JOIN simulated s;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Table \"region\" does not have a column named \"r_fromdate\"\n\nCandidate bindings: : \"r_name\"\n\nLINE 45:     region ON increased_discount.o_orderdate BETWEEN region.r_fromdate AND region.r_todate\n                                                              ^"
+    },
+    {
+      "id": "sim_02",
+      "difficulty": "simulation",
+      "question": "Simulate a 5% price increase on all line items and show revenue by region.",
+      "generated_sql": "WITH price_increase AS (\n    SELECT l_orderkey, l_extendedprice, l_discount, l_returnflag, l_linestatus, l_shipdate, l_commitdate, l_receiptdate, l_shipinstruct, l_shipmode, l_comment, promo_reduction, total_value\n    FROM lineitem\n    WHERE l_extendedprice * (1 - promo_reduction) * 1.05 > 0\n),\nrevenue_by_region AS (\n    SELECT r_name, SUM(l_extendedprice * (1 - promo_reduction) * 1.05) AS revenue\n    FROM lineitem\n    JOIN orders ON lineitem.l_orderkey = orders.o_orderkey\n    JOIN customer ON orders.o_custkey = customer.c_custkey\n    JOIN nation ON customer.c_nationkey = nation.n_nationkey\n    JOIN region ON nation.n_regionkey = region.r_regionkey\n    GROUP BY r_name\n)\nSELECT r_name, revenue, revenue * 100 / (SELECT MAX(revenue) FROM revenue_by_region) AS pct_change\nFROM revenue_by_region",
+      "gold_sql": "WITH original AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS original_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name), simulated AS (SELECT r.r_name, SUM(l.total_value * 1.05 * (1 - l.promo_reduction)) AS simulated_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT o.r_name, o.original_revenue, s.simulated_revenue, s.simulated_revenue - o.original_revenue AS difference, ROUND(((s.simulated_revenue - o.original_revenue) / o.original_revenue) * 100, 2) AS pct_change FROM original o JOIN simulated s ON o.r_name = s.r_name ORDER BY o.original_revenue DESC;",
+      "rows_returned": 5,
+      "match_type": "mismatch",
+      "match_details": "Mismatch: gold has 5 rows x 5 cols (['r_name', 'original_revenue', 'simulated_revenue', 'difference', 'pct_change']), agent has 5 rows x 3 cols (['r_name', 'revenue', 'pct_change'])",
+      "status": "FAIL",
+      "failure_category": "wrong_result"
+    },
+    {
+      "id": "sim_03",
+      "difficulty": "simulation",
+      "question": "What if we increased the discount by 15% for the EUROPE region only? Show revenue by region.",
+      "generated_sql": "WITH regional_revenue AS (\n    SELECT \n        r_name,\n        SUM(l_extendedprice * (1 - l_discount)) AS revenue\n    FROM \n        lineitem l\n    JOIN \n        orders o ON l.o_orderkey = o.o_orderkey\n    JOIN \n        customer c ON o.o_custkey = c.c_custkey\n    JOIN \n        nation n ON c.c_nationkey = n.n_nationkey\n    JOIN \n        region r ON n.n_regionkey = r.r_regionkey\n    WHERE \n        r_name = 'EUROPE'\n    GROUP BY \n        r_name\n)\nSELECT \n    r_name,\n    original_value,\n    simulated_value,\n    difference,\n    ROUND(((simulated - original) / original) * 100, 2) AS pct_change\nFROM \n    regional_revenue\nUNION ALL\nWITH regional_revenue AS (\n    SELECT \n        r_name,\n        SUM(l_extendedprice * (1 - l_discount)) AS revenue\n    FROM \n        lineitem l\n    JOIN \n        orders o ON l.o_orderkey = o.o_orderkey\n    JOIN \n        customer c ON o.o_custkey = c.c_custkey\n    JOIN \n        nation n ON c.c_nationkey = n.n_nationkey\n    JOIN \n        region r ON n.n_regionkey = r.r_regionkey\n    WHERE \n        r_name = 'EUROPE'\n    GROUP BY \n        r_name\n)\nSELECT \n    r_name,\n    original_value,\n    simulated_value,\n    difference,\n    ROUND(((simulated - original) / original) * 100, 2) AS pct_change\nFROM \n    regional_revenue\nUNION ALL\nWITH regional_revenue AS (\n    SELECT \n        r_name,\n        SUM(l_extendedprice * (1 - l_discount)) AS revenue\n    FROM \n        lineitem l\n    JOIN \n        orders o ON l.o_orderkey = o.o_orderkey\n    JOIN \n        customer c ON o.o_custkey = c.c_custkey\n    JOIN \n        nation n ON c.c_nationkey = n.n_nationkey\n    JOIN \n        region r ON n.n_regionkey = r.r_regionkey\n    WHERE \n        r_name = 'EUROPE'\n    GROUP BY \n        r_name\n)\nSELECT \n    r_name,\n    original_value,\n    simulated_value,\n    difference,\n    ROUND(((simulated - original) / original",
+      "gold_sql": "WITH original AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS original_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name), simulated AS (SELECT r.r_name, SUM(l.total_value * (1 - CASE WHEN r.r_name = 'EUROPE' THEN LEAST(l.promo_reduction * 1.15, 1.0) ELSE l.promo_reduction END)) AS simulated_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT o.r_name, o.original_revenue, s.simulated_revenue, s.simulated_revenue - o.original_revenue AS difference, ROUND(((s.simulated_revenue - o.original_revenue) / o.original_revenue) * 100, 2) AS pct_change FROM original o JOIN simulated s ON o.r_name = s.r_name ORDER BY o.r_name;",
+      "status": "FAIL",
+      "failure_category": "syntax_error",
+      "error": "Parser Error: syntax error at or near \"WITH\"\n\nLINE 29: WITH regional_revenue AS (\n         ^"
+    },
+    {
+      "id": "sim_04",
+      "difficulty": "simulation",
+      "question": "What if we increased the price by 5% and reduced the discount by 3%? Show revenue by region.",
+      "generated_sql": "WITH regional_revenue AS (\n    SELECT \n        r_name,\n        SUM(l_extendedprice * (1 - l_discount) * 1.05 * 0.97) AS revenue\n    FROM \n        lineitem l\n    JOIN \n        orders o ON l.o_orderkey = o.o_orderkey\n    JOIN \n        customer c ON o.o_custkey = c.c_custkey\n    JOIN \n        nation n ON c.c_nationkey = n.n_nationkey\n    JOIN \n        region r ON n.n_regionkey = r.r_regionkey\n    WHERE \n        o.o_orderstatus = 'F'\n    GROUP BY \n        r_name\n)\nSELECT \n    r_name,\n    original_value,\n    simulated_value,\n    difference,\n    ROUND(((simulated_value - original_value) / original_value) * 100, 2) AS pct_change\nFROM \n    regional_revenue\nORDER BY \n    r_name;",
+      "gold_sql": "WITH original AS (SELECT r.r_name, SUM(l.total_value * (1 - l.promo_reduction)) AS original_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name), simulated AS (SELECT r.r_name, SUM(l.total_value * 1.05 * (1 - GREATEST(l.promo_reduction * 0.97, 0.0))) AS simulated_revenue FROM lineitem l JOIN orders o ON l.l_orderkey = o.o_orderkey JOIN customer c ON o.o_custkey = c.c_custkey JOIN nation n ON c.c_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name) SELECT o.r_name, o.original_revenue, s.simulated_revenue, s.simulated_revenue - o.original_revenue AS difference, ROUND(((s.simulated_revenue - o.original_revenue) / o.original_revenue) * 100, 2) AS pct_change FROM original o JOIN simulated s ON o.r_name = s.r_name ORDER BY o.r_name;",
+      "status": "FAIL",
+      "failure_category": "wrong_columns",
+      "error": "Binder Error: Table \"l\" does not have a column named \"o_orderkey\"\n\nCandidate bindings: : \"l_orderkey\"\n\nLINE 8:         orders o ON l.o_orderkey = o.o_orderkey\n                            ^"
+    },
+    {
+      "id": "sim_05",
+      "difficulty": "simulation",
+      "question": "How sensitive is total revenue to discount changes? Test discount increases of 5%, 10%, 15%, and 20%.",
+      "generated_sql": "SELECT c_name, n_name, r_name, SUM(total_value * (1 - promo_reduction)) AS revenue\nFROM customer AS c\nJOIN orders AS o ON c.c_custkey = o.o_custkey\nJOIN lineitem AS l ON o.o_orderkey = l.l_orderkey\nJOIN supplier AS s ON l.l_suppkey = s.s_suppkey\nJOIN nation AS n ON s.s_nationkey = n.n_nationkey\nJOIN region AS r ON n.n_regionkey = r.r_regionkey\nJOIN partsupp AS ps ON l.l_partkey = ps.ps_partkey\nWHERE l_returnflag = 'N'\nGROUP BY c.c_name, n.n_name, r.r_name\nORDER BY revenue DESC",
+      "gold_sql": null,
+      "rows_returned": 161999,
+      "status": "PASS",
+      "match_type": "execution_only"
+    }
+  ]
+}

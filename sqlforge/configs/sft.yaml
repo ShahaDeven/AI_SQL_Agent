@@ -15,9 +15,11 @@ target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
 
 # --- sequence / batching ---
 max_seq_len: 2048                # our system prompt + question + SQL is ~1.2k tokens
-per_device_train_batch_size: 8
-per_device_eval_batch_size: 8
-gradient_accumulation_steps: 2   # effective batch 16
+# batch 4 (not 8): at seq 2048 + Qwen's 152k vocab, the cross-entropy logits tensor
+# OOMs a 48GB card at batch 8. batch 4 x accum 4 keeps the effective batch at 16.
+per_device_train_batch_size: 4
+per_device_eval_batch_size: 4
+gradient_accumulation_steps: 4   # effective batch 16
 gradient_checkpointing: true
 use_flash_attn: false            # set true only if flash-attn is installed; sdpa is fine
 
