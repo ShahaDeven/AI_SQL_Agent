@@ -5,8 +5,7 @@
 
 __pycache__/
 *.pyc
-.venv/
-.venv310/
+.venv*
 venv/
 env/
 dist/

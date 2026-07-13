@@ -53,9 +53,12 @@ def sample_all(conversations, model, adapter, k, temperature, max_tokens,
     from vllm.lora.request import LoRARequest
 
     print(f"Loading SFT model: {model} + adapter {adapter}")
+    # enable_prefix_caching: the ~1.2k-token system prompt is shared across every
+    # question, so caching that prefix makes prefill near-free (huge speedup here).
     llm = LLM(model=model, dtype="bfloat16", max_model_len=max_model_len,
               gpu_memory_utilization=gpu_mem, trust_remote_code=True,
-              enable_lora=True, max_lora_rank=max_lora_rank)
+              enable_lora=True, max_lora_rank=max_lora_rank,
+              enable_prefix_caching=True)
     sp = SamplingParams(n=k, temperature=temperature, top_p=0.95,
                         max_tokens=max_tokens, seed=0)
     lora = LoRARequest("sqlforge-sft", 1, adapter)
