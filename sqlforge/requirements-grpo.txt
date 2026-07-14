@@ -1,0 +1,22 @@
+# SQLForge Phase 4 — GRPO deps. SEPARATE venv from .venv-train, because GRPOTrainer
+# needs trl>=0.14 (the .venv-train trl==0.12.2 predates GRPO).
+#
+# IMPORTANT: install ON TOP OF the RunPod PyTorch template's torch — do NOT install or
+# upgrade torch here (a too-new torch vs the pod's CUDA driver is what broke Phase 0):
+#   python -m venv .venv-grpo && source .venv-grpo/bin/activate
+#   pip install --no-cache-dir -r sqlforge/requirements-grpo.txt
+#
+# No vLLM: grpo.py uses HF generate (use_vllm: false), so we avoid vLLM's torch pin
+# entirely. The reward runs SQL, so duckdb + pandas live here too.
+
+trl==0.15.2
+transformers==4.49.0
+peft==0.14.0
+accelerate==1.4.0
+datasets==3.2.0
+duckdb
+pandas
+wandb
+sentencepiece
+protobuf
+pyyaml

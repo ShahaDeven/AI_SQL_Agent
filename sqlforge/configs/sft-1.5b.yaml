@@ -1,0 +1,47 @@
+# SQLForge — quick SFT of the 1.5B to warm-start GRPO (Phase 4).
+# Same recipe as the 7B SFT, just the small model. Runs with the EXISTING sft.py in the
+# .venv-train env (trl==0.12.2). The 1.5B is small, so per-device batch can go to 8.
+#   source .venv-train/bin/activate
+#   python sqlforge/train/sft.py --config sqlforge/configs/sft-1.5b.yaml
+
+model_name: Qwen/Qwen2.5-Coder-1.5B-Instruct
+train_file: sqlforge/data/datasets/train.jsonl
+val_file: sqlforge/data/datasets/val.jsonl
+output_dir: /workspace/sqlforge-sft-1.5b     # GRPO's init_adapter points here
+
+# --- LoRA (bf16, no bitsandbytes) ---
+lora_r: 32
+lora_alpha: 64
+lora_dropout: 0.05
+target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+# --- sequence / batching ---
+max_seq_len: 2048
+per_device_train_batch_size: 8       # 1.5B fits a bigger batch than the 7B
+per_device_eval_batch_size: 8
+gradient_accumulation_steps: 2       # effective batch 16
+gradient_checkpointing: true
+use_flash_attn: false
+
+# --- optimizer / schedule ---
+learning_rate: 0.0002
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+num_train_epochs: 2
+weight_decay: 0.0
+max_grad_norm: 1.0
+optim: adamw_torch
+bf16: true
+
+# --- logging / eval / checkpoints ---
+logging_steps: 10
+eval_strategy: steps
+eval_steps: 50
+save_strategy: steps
+save_steps: 100
+save_total_limit: 2
+seed: 42
+
+# --- W&B ---
+wandb_project: sqlforge-sft
+run_name: qwen1.5b-bf16-lora-r32-ep2

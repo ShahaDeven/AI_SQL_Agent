@@ -1,0 +1,50 @@
+# SQLForge GRPO — RL with a verifiable execution reward on Qwen2.5-Coder-1.5B (A40 48GB).
+# The reward = the SAME DuckDB result-set grader behind the 74.5% eval (correct 1.0,
+# valid-but-wrong 0.2, invalid/empty 0.0). No learned reward model, no API cost.
+
+model_name: Qwen/Qwen2.5-Coder-1.5B-Instruct
+# Warm start from a quick 1.5B SFT (train it first with sft.py + sft-1.5b.yaml).
+# Set to null to run pure RL from the base model instead (slower to learn; rewards sparse).
+init_adapter: /workspace/sqlforge-sft-1.5b
+train_file: sqlforge/data/datasets/train.jsonl
+output_dir: /workspace/sqlforge-grpo-1.5b        # on the persistent volume
+db_path: /workspace/AI_SQL_Agent/data/sql_agent_demo.db
+
+# --- LoRA (smaller model, same recipe shape) ---
+lora_r: 32
+lora_alpha: 64
+lora_dropout: 0.05
+target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+# --- GRPO ---
+# per_device_train_batch_size counts COMPLETIONS and must be divisible by num_generations.
+# 16 completions / 8 per group = 2 prompts per device step; accum 2 => 4 prompts/step.
+num_generations: 8
+per_device_train_batch_size: 16
+gradient_accumulation_steps: 2
+max_prompt_length: 1536
+max_completion_length: 320          # SQL answers are short; keep generation cheap
+temperature: 0.9                    # exploration for the rollouts
+beta: 0.04                          # KL coefficient to the frozen warm-start reference
+partial_reward: 0.2                 # credit for valid-but-wrong SQL (dense-ish signal)
+gradient_checkpointing: true
+
+# --- optimizer / schedule ---
+learning_rate: 0.000001             # 1e-6 — RL is touchy; keep it small
+lr_scheduler_type: constant
+warmup_ratio: 0.03
+num_train_epochs: 1
+max_steps: 500                      # ~500 steps is plenty to show the lift; bounds pod time
+optim: adamw_torch
+use_vllm: false                     # HF generate — no vLLM in the training env
+
+# --- logging / checkpoints ---
+logging_steps: 5
+save_strategy: steps
+save_steps: 100
+save_total_limit: 2
+seed: 42
+
+# --- W&B ---
+wandb_project: sqlforge-grpo
+run_name: qwen1.5b-grpo-exec-reward
