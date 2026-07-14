@@ -30,7 +30,10 @@ partial_reward: 0.2                 # credit for valid-but-wrong SQL (dense-ish 
 gradient_checkpointing: true
 
 # --- optimizer / schedule ---
-learning_rate: 0.000001             # 1e-6 — RL is touchy; keep it small
+# 5e-6. The first attempt at 1e-6 was a measured no-op: 100 steps moved the eval by
+# literally 0 queries (39/55 before and after), so the updates were a rounding error.
+# 5x is still conservative for LoRA RL, but enough to actually test whether GRPO helps.
+learning_rate: 0.000005
 lr_scheduler_type: constant
 warmup_ratio: 0.03
 num_train_epochs: 1
