@@ -183,9 +183,21 @@ def main():
     )
 
     trainer.train(resume_from_checkpoint=args.resume)
-    trainer.save_model(cfg["output_dir"])
+    trainer.save_model(cfg["output_dir"])          # raw LoRA (needed for --resume)
     tok.save_pretrained(cfg["output_dir"])
-    print(f"\nDone. GRPO LoRA adapter + tokenizer saved to {cfg['output_dir']}")
+    print(f"\nGRPO LoRA adapter saved to {cfg['output_dir']}")
+
+    # CRITICAL: when warm-starting, the LoRA above was trained on top of the SFT-MERGED base,
+    # so it is meaningless against the raw base — evaluating it with `--adapter` silently
+    # scores at BASE level. Write a standalone merged model (base+SFT+GRPO) that evaluates
+    # correctly with `--model`. (Same reconstruction as sqlforge/train/merge_grpo.py.)
+    if init_adapter:
+        merged_dir = cfg["output_dir"].rstrip("/") + "-merged"
+        merged = trainer.model.merge_and_unload()
+        merged.save_pretrained(merged_dir, safe_serialization=True)
+        tok.save_pretrained(merged_dir)
+        print(f"Merged model (base+SFT+GRPO) saved to {merged_dir}")
+        print(f"EVALUATE THIS ONE with --model {merged_dir}  (do NOT pass --adapter)")
 
 
 if __name__ == "__main__":
