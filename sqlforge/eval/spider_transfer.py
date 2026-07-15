@@ -78,6 +78,30 @@ def load_schema(path: str) -> str:
     return "\n\n".join(r[0].strip() for r in rows if r[0])
 
 
+def dedup_columns(df):
+    """Make column labels unique.
+
+    Spider gold SQL routinely selects the same name twice (e.g. `SELECT T1.name, T2.name`),
+    which yields duplicate labels; `df[col]` then returns a DataFrame instead of a Series and
+    breaks the shared grader's normalize_df. We fix it HERE rather than in eval_compare.py —
+    that grader produced every other number in this project and must not change.
+    Applied identically to gold and prediction, so the comparison stays fair.
+    """
+    if df is None or not df.columns.duplicated().any():
+        return df
+    df = df.copy()
+    seen, cols = {}, []
+    for c in map(str, df.columns):
+        if c in seen:
+            seen[c] += 1
+            cols.append(f"{c}__{seen[c]}")
+        else:
+            seen[c] = 0
+            cols.append(c)
+    df.columns = cols
+    return df
+
+
 def execute_sqlite(sql: str, path: str, timeout: float = 5.0):
     """Execute read-only with a wall-clock guard. Returns (DataFrame|None, err|None)."""
     clean = sql.replace("```sql", "").replace("```", "").strip()
@@ -186,7 +210,14 @@ def main():
                             "pred_sql": sql, "status": "invalid_sql", "error": perr})
             continue
         valid += 1
-        cmp = compare_results(gold_df, pred_df)
+        # Never let one pathological result set kill a whole (expensive) generation run.
+        try:
+            cmp = compare_results(dedup_columns(gold_df), dedup_columns(pred_df))
+        except Exception as e:  # noqa: BLE001
+            fails["compare_error"] += 1
+            results.append({**{k: r[k] for k in ("db_id", "question", "gold")},
+                            "pred_sql": sql, "status": "compare_error", "error": str(e)[:200]})
+            continue
         if cmp["match"]:
             correct += 1
             results.append({**{k: r[k] for k in ("db_id", "question", "gold")},
