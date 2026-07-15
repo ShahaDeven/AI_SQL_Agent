@@ -1,0 +1,306 @@
+{
+  "counts": {
+    "Base 7B": {
+      "Categorical literal": 4,
+      "Output shape": 12,
+      "Schema hallucination": 5,
+      "Revenue formula": 2,
+      "Wrong values": 2
+    },
+    "+ SFT": {
+      "Categorical literal": 5,
+      "Output shape": 7,
+      "Wrong values": 1,
+      "Schema hallucination": 1
+    },
+    "+ DPO": {
+      "Categorical literal": 5,
+      "Output shape": 7,
+      "Schema hallucination": 1,
+      "Wrong values": 2
+    }
+  },
+  "accuracy": {
+    "Base 7B": "54.5% accuracy",
+    "+ SFT": "74.5% accuracy",
+    "+ DPO": "72.7% accuracy"
+  },
+  "per_query": {
+    "Base 7B": [
+      {
+        "id": "join_07",
+        "tier": "single_join",
+        "category": "Categorical literal"
+      },
+      {
+        "id": "join_10",
+        "tier": "single_join",
+        "category": "Categorical literal"
+      },
+      {
+        "id": "agg_01",
+        "tier": "aggregation",
+        "category": "Output shape"
+      },
+      {
+        "id": "agg_03",
+        "tier": "aggregation",
+        "category": "Schema hallucination"
+      },
+      {
+        "id": "agg_06",
+        "tier": "aggregation",
+        "category": "Output shape"
+      },
+      {
+        "id": "agg_08",
+        "tier": "aggregation",
+        "category": "Schema hallucination"
+      },
+      {
+        "id": "agg_10",
+        "tier": "aggregation",
+        "category": "Revenue formula"
+      },
+      {
+        "id": "multi_01",
+        "tier": "multi_hop",
+        "category": "Wrong values"
+      },
+      {
+        "id": "multi_03",
+        "tier": "multi_hop",
+        "category": "Output shape"
+      },
+      {
+        "id": "multi_06",
+        "tier": "multi_hop",
+        "category": "Output shape"
+      },
+      {
+        "id": "multi_07",
+        "tier": "multi_hop",
+        "category": "Categorical literal"
+      },
+      {
+        "id": "multi_09",
+        "tier": "multi_hop",
+        "category": "Output shape"
+      },
+      {
+        "id": "multi_10",
+        "tier": "multi_hop",
+        "category": "Categorical literal"
+      },
+      {
+        "id": "window_02",
+        "tier": "window_function",
+        "category": "Output shape"
+      },
+      {
+        "id": "window_04",
+        "tier": "window_function",
+        "category": "Revenue formula"
+      },
+      {
+        "id": "window_05",
+        "tier": "window_function",
+        "category": "Output shape"
+      },
+      {
+        "id": "window_06",
+        "tier": "window_function",
+        "category": "Output shape"
+      },
+      {
+        "id": "window_07",
+        "tier": "window_function",
+        "category": "Output shape"
+      },
+      {
+        "id": "window_08",
+        "tier": "window_function",
+        "category": "Output shape"
+      },
+      {
+        "id": "window_09",
+        "tier": "window_function",
+        "category": "Wrong values"
+      },
+      {
+        "id": "window_10",
+        "tier": "window_function",
+        "category": "Output shape"
+      },
+      {
+        "id": "sim_01",
+        "tier": "simulation",
+        "category": "Schema hallucination"
+      },
+      {
+        "id": "sim_02",
+        "tier": "simulation",
+        "category": "Schema hallucination"
+      },
+      {
+        "id": "sim_03",
+        "tier": "simulation",
+        "category": "Schema hallucination"
+      },
+      {
+        "id": "sim_04",
+        "tier": "simulation",
+        "category": "Output shape"
+      }
+    ],
+    "+ SFT": [
+      {
+        "id": "join_07",
+        "tier": "single_join",
+        "category": "Categorical literal"
+      },
+      {
+        "id": "join_10",
+        "tier": "single_join",
+        "category": "Categorical literal"
+      },
+      {
+        "id": "multi_03",
+        "tier": "multi_hop",
+        "category": "Output shape"
+      },
+      {
+        "id": "multi_06",
+        "tier": "multi_hop",
+        "category": "Output shape"
+      },
+      {
+        "id": "multi_07",
+        "tier": "multi_hop",
+        "category": "Categorical literal"
+      },
+      {
+        "id": "multi_09",
+        "tier": "multi_hop",
+        "category": "Categorical literal"
+      },
+      {
+        "id": "multi_10",
+        "tier": "multi_hop",
+        "category": "Categorical literal"
+      },
+      {
+        "id": "window_05",
+        "tier": "window_function",
+        "category": "Output shape"
+      },
+      {
+        "id": "window_06",
+        "tier": "window_function",
+        "category": "Output shape"
+      },
+      {
+        "id": "window_07",
+        "tier": "window_function",
+        "category": "Output shape"
+      },
+      {
+        "id": "window_10",
+        "tier": "window_function",
+        "category": "Output shape"
+      },
+      {
+        "id": "sim_01",
+        "tier": "simulation",
+        "category": "Output shape"
+      },
+      {
+        "id": "sim_03",
+        "tier": "simulation",
+        "category": "Wrong values"
+      },
+      {
+        "id": "sim_05",
+        "tier": "simulation",
+        "category": "Schema hallucination"
+      }
+    ],
+    "+ DPO": [
+      {
+        "id": "join_07",
+        "tier": "single_join",
+        "category": "Categorical literal"
+      },
+      {
+        "id": "join_10",
+        "tier": "single_join",
+        "category": "Categorical literal"
+      },
+      {
+        "id": "agg_06",
+        "tier": "aggregation",
+        "category": "Output shape"
+      },
+      {
+        "id": "multi_01",
+        "tier": "multi_hop",
+        "category": "Schema hallucination"
+      },
+      {
+        "id": "multi_03",
+        "tier": "multi_hop",
+        "category": "Output shape"
+      },
+      {
+        "id": "multi_06",
+        "tier": "multi_hop",
+        "category": "Output shape"
+      },
+      {
+        "id": "multi_07",
+        "tier": "multi_hop",
+        "category": "Categorical literal"
+      },
+      {
+        "id": "multi_09",
+        "tier": "multi_hop",
+        "category": "Categorical literal"
+      },
+      {
+        "id": "multi_10",
+        "tier": "multi_hop",
+        "category": "Categorical literal"
+      },
+      {
+        "id": "window_06",
+        "tier": "window_function",
+        "category": "Output shape"
+      },
+      {
+        "id": "window_07",
+        "tier": "window_function",
+        "category": "Output shape"
+      },
+      {
+        "id": "window_10",
+        "tier": "window_function",
+        "category": "Output shape"
+      },
+      {
+        "id": "sim_01",
+        "tier": "simulation",
+        "category": "Output shape"
+      },
+      {
+        "id": "sim_03",
+        "tier": "simulation",
+        "category": "Wrong values"
+      },
+      {
+        "id": "sim_05",
+        "tier": "simulation",
+        "category": "Wrong values"
+      }
+    ]
+  }
+}

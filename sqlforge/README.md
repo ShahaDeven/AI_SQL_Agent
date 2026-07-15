@@ -12,6 +12,11 @@ Every number below comes from the *same* result-set grader that scores the produ
 
 - **Supervised fine-tuning did nearly all the work.** The 7B went **54.5% → 74.5%** (+20.0pp),
   closing **57% of the gap** to Claude. The 1.5B went **32.7% → 70.9%** (+38.2pp).
+- **Fine-tuning taught conventions, not SQL — and cost nothing in general ability.** The base model
+  already scores **82.4% on Spider** while scoring **54.5% here**: this benchmark is hard because of
+  *domain conventions*, not SQL syntax. After SFT, Spider is **82.7%** — **+20pp in-domain for
+  +0.3pp (i.e. zero, within noise) on 1,032 held-out queries across 20 unseen databases.**
+  See [Generalization](#generalization-what-did-fine-tuning-actually-teach).
 - **A 1.5B matched a 7B on 5 of 6 query tiers.** The entire remaining 3.6pp gap between them is
   the *simulation* tier — see [The scale finding](#the-scale-finding-where-7b-actually-buys-you-something).
 - **Neither DPO nor GRPO beat SFT.** DPO (7B) was a wash (−1 query); GRPO (1.5B) was a no-op at
@@ -107,6 +112,47 @@ model a hypothetical (e.g. "what if we cut promo discounts by 5% in Europe?").
 That's the honest answer to "do you need the bigger model?" — **for 50 of 55 queries, no.** A 1.5B
 that fits on a laptop GPU gets you to within 4 points. Scale is buying multi-step counterfactual
 composition, and nothing else measurable on this suite.
+
+---
+
+## Generalization: what did fine-tuning actually teach?
+
+The 55-query suite can't answer this — it rewards exactly the conventions we trained on. So both
+models were run zero-shot on **Spider dev** (SQLite, 20 databases none of them ever saw), with an
+*identical generic prompt* (target schema + question, no house-style rules) and the **same
+execution-based grader**. Any delta is attributable to the weights, not the prompt.
+
+| Model | Spider dev accuracy | Valid SQL |
+|---|---:|---:|
+| Qwen2.5-Coder-7B base | 82.4% (850/1032) | 97.5% |
+| **Qwen2.5-Coder-7B + SFT** | **82.7% (853/1032)** | **97.7%** |
+| **Δ** | **+0.3pp** | +0.2pp |
+
+*n=1,032 (2 dev examples skipped — their gold SQL doesn't execute). SE of the difference ≈ 1.7pp.*
+
+**Two findings fall out of this table.**
+
+**1. There is no specialization cost.** A 3-query difference across 1,032 examples is far inside
+noise. The obvious risk of aggressive domain fine-tuning — catastrophic forgetting, where the model
+becomes a narrow TPC-H specialist that can't write general SQL — **did not happen.** The +20pp
+in-domain gain was effectively free.
+
+**2. The base model was never bad at SQL.** It scores **82.4% on Spider** and **54.5% here.** A
+model that competent at general Text-to-SQL wasn't failing 45% of this suite for lack of syntax or
+reasoning — it was failing because it didn't know that churn tiers are spelled `'HIGH_RISK'`, that
+revenue comes from `total_value`/`promo_reduction`, and that revenue routes through the *customer's*
+region rather than the supplier's.
+
+**So the honest description of what SFT bought is: it taught the model this schema's conventions —
+not how to write SQL.** The intact Spider score is the evidence, and it explains the rest of the
+project:
+
+- **Why the residual failures are literal/output-shape bugs, not logic errors** — the reasoning was
+  never the problem.
+- **Why a 1.5B matched the 7B on 5 of 6 tiers** — conventions are cheap to learn at any scale;
+  multi-step counterfactual composition isn't.
+- **Why DPO and GRPO had nothing to grip** — the conventions were already learned by SFT, and what
+  remained was capability, which preference optimization can't teach.
 
 ---
 
@@ -226,19 +272,44 @@ Deliberately weighted toward the tiers with headroom; `simple_select` was alread
 
 ---
 
-## Residual failures (7B SFT, 14 misses)
+## Failure modes across training stages
 
-| Bucket | Count | Example |
-|---|---:|---|
-| **Categorical literal** | 5 | `churn_risk='High'` instead of `'HIGH_RISK'` → 0 rows |
-| **Output shape** | ~5 | extra/missing/renamed columns in window queries |
-| **Simulation format** | ~3 | what-if CTE structure diverges from the expected result shape |
-| Wrong tables | 1 | non-canonical join path |
+Counting misses says *how much* improved. Bucketing them by cause says *what* the training
+actually taught — and it's the clearest evidence for the conventions-not-SQL thesis.
 
-The literal bug is the single highest-leverage remaining fix — 5 queries (**+9.1pp**, which would
-put the 7B at ~83.6%). Notably, **DPO could not fix it**, which is what motivated the analysis
-above. The right fix is upstream: more SFT coverage of eval-style phrasings for that column, or a
-schema-aware literal validator in the agent's self-healing loop.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="sqlforge/eval/figures/failure_modes_dark.png">
+  <img alt="Stacked bar chart of 7B failure modes across base, +SFT and +DPO: total failures fall from 25 to 14, driven by schema hallucination (5→1), revenue formula (2→0) and output shape (12→7), while the categorical-literal bug rises from 4 to 5 and survives DPO." src="sqlforge/eval/figures/failure_modes_light.png">
+</picture>
+
+| Failure mode | Base 7B | + SFT | + DPO |
+|---|---:|---:|---:|
+| Schema hallucination — invented column/table/type, SQL won't execute | 5 | **1** | 1 |
+| Categorical literal — `churn_risk='High'` vs `'HIGH_RISK'` → 0 rows | 4 | **5** | 5 |
+| Revenue formula — superseded `l_extendedprice`/`l_discount` | 2 | **0** | 0 |
+| Output shape — right rows, wrong columns | 12 | **7** | 7 |
+| Wrong values — genuine logic errors | 2 | **1** | 2 |
+| **Total failures** | **25** | **14** | **15** |
+
+*Generated by `sqlforge/eval/error_analysis.py`; per-query assignments in
+`sqlforge/eval/figures/failure_modes.json` so every segment is auditable.*
+
+**SFT erased precisely the categories it was trained to teach.** Revenue formula went to **zero**.
+Schema hallucination — the base model inventing columns like `region_name` or `l_shipnation` —
+collapsed **5 → 1**. Output shape, the biggest single bucket, fell **12 → 7**. Those three are
+*conventions*, and they account for essentially the entire +20pp.
+
+**And exactly one category refused to move — the one that matters most.** The categorical-literal
+bug went **4 → 5**: SFT made it marginally *worse*, and DPO — built specifically to kill it, with
+285 hand-constructed preference pairs whose `rejected` side was the corrupted literal — left it at
+**5**. It is now **36% of all remaining failures** (5 of 14) and the highest-leverage fix on the
+board: solving it alone is **+9.1pp**, putting the 7B at ~83.6%.
+
+Why it resists is the whole DPO/GRPO story in miniature: on *training* phrasings the model already
+emits `'HIGH_RISK'`, so neither on-policy mining nor gradient pressure at any β ever saw the bug —
+it only appears on novel eval phrasings, where greedy decoding falls back to the natural-language
+spelling. **The fix is upstream, not in post-training**: more SFT coverage of eval-style phrasings
+for that column, or a schema-aware literal validator in the agent's self-healing loop.
 
 ---
 
@@ -280,9 +351,9 @@ driver with *"NVIDIA driver on your system is too old (found version 12080)"*.
 
 ## Limitations
 
-- **Single benchmark, single schema.** 55 queries on one TPC-H-derived database. The house-style
-  conventions the model learned are *this* schema's conventions; zero-shot transfer to
-  BIRD/Spider is untested.
+- **Single in-domain benchmark, single schema.** 55 queries on one TPC-H-derived database.
+  Generalization is measured on Spider dev (1,032 queries / 20 databases) but not on BIRD, whose
+  larger, messier schemas are a harder test than Spider.
 - **The Claude comparison is product-vs-model**, not model-vs-model (see note above).
 - **No multi-seed runs.** Differences of ±1 query (1.8pp) are within noise — which is exactly why
   DPO's −1 is reported as a wash rather than a regression.
